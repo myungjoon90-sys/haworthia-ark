@@ -1,0 +1,9 @@
+node_modules/
+.env
+*.log
+.DS_Store
+service-account.json
+_test_render.js
+_preview_certificate.html
+_preview_register.html
+_sample_photo.svg

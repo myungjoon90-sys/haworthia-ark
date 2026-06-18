@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="360">
+  <defs>
+    <radialGradient id="bg" cx="45%" cy="38%" r="75%">
+      <stop offset="0%" stop-color="#3a7d55"/>
+      <stop offset="55%" stop-color="#1f5135"/>
+      <stop offset="100%" stop-color="#0c2417"/>
+    </radialGradient>
+  </defs>
+  <rect width="480" height="360" fill="url(#bg)"/>
+  <g transform="translate(240,210)">
+    <g fill="#bfe8cf" opacity="0.92" stroke="#0c2417" stroke-width="1.5">
+      <ellipse cx="0" cy="0" rx="120" ry="48" fill="#246b45"/>
+      <path d="M0 0 L-14 -150 L14 -150 Z"/>
+      <path d="M0 0 L-70 -120 L-44 -135 Z"/>
+      <path d="M0 0 L70 -120 L44 -135 Z"/>
+      <path d="M0 0 L-115 -60 L-92 -86 Z"/>
+      <path d="M0 0 L115 -60 L92 -86 Z"/>
+      <path d="M0 0 L-44 -140 L-18 -150 Z" fill="#d9f3e3"/>
+      <path d="M0 0 L44 -140 L18 -150 Z" fill="#d9f3e3"/>
+    </g>
+  </g>
+  <text x="240" y="345" fill="#D4AF37" font-size="14" text-anchor="middle" font-family="serif" letter-spacing="2">SAMPLE · 옵투사 만상</text>
+</svg>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>옵투사 만상 「청룡」 · 디지털 보증서 (미리보기)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root { --green:#1A3620; --green-deep:#0E1F12; --gold:#D4AF37; --gold-soft:#E8D9A0; --paper:#FBF8F0; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Noto Sans KR',sans-serif; background:radial-gradient(circle at 50% 0%, #244A2E 0%, var(--green) 45%, var(--green-deep) 100%); color:var(--paper); min-height:100vh; padding:32px 16px 60px; -webkit-font-smoothing:antialiased; }
+    .card { max-width:480px; margin:0 auto; background:linear-gradient(180deg,#1F4129 0%,#16301D 100%); border:1px solid rgba(212,175,55,0.45); border-radius:18px; box-shadow:0 30px 70px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(212,175,55,0.12); overflow:hidden; position:relative; }
+    .header { text-align:center; padding:30px 24px 18px; border-bottom:1px solid rgba(212,175,55,0.25); }
+    .brand { font-family:'Playfair Display',serif; letter-spacing:3px; font-size:13px; color:var(--gold); text-transform:uppercase; }
+    .brand .by { color:var(--gold-soft); opacity:0.8; }
+    .crest { width:42px; height:42px; margin:0 auto 12px; border:1.5px solid var(--gold); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--gold); font-size:20px; }
+    .title { font-family:'Playfair Display',serif; font-size:15px; letter-spacing:6px; color:var(--gold-soft); margin-top:10px; text-transform:uppercase; }
+    .photo-wrap { padding:26px 26px 8px; }
+    .photo-frame { border:2px solid var(--gold); border-radius:10px; padding:8px; background:rgba(0,0,0,0.25); box-shadow:0 8px 24px rgba(0,0,0,0.4); }
+    .photo-frame svg, .photo-frame img { width:100%; display:block; border-radius:6px; aspect-ratio:4/3; object-fit:cover; }
+    .variety { text-align:center; padding:18px 24px 4px; font-family:'Cormorant Garamond','Playfair Display',serif; font-size:30px; font-weight:600; color:#fff; line-height:1.2; }
+    .plant-id { text-align:center; color:var(--gold); letter-spacing:3px; font-size:14px; font-weight:500; padding-bottom:18px; }
+    .info { padding:6px 28px 4px; }
+    .row { display:flex; justify-content:space-between; gap:14px; padding:11px 0; border-bottom:1px dashed rgba(212,175,55,0.2); font-size:14px; }
+    .row:last-child { border-bottom:none; }
+    .row .k { color:var(--gold-soft); opacity:0.85; white-space:nowrap; }
+    .row .v { text-align:right; color:#fff; font-weight:400; }
+    .section-title { font-family:'Playfair Display',serif; color:var(--gold); letter-spacing:2px; font-size:13px; text-transform:uppercase; padding:22px 28px 8px; }
+    .timeline { padding:0 28px 6px; }
+    .tl-item { position:relative; padding:0 0 14px 22px; font-size:13.5px; }
+    .tl-item::before { content:''; position:absolute; left:3px; top:4px; width:9px; height:9px; border-radius:50%; background:var(--gold); box-shadow:0 0 0 3px rgba(212,175,55,0.2); }
+    .tl-item::after { content:''; position:absolute; left:7px; top:14px; bottom:0; width:1px; background:rgba(212,175,55,0.3); }
+    .tl-item:last-child::after { display:none; }
+    .tl-item .who { color:#fff; }
+    .tl-item .when { color:var(--gold-soft); opacity:0.8; font-size:12px; }
+    .message { margin:18px 24px; padding:20px; background:rgba(0,0,0,0.22); border:1px solid rgba(212,175,55,0.25); border-radius:10px; font-size:14px; line-height:1.7; color:var(--gold-soft); font-style:italic; }
+    .signature { text-align:right; padding:4px 28px 0; font-family:'Cormorant Garamond',serif; font-size:22px; color:#fff; }
+    .signature small { display:block; font-family:'Noto Sans KR'; font-size:11px; color:var(--gold-soft); letter-spacing:1px; font-style:normal; }
+    .seal-wrap { text-align:center; padding:24px 0 30px; }
+    .seal { display:inline-flex; flex-direction:column; align-items:center; justify-content:center; width:92px; height:92px; border-radius:50%; background:radial-gradient(circle at 35% 30%, #E6C75A, var(--gold) 55%, #A8821F 100%); color:var(--green-deep); box-shadow:0 6px 16px rgba(0,0,0,0.45); border:2px solid #F0E2A8; }
+    .seal .s1 { font-family:'Playfair Display',serif; font-weight:700; font-size:11px; letter-spacing:1px; }
+    .seal .s2 { font-size:9px; letter-spacing:1px; margin-top:2px; }
+    .footer { text-align:center; color:var(--gold-soft); opacity:0.6; font-size:11px; letter-spacing:1px; padding:4px 24px 28px; }
+    .status-badge { display:inline-block; margin:0 auto; font-size:11px; letter-spacing:1px; color:var(--green-deep); background:var(--gold-soft); padding:3px 12px; border-radius:20px; font-weight:700; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="header">
+      <div class="crest">&#10086;</div>
+      <div class="brand">ARK PROJECT <span class="by">BY JIYANG</span></div>
+      <div class="title">CERTIFICATE OF AUTHENTICITY</div>
+    </div>
+
+    <div class="photo-wrap">
+      <div class="photo-frame">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 360" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <radialGradient id="bg" cx="45%" cy="38%" r="75%">
+              <stop offset="0%" stop-color="#3a7d55"/>
+              <stop offset="55%" stop-color="#1f5135"/>
+              <stop offset="100%" stop-color="#0c2417"/>
+            </radialGradient>
+          </defs>
+          <rect width="480" height="360" fill="url(#bg)"/>
+          <g transform="translate(240,212)" stroke="#0c2417" stroke-width="1.5">
+            <ellipse cx="0" cy="0" rx="120" ry="48" fill="#246b45"/>
+            <path d="M0 0 L-14 -150 L14 -150 Z" fill="#bfe8cf"/>
+            <path d="M0 0 L-70 -120 L-44 -135 Z" fill="#a9dcbd"/>
+            <path d="M0 0 L70 -120 L44 -135 Z" fill="#a9dcbd"/>
+            <path d="M0 0 L-115 -60 L-92 -86 Z" fill="#9fd4b3"/>
+            <path d="M0 0 L115 -60 L92 -86 Z" fill="#9fd4b3"/>
+            <path d="M0 0 L-44 -140 L-18 -150 Z" fill="#d9f3e3"/>
+            <path d="M0 0 L44 -140 L18 -150 Z" fill="#d9f3e3"/>
+          </g>
+          <text x="240" y="346" fill="#D4AF37" font-size="14" text-anchor="middle" font-family="serif" letter-spacing="2">SAMPLE · 개체 사진 자리</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="variety">옵투사 만상 「청룡」</div>
+    <div class="plant-id">HW-2026-0001</div>
+
+    <div class="info">
+      <div class="row"><span class="k">육종가</span><span class="v">지양하월시아</span></div>
+      <div class="row"><span class="k">육종 연도</span><span class="v">2024</span></div>
+      <div class="row"><span class="k">교배 정보</span><span class="v">청광 만상 × 흑룡 옵투사</span></div>
+      <div class="row"><span class="k">DNA 마커</span><span class="v">등록 완료 (JY-DNA-0001)</span></div>
+      <div class="row"><span class="k">현재 소유자</span><span class="v">홍길동</span></div>
+      <div class="row"><span class="k">발급일</span><span class="v">2026-06-18</span></div>
+    </div>
+
+    <div class="section-title">Provenance · 소유 이력</div>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="who">최초 육종 (지양하월시아)</div>
+        <div class="when">2024</div>
+      </div>
+      <div class="tl-item">
+        <div class="who">홍길동 님 분양</div>
+        <div class="when">2026-06-18</div>
+      </div>
+    </div>
+
+    <div class="message">
+      한 점 한 점 정성으로 길러낸 귀한 하월시아입니다. 살아있는 보석을 소장해 주셔서 진심으로 감사드립니다. 오래도록 아름답게 함께하시길 바랍니다.
+    </div>
+    <div class="signature">
+      지양하월시아
+      <small>JIYANG HAWORTHIA · 대표</small>
+    </div>
+
+    <div class="seal-wrap">
+      <div class="seal">
+        <div class="s1">JIYANG</div>
+        <div class="s2">ARK · 認證</div>
+      </div>
+    </div>
+
+    <div style="text-align:center; padding-bottom:18px;">
+      <span class="status-badge">정품 인증</span>
+    </div>
+
+    <div class="footer">
+      본 보증서는 지양하월시아 방주 프로젝트의 디지털 인증서입니다.<br/>
+      무단 증식 및 불법 유통은 협의서에 따라 제한됩니다.
+    </div>
+  </div>
+</body>
+</html>

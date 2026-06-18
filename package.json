@@ -1,0 +1,20 @@
+{
+  "name": "haworthia-ark-certificate",
+  "version": "1.0.0",
+  "description": "지양하월시아 방주 프로젝트 - 디지털 보증서 발급/발송 시스템",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "googleapis": "^140.0.0"
+  }
+}
