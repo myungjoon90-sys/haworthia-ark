@@ -1,16 +1,41 @@
-
+<%
+  // ---- 표시용 데이터 정리 ----
+  const v = (x) => String(x === undefined || x === null ? '' : x).trim();
+  const 품종명 = v(plant['품종명']);
+  const 고유번호 = v(plant['고유번호']);
+  const 육종가 = v(plant['육종가']);
+  const 육종연도 = v(plant['육종연도']);
+  const 모본 = v(plant['모본']);
+  const 부본 = v(plant['부본']);
+  const 마커 = v(plant['DNA마커']);
+  const 사진 = v(plant['사진URL']);
+  const 소유자 = v(plant['소유자']);
+  const 발급일 = v(plant['발급일']);
+  const 상태 = v(plant['상태']) || '정품 인증';
+  const 교배 = (모본 && 부본) ? (모본 + ' × ' + 부본) : (모본 || 부본);
+  const 메시지 = v(plant['관리자메시지']) ||
+    '한 점 한 점 정성으로 길러낸 귀한 하월시아입니다. 살아있는 보석을 소장해 주셔서 진심으로 감사드립니다. 오래도록 아름답게 함께하시길 바랍니다.';
+  // 소유이력: "날짜 | 내용" 형식 한 줄 = 타임라인 한 칸
+  const 이력 = v(plant['소유이력']).split(/\r?\n/).map((line) => {
+    const t = line.trim();
+    if (!t) return null;
+    const idx = t.indexOf('|');
+    if (idx === -1) return { when: '', who: t };
+    return { when: t.slice(0, idx).trim(), who: t.slice(idx + 1).trim() };
+  }).filter(Boolean);
+%>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>옵투사 만상 「청룡」 · 디지털 보증서 | ARK PROJECT</title>
+  <title><%= 품종명 %> · 디지털 보증서 | ARK PROJECT</title>
   <!-- 카톡/문자 미리보기 카드 (Open Graph) -->
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="옵투사 만상 「청룡」 · 정품 디지털 보증서" />
-  <meta property="og:description" content="지양하월시아 방주 프로젝트 · HW-2026-0001 · 정품 인증" />
-  <meta property="og:url" content="https://ark.up.railway.app/certificate/HW-2026-0001" />
-  <meta property="og:image" content="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iMzYwIj4KICA8ZGVmcz4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0iYmciIGN4PSI0NSUiIGN5PSIzOCUiIHI9Ijc1JSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiMzYTdkNTUiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSI1NSUiIHN0b3AtY29sb3I9IiMxZjUxMzUiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMGMyNDE3Ii8+CiAgICA8L3JhZGlhbEdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjM2MCIgZmlsbD0idXJsKCNiZykiLz4KICA8ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgyNDAsMjEwKSI+CiAgICA8ZyBmaWxsPSIjYmZlOGNmIiBvcGFjaXR5PSIwLjkyIiBzdHJva2U9IiMwYzI0MTciIHN0cm9rZS13aWR0aD0iMS41Ij4KICAgICAgPGVsbGlwc2UgY3g9IjAiIGN5PSIwIiByeD0iMTIwIiByeT0iNDgiIGZpbGw9IiMyNDZiNDUiLz4KICAgICAgPHBhdGggZD0iTTAgMCBMLTE0IC0xNTAgTDE0IC0xNTAgWiIvPgogICAgICA8cGF0aCBkPSJNMCAwIEwtNzAgLTEyMCBMLTQ0IC0xMzUgWiIvPgogICAgICA8cGF0aCBkPSJNMCAwIEw3MCAtMTIwIEw0NCAtMTM1IFoiLz4KICAgICAgPHBhdGggZD0iTTAgMCBMLTExNSAtNjAgTC05MiAtODYgWiIvPgogICAgICA8cGF0aCBkPSJNMCAwIEwxMTUgLTYwIEw5MiAtODYgWiIvPgogICAgICA8cGF0aCBkPSJNMCAwIEwtNDQgLTE0MCBMLTE4IC0xNTAgWiIgZmlsbD0iI2Q5ZjNlMyIvPgogICAgICA8cGF0aCBkPSJNMCAwIEw0NCAtMTQwIEwxOCAtMTUwIFoiIGZpbGw9IiNkOWYzZTMiLz4KICAgIDwvZz4KICA8L2c+CiAgPHRleHQgeD0iMjQwIiB5PSIzNDUiIGZpbGw9IiNENEFGMzciIGZvbnQtc2l6ZT0iMTQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJzZXJpZiIgbGV0dGVyLXNwYWNpbmc9IjIiPlNBTVBMRSDCtyDsmLXtiKzsgqwg66eM7IOBPC90ZXh0Pgo8L3N2Zz4K" />
+  <meta property="og:title" content="<%= 품종명 %> · 정품 디지털 보증서" />
+  <meta property="og:description" content="지양하월시아 방주 프로젝트 · <%= 고유번호 %> · <%= 상태 %>" />
+  <meta property="og:url" content="<%= pageUrl %>" />
+  <% if (사진) { %><meta property="og:image" content="<%= 사진 %>" /><% } %>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet" />
   <style>
     :root { --green:#1A3620; --green-deep:#0E1F12; --gold:#D4AF37; --gold-soft:#E8D9A0; --paper:#FBF8F0; }
@@ -61,42 +86,59 @@
 
     <div class="photo-wrap">
       <div class="photo-frame">
-        
-        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iMzYwIj4KICA8ZGVmcz4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0iYmciIGN4PSI0NSUiIGN5PSIzOCUiIHI9Ijc1JSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiMzYTdkNTUiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSI1NSUiIHN0b3AtY29sb3I9IiMxZjUxMzUiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMGMyNDE3Ii8+CiAgICA8L3JhZGlhbEdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjM2MCIgZmlsbD0idXJsKCNiZykiLz4KICA8ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgyNDAsMjEwKSI+CiAgICA8ZyBmaWxsPSIjYmZlOGNmIiBvcGFjaXR5PSIwLjkyIiBzdHJva2U9IiMwYzI0MTciIHN0cm9rZS13aWR0aD0iMS41Ij4KICAgICAgPGVsbGlwc2UgY3g9IjAiIGN5PSIwIiByeD0iMTIwIiByeT0iNDgiIGZpbGw9IiMyNDZiNDUiLz4KICAgICAgPHBhdGggZD0iTTAgMCBMLTE0IC0xNTAgTDE0IC0xNTAgWiIvPgogICAgICA8cGF0aCBkPSJNMCAwIEwtNzAgLTEyMCBMLTQ0IC0xMzUgWiIvPgogICAgICA8cGF0aCBkPSJNMCAwIEw3MCAtMTIwIEw0NCAtMTM1IFoiLz4KICAgICAgPHBhdGggZD0iTTAgMCBMLTExNSAtNjAgTC05MiAtODYgWiIvPgogICAgICA8cGF0aCBkPSJNMCAwIEwxMTUgLTYwIEw5MiAtODYgWiIvPgogICAgICA8cGF0aCBkPSJNMCAwIEwtNDQgLTE0MCBMLTE4IC0xNTAgWiIgZmlsbD0iI2Q5ZjNlMyIvPgogICAgICA8cGF0aCBkPSJNMCAwIEw0NCAtMTQwIEwxOCAtMTUwIFoiIGZpbGw9IiNkOWYzZTMiLz4KICAgIDwvZz4KICA8L2c+CiAgPHRleHQgeD0iMjQwIiB5PSIzNDUiIGZpbGw9IiNENEFGMzciIGZvbnQtc2l6ZT0iMTQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJzZXJpZiIgbGV0dGVyLXNwYWNpbmc9IjIiPlNBTVBMRSDCtyDsmLXtiKzsgqwg66eM7IOBPC90ZXh0Pgo8L3N2Zz4K" alt="옵투사 만상 「청룡」" />
-        
+        <% if (사진) { %>
+        <img src="<%= 사진 %>" alt="<%= 품종명 %>" />
+        <% } else { %>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 360" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <radialGradient id="bg" cx="45%" cy="38%" r="75%">
+              <stop offset="0%" stop-color="#3a7d55"/>
+              <stop offset="55%" stop-color="#1f5135"/>
+              <stop offset="100%" stop-color="#0c2417"/>
+            </radialGradient>
+          </defs>
+          <rect width="480" height="360" fill="url(#bg)"/>
+          <g transform="translate(240,212)" stroke="#0c2417" stroke-width="1.5">
+            <ellipse cx="0" cy="0" rx="120" ry="48" fill="#246b45"/>
+            <path d="M0 0 L-14 -150 L14 -150 Z" fill="#bfe8cf"/>
+            <path d="M0 0 L-70 -120 L-44 -135 Z" fill="#a9dcbd"/>
+            <path d="M0 0 L70 -120 L44 -135 Z" fill="#a9dcbd"/>
+            <path d="M0 0 L-115 -60 L-92 -86 Z" fill="#9fd4b3"/>
+            <path d="M0 0 L115 -60 L92 -86 Z" fill="#9fd4b3"/>
+            <path d="M0 0 L-44 -140 L-18 -150 Z" fill="#d9f3e3"/>
+            <path d="M0 0 L44 -140 L18 -150 Z" fill="#d9f3e3"/>
+          </g>
+          <text x="240" y="346" fill="#D4AF37" font-size="14" text-anchor="middle" font-family="serif" letter-spacing="2">사진 준비 중</text>
+        </svg>
+        <% } %>
       </div>
     </div>
 
-    <div class="variety">옵투사 만상 「청룡」</div>
-    <div class="plant-id">HW-2026-0001</div>
+    <div class="variety"><%= 품종명 %></div>
+    <div class="plant-id"><%= 고유번호 %></div>
 
     <div class="info">
-      <div class="row"><span class="k">육종가</span><span class="v">지양하월시아</span></div>
-      <div class="row"><span class="k">육종 연도</span><span class="v">2024</span></div>
-      <div class="row"><span class="k">교배 정보</span><span class="v">청광 만상 × 흑룡 옵투사</span></div>
-      <div class="row"><span class="k">DNA 마커</span><span class="v">등록 완료 (JY-DNA-0001)</span></div>
-      <div class="row"><span class="k">현재 소유자</span><span class="v">홍길동</span></div>
-      <div class="row"><span class="k">발급일</span><span class="v">2026-06-18</span></div>
+      <% if (육종가) { %><div class="row"><span class="k">육종가</span><span class="v"><%= 육종가 %></span></div><% } %>
+      <% if (육종연도) { %><div class="row"><span class="k">육종 연도</span><span class="v"><%= 육종연도 %></span></div><% } %>
+      <% if (교배) { %><div class="row"><span class="k">교배 정보</span><span class="v"><%= 교배 %></span></div><% } %>
+      <% if (마커) { %><div class="row"><span class="k">DNA 마커</span><span class="v"><%= 마커 %></span></div><% } %>
+      <% if (소유자) { %><div class="row"><span class="k">현재 소유자</span><span class="v"><%= 소유자 %></span></div><% } %>
+      <% if (발급일) { %><div class="row"><span class="k">발급일</span><span class="v"><%= 발급일 %></span></div><% } %>
     </div>
 
-    
+    <% if (이력.length > 0) { %>
     <div class="section-title">Provenance · 소유 이력</div>
     <div class="timeline">
-      
+      <% 이력.forEach(function (item) { %>
       <div class="tl-item">
-        <div class="who">최초 육종 (지양하월시아)</div>
-        <div class="when">2024</div>
+        <div class="who"><%= item.who %></div>
+        <% if (item.when) { %><div class="when"><%= item.when %></div><% } %>
       </div>
-      
-      <div class="tl-item">
-        <div class="who">홍길동 님 분양</div>
-        <div class="when">2026-06-18</div>
-      </div>
-      
+      <% }); %>
     </div>
-    
+    <% } %>
 
-    <div class="message">한 점 한 점 정성으로 길러낸 귀한 하월시아입니다. 살아있는 보석을 소장해 주셔서 진심으로 감사드립니다. 오래도록 아름답게 함께하시길 바랍니다.</div>
+    <div class="message"><%= 메시지 %></div>
     <div class="signature">
       지양하월시아
       <small>JIYANG HAWORTHIA · 대표</small>
@@ -110,7 +152,7 @@
     </div>
 
     <div style="text-align:center; padding-bottom:18px;">
-      <span class="status-badge">정품 인증</span>
+      <span class="status-badge"><%= 상태 %></span>
     </div>
 
     <div class="footer">

@@ -52,8 +52,16 @@
       </div>
     </div>
 
-    
-    
+    <% if (error) { %>
+    <div class="alert error">⚠️ <%= error %></div>
+    <% } %>
+    <% if (result) { %>
+    <div class="alert ok">
+      ✅ <b><%= result.품종명 %></b> (<%= result.고유번호 %>) 등록 완료! 구글 시트에 저장되었습니다.<br/>
+      보증서 미리보기: <a href="<%= result.url %>" target="_blank"><%= result.url %></a><br/>
+      이제 <a href="/admin">[보증서 발송]</a> 탭에서 고객에게 발송할 수 있습니다.
+    </div>
+    <% } %>
 
     <form method="post" action="/admin/new">
       <div class="panel" style="margin-bottom:18px;">
@@ -63,19 +71,19 @@
             <th><span class="star">★</span>고유번호</th>
             <td>
               <div class="id-row">
-                <input type="text" name="고유번호" id="plantId" value="HW-2026-0007" placeholder="HW-2026-0001" />
-                <button type="button" onclick="document.getElementById('plantId').value='HW-2026-0007';">추천번호</button>
+                <input type="text" name="고유번호" id="plantId" value="<%= form['고유번호'] || '' %>" placeholder="HW-2026-0001" />
+                <button type="button" onclick="document.getElementById('plantId').value='<%= suggestedId %>';">추천번호</button>
               </div>
-              <div class="hint">보증서를 찾는 열쇠입니다. 중복 불가. (추천: HW-2026-0007)</div>
+              <div class="hint">보증서를 찾는 열쇠입니다. 중복 불가. (추천: <%= suggestedId %>)</div>
             </td>
           </tr>
           <tr>
             <th><span class="star">★</span>품종명</th>
-            <td><input type="text" name="품종명" value="" placeholder="예: 옵투사 만상 「청룡」" /></td>
+            <td><input type="text" name="품종명" value="<%= form['품종명'] || '' %>" placeholder="예: 옵투사 만상 「청룡」" /></td>
           </tr>
           <tr>
             <th>상태</th>
-            <td><input type="text" name="상태" value="정품 인증" /></td>
+            <td><input type="text" name="상태" value="<%= form['상태'] || '정품 인증' %>" /></td>
           </tr>
         </table>
       </div>
@@ -83,18 +91,18 @@
       <div class="panel" style="margin-bottom:18px;">
         <div class="section-head"><span class="dot"></span><h2>육종 정보</h2></div>
         <table class="form">
-          <tr><th>육종가</th><td><input type="text" name="육종가" value="지양하월시아" /></td></tr>
-          <tr><th>육종 연도</th><td><input type="text" name="육종연도" value="" placeholder="예: 2024" /></td></tr>
+          <tr><th>육종가</th><td><input type="text" name="육종가" value="<%= form['육종가'] || '지양하월시아' %>" /></td></tr>
+          <tr><th>육종 연도</th><td><input type="text" name="육종연도" value="<%= form['육종연도'] || '' %>" placeholder="예: 2024" /></td></tr>
           <tr>
             <th>모본 · 부본 (교배 정보)</th>
             <td>
               <div class="pair">
-                <div><input type="text" name="모본" value="" placeholder="모본 (씨받이)" /></div>
-                <div><input type="text" name="부본" value="" placeholder="부본 (꽃가루)" /></div>
+                <div><input type="text" name="모본" value="<%= form['모본'] || '' %>" placeholder="모본 (씨받이)" /></div>
+                <div><input type="text" name="부본" value="<%= form['부본'] || '' %>" placeholder="부본 (꽃가루)" /></div>
               </div>
             </td>
           </tr>
-          <tr><th>DNA 마커</th><td><input type="text" name="DNA마커" value="" placeholder="예: 등록완료 JY-0001" /></td></tr>
+          <tr><th>DNA 마커</th><td><input type="text" name="DNA마커" value="<%= form['DNA마커'] || '' %>" placeholder="예: 등록완료 JY-0001" /></td></tr>
         </table>
       </div>
 
@@ -104,13 +112,13 @@
           <tr>
             <th>사진 URL</th>
             <td>
-              <input type="text" name="사진URL" value="" placeholder="https://.../plant.jpg" />
+              <input type="text" name="사진URL" value="<%= form['사진URL'] || '' %>" placeholder="https://.../plant.jpg" />
               <div class="hint">.jpg / .png 로 끝나는 이미지 주소 권장. 비우면 '사진 준비 중'으로 표시됩니다.</div>
             </td>
           </tr>
           <tr>
             <th>관리자 메시지</th>
-            <td><textarea name="관리자메시지" placeholder="비우면 기본 환영 문구가 들어갑니다."></textarea></td>
+            <td><textarea name="관리자메시지" placeholder="비우면 기본 환영 문구가 들어갑니다."><%= form['관리자메시지'] || '' %></textarea></td>
           </tr>
         </table>
       </div>
@@ -118,11 +126,11 @@
       <div class="panel">
         <div class="section-head"><span class="dot"></span><h2>소유 정보</h2></div>
         <table class="form">
-          <tr><th>현 소유자</th><td><input type="text" name="소유자" value="" placeholder="예: 홍길동 (발송 시 자동 기록도 됩니다)" /></td></tr>
+          <tr><th>현 소유자</th><td><input type="text" name="소유자" value="<%= form['소유자'] || '' %>" placeholder="예: 홍길동 (발송 시 자동 기록도 됩니다)" /></td></tr>
           <tr>
             <th>소유자 이전 기록</th>
             <td>
-              <textarea name="소유이력" placeholder="2024 | 최초 육종 (지양하월시아)&#10;2026-06 | 홍길동 님 분양"></textarea>
+              <textarea name="소유이력" placeholder="2024 | 최초 육종 (지양하월시아)&#10;2026-06 | 홍길동 님 분양"><%= form['소유이력'] || '' %></textarea>
               <div class="hint">한 줄이 보증서의 타임라인 한 칸이 됩니다. "날짜 | 내용" 형식 권장.</div>
             </td>
           </tr>

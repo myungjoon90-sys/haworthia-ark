@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>보증서를 찾을 수 없습니다 | ARK PROJECT</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root { --gold:#D4AF37; --gold-soft:#E8D9A0; --paper:#FBF8F0; --line:rgba(212,175,55,0.22); }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Noto Sans KR',sans-serif; background:linear-gradient(160deg,#1A3620,#0E1F12); color:var(--paper); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; }
+    .box { width:100%; max-width:420px; background:rgba(0,0,0,0.25); border:1px solid var(--line); border-radius:16px; padding:40px 28px; text-align:center; }
+    .crest { width:44px; height:44px; margin:0 auto 14px; border:1.5px solid var(--gold); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--gold); font-size:20px; }
+    .logo { font-family:'Playfair Display',serif; color:var(--gold); letter-spacing:3px; font-size:15px; margin-bottom:22px; }
+    h1 { font-size:18px; font-weight:500; color:#fff; margin-bottom:12px; }
+    p { font-size:13.5px; line-height:1.8; color:var(--gold-soft); opacity:0.85; }
+    .id { display:inline-block; margin:14px 0; padding:6px 14px; border:1px dashed rgba(212,175,55,0.5); border-radius:8px; color:var(--gold); letter-spacing:2px; font-size:14px; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <div class="crest">&#10086;</div>
+    <div class="logo">ARK PROJECT · BY JIYANG</div>
+    <h1>보증서를 찾을 수 없습니다</h1>
+    <div class="id"><%= id %></div>
+    <p>
+      입력하신 번호에 해당하는 개체가 등록되어 있지 않습니다.<br/>
+      번호를 다시 확인해 주시거나,<br/>
+      지양하월시아로 문의해 주세요.
+    </p>
+  </div>
+</body>
+</html>
