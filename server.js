@@ -179,6 +179,80 @@ app.post('/admin/send', requireLogin, async (req, res) => {
   }
 });
 
+// =============================================================
+// 로얄넘버 정품 등록 (고객이 직접 제출하는 공개 페이지)
+//   GET  /royal  → 제출 폼
+//   POST /royal  → 넘버를 '로얄넘버' 탭과 대조 → 일치하면 그 행에 자동 기록
+// =============================================================
+
+app.get('/royal', (req, res) => {
+  res.render('royal', { error: null, result: null, form: {} });
+});
+
+app.post('/royal', async (req, res) => {
+  const form = {
+    number: (req.body.number || '').trim(),
+    name: (req.body.name || '').trim(),
+    phone: (req.body.phone || '').trim(),
+    agree: req.body.agree === 'on' || req.body.agree === 'true',
+  };
+  const now = new Date();
+  const stamp = now.toISOString().slice(0, 10) + ' ' + now.toTimeString().slice(0, 5);
+  try {
+    if (!form.number) throw new Error('로얄넘버를 입력해 주세요.');
+    if (!form.name) throw new Error('성함을 입력해 주세요.');
+    if (!form.phone.replace(/[^0-9]/g, '').match(/^01[0-9]{8,9}$/)) throw new Error('휴대폰 번호를 정확히 입력해 주세요. (예: 01012345678)');
+    if (!form.agree) throw new Error('개인정보 수집·이용에 동의해 주셔야 등록이 가능합니다.');
+
+    const row = await sheets.findRoyalByNumber(form.number);
+
+    // ① 넘버가 마스터 목록에 없음 → 로그만 남기고 확인대기 안내
+    if (!row) {
+      await sheets.appendSubmissionLog({
+        제출일시: stamp, 입력넘버: form.number, 성함: form.name,
+        연락처: form.phone, 일치여부: '불일치', 처리상태: '관리자 확인 필요',
+      });
+      return res.render('royal', {
+        error: null, form: {},
+        result: { type: 'pending', number: form.number },
+      });
+    }
+
+    // ② 이미 다른 사람이 등록한 넘버 → 중복 안내 (기존 기록은 덮어쓰지 않음)
+    const existingName = (row['제출자명'] || '').trim();
+    const existingPhone = (row['제출자연락처'] || '').replace(/[^0-9]/g, '');
+    if (existingName && existingPhone && existingPhone !== form.phone.replace(/[^0-9]/g, '')) {
+      await sheets.appendSubmissionLog({
+        제출일시: stamp, 입력넘버: form.number, 성함: form.name,
+        연락처: form.phone, 일치여부: '일치(중복제출)', 처리상태: '관리자 확인 필요',
+      });
+      return res.render('royal', {
+        error: null, form: {},
+        result: { type: 'duplicate', number: form.number },
+      });
+    }
+
+    // ③ 정상 매칭 → 해당 행에 제출자 정보 자동 기록
+    await sheets.updateRoyalRow(row._rowNumber, row._headers, {
+      제출자명: form.name,
+      제출자연락처: form.phone,
+      제출일: stamp,
+      등록상태: '제출완료(확인대기)',
+    });
+    await sheets.appendSubmissionLog({
+      제출일시: stamp, 입력넘버: form.number, 성함: form.name,
+      연락처: form.phone, 일치여부: '일치', 처리상태: '자동기록 완료',
+    });
+    res.render('royal', {
+      error: null, form: {},
+      result: { type: 'ok', number: form.number, name: form.name },
+    });
+  } catch (err) {
+    console.error(err);
+    res.render('royal', { error: err.message, form, result: null });
+  }
+});
+
 app.listen(PORT, () => {
   console.log('✅ 방주 보증서 서버가 실행되었습니다. 포트: ' + PORT);
   if (!BASE_URL) console.log('ℹ️  BASE_URL 환경변수가 비어 있습니다. 배포 후 도메인을 BASE_URL에 넣어주세요.');
