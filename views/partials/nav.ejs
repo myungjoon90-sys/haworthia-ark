@@ -1,23 +1,30 @@
-<%# 작업표시줄 (모든 관리자 페이지 공통) — active: 현재 페이지 키, grades: 등급 키 배열 %>
+<%# 상단 브랜드 + 작업표시줄 — active: 현재 페이지 키, grades: 등급 키 배열 %>
+<div class="brandblock">
+  <div class="bb-name">ARK PROJECT</div>
+  <div class="bb-by">BY JIYANG</div>
+</div>
 <div class="taskbar">
-  <div class="tb-logo">ARK PROJECT<span>BY JIYANG</span></div>
   <a href="/admin/new" class="tb-btn main <%= active === 'new' ? 'on' : '' %>">개체등록＋보증서발송</a>
   <% (grades || []).forEach(function (g) { %>
   <a href="/admin/sheet/<%= encodeURIComponent(g) %>" class="tb-btn <%= active === 'sheet-' + g ? 'on' : '' %>"><%= g %></a>
   <% }); %>
+  <a href="/admin/history" class="tb-btn <%= active === 'history' ? 'on' : '' %>">이력</a>
   <a href="/admin/resend" class="tb-btn sub <%= active === 'resend' ? 'on' : '' %>">재발송</a>
   <a href="/admin/settings" class="tb-btn sub <%= active === 'settings' ? 'on' : '' %>">⚙ 설정</a>
   <form method="post" action="/admin/logout" class="tb-out"><button type="submit">로그아웃</button></form>
 </div>
 <style>
-  .taskbar { display:flex; align-items:center; gap:10px; flex-wrap:wrap; background:rgba(0,0,0,0.35); border:1px solid rgba(212,175,55,0.3); border-radius:14px; padding:14px 16px; margin-bottom:24px; }
-  .tb-logo { font-family:'Playfair Display',serif; color:#D4AF37; letter-spacing:2px; font-size:17px; margin-right:8px; line-height:1.1; }
-  .tb-logo span { display:block; font-size:9px; letter-spacing:3px; color:#E8D9A0; opacity:0.7; }
-  .tb-btn { color:#E8D9A0; font-size:17px; font-weight:600; text-decoration:none; border:1px solid rgba(212,175,55,0.45); padding:14px 20px; border-radius:10px; background:rgba(255,255,255,0.04); }
+  /* 페이지 폭 고정: PC는 넓게, 모바일은 화면에 맞춤 */
+  .wrap { max-width:1100px !important; width:100%; margin:0 auto; }
+  .brandblock { text-align:center; margin:2px 0 14px; }
+  .bb-name { font-family:'Playfair Display',serif; color:#D4AF37; letter-spacing:6px; font-size:20px; }
+  .bb-by { font-family:'Playfair Display',serif; color:#E8D9A0; letter-spacing:4px; font-size:10px; opacity:0.8; margin-top:4px; }
+  .taskbar { display:flex; align-items:center; gap:7px; flex-wrap:wrap; background:rgba(0,0,0,0.35); border:1px solid rgba(212,175,55,0.3); border-radius:12px; padding:9px 11px; margin-bottom:22px; }
+  .tb-btn { color:#E8D9A0; font-size:13px; font-weight:600; text-decoration:none; border:1px solid rgba(212,175,55,0.45); padding:9px 13px; border-radius:8px; background:rgba(255,255,255,0.04); white-space:nowrap; }
   .tb-btn.main { background:linear-gradient(180deg,#E6C75A,#D4AF37); color:#10220f; border-color:#D4AF37; }
   .tb-btn.on { outline:2px solid #E6C75A; }
-  .tb-btn.sub { font-size:15px; padding:14px 14px; opacity:0.9; }
+  .tb-btn.sub { font-size:12px; padding:9px 10px; opacity:0.9; }
   .tb-out { margin-left:auto; }
-  .tb-out button { color:#E8D9A0; font-size:14px; border:1px solid rgba(212,175,55,0.4); padding:12px 16px; border-radius:10px; background:none; cursor:pointer; font-family:inherit; }
-  @media (max-width:700px) { .tb-btn { font-size:14px; padding:11px 12px; } .tb-btn.sub { font-size:13px; } }
+  .tb-out button { color:#E8D9A0; font-size:12px; border:1px solid rgba(212,175,55,0.4); padding:8px 11px; border-radius:8px; background:none; cursor:pointer; font-family:inherit; }
+  @media (max-width:700px) { .tb-btn { font-size:12px; padding:8px 9px; } .bb-name { font-size:17px; } }
 </style>

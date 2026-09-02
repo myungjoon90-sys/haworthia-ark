@@ -18,7 +18,11 @@
     .tablebox { overflow:auto; max-height:72vh; border:1px solid var(--line); border-radius:12px; background:rgba(0,0,0,0.25); }
     table { border-collapse:collapse; width:100%; font-size:12.5px; }
     th, td { border:1px solid rgba(212,175,55,0.15); padding:7px 9px; text-align:left; vertical-align:top; max-width:420px; white-space:pre-wrap; word-break:break-word; }
-    thead th { position:sticky; top:0; background:#24422C; color:var(--gold-soft); font-weight:600; z-index:2; }
+    table { table-layout:fixed; }
+    thead th { position:sticky; top:0; background:#24422C; color:var(--gold-soft); font-weight:600; z-index:2; padding:0; }
+    thead th .thr { resize:horizontal; overflow:hidden; min-width:34px; padding:7px 9px; box-sizing:border-box; }
+    tbody td { overflow:hidden; }
+    #saveLayout.saved { background:#7BC98F; }
     tbody tr:nth-child(even) { background:rgba(255,255,255,0.025); }
     td.num { color:var(--gold); white-space:nowrap; }
     td.sub { background:rgba(212,175,55,0.10); }
@@ -30,13 +34,17 @@
     <div class="bar">
       <h1>📗 <%= key %> 시트</h1>
       <span class="tabname">(구글 시트 탭: <%= tab %> · 총 <%= values.length %>행)</span>
+      <label style="font-size:12px;color:var(--gold-soft);display:flex;align-items:center;gap:6px;">행 높이
+        <input type="range" id="rowH" min="18" max="120" value="34" style="accent-color:#D4AF37;" />
+      </label>
+      <button class="refresh" id="saveLayout" type="button" style="cursor:pointer;">💾 저장</button>
       <a class="refresh" href="">↻ 새로고침</a>
     </div>
-    <div class="meta">구글 시트와 실시간 연동 — 이 페이지를 열 때마다 최신 내용을 그대로 불러옵니다. K~N열은 손님 제출 기록입니다.</div>
-    <div class="tablebox">
+    <div class="meta">구글 시트와 실시간 연동(45초 내 재클릭은 캐시로 즉시 표시). 열 제목의 오른쪽 끝을 드래그하면 열 너비가, 위 슬라이더로 행 높이가 조절되며, [💾 저장]을 누르면 계속 유지됩니다. K~N열은 손님 제출 기록입니다.</div>
+    <div class="tablebox" id="tablebox">
       <table>
         <thead>
-          <tr><th>#</th><th>No</th><th>메모</th><th>MP번호</th><th>내용(넘버·품종명)</th><th>E</th><th>F</th><th>G</th><th>H</th><th>I</th><th>생성넘버</th><th>제출자명</th><th>연락처</th><th>제출일</th><th>등록상태</th></tr>
+          <tr><% ['#','No','메모','MP번호','내용(넘버·품종명)','E','F','G','H','I','생성넘버','제출자명','연락처','제출일','등록상태'].forEach(function (h) { %><th><div class="thr"><%= h %></div></th><% }); %></tr>
         </thead>
         <tbody>
           <% values.forEach(function (row, i) {
@@ -67,5 +75,35 @@
       </table>
     </div>
   </div>
+  <script>
+    // 열 너비·행 높이 조절 + 저장 (이 컴퓨터 브라우저에 기억됩니다)
+    var KEY = 'ark-sheet-layout-<%= key %>';
+    var ths = Array.prototype.slice.call(document.querySelectorAll('thead th .thr'));
+    var rowH = document.getElementById('rowH');
+    var tbl = document.querySelector('table');
+
+    function applyRowHeight(h) {
+      var style = document.getElementById('rowHStyle');
+      if (!style) { style = document.createElement('style'); style.id = 'rowHStyle'; document.head.appendChild(style); }
+      style.textContent = 'tbody td { height:' + h + 'px; max-height:' + h + 'px; }';
+    }
+    rowH.addEventListener('input', function () { applyRowHeight(rowH.value); });
+
+    // 저장된 레이아웃 복원
+    try {
+      var saved = JSON.parse(localStorage.getItem(KEY) || 'null');
+      if (saved) {
+        (saved.widths || []).forEach(function (w, i) { if (ths[i] && w) { ths[i].style.width = w + 'px'; ths[i].parentElement.style.width = w + 'px'; } });
+        if (saved.rowH) { rowH.value = saved.rowH; applyRowHeight(saved.rowH); }
+      } else { applyRowHeight(rowH.value); }
+    } catch (e) { applyRowHeight(rowH.value); }
+
+    document.getElementById('saveLayout').addEventListener('click', function () {
+      var widths = ths.map(function (th) { th.parentElement.style.width = th.offsetWidth + 'px'; return th.offsetWidth; });
+      try { localStorage.setItem(KEY, JSON.stringify({ widths: widths, rowH: rowH.value })); } catch (e) {}
+      this.classList.add('saved'); this.textContent = '✔ 저장됨';
+      var b = this; setTimeout(function () { b.classList.remove('saved'); b.textContent = '💾 저장'; }, 1500);
+    });
+  </script>
 </body>
 </html>

@@ -47,7 +47,7 @@ const upload = multer({
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true, limit: '3mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/photos', express.static(PHOTO_DIR));
 app.use(
@@ -72,11 +72,23 @@ app.get('/healthz', (req, res) => res.send('ok'));
 app.get('/', (req, res) => res.redirect('/admin'));
 
 // ---- 고객용 보증서 페이지 ----
+function gradeOf(plant) {
+  const g = String(plant['등급'] || '').trim();
+  if (['녹박', '적박', '골드', '로얄'].includes(g)) return g;
+  const tail = String(plant['고유번호'] || '').split('-').pop().toUpperCase();
+  if (tail.startsWith('RG')) return '로얄';
+  if (tail.startsWith('RT')) return '적박';
+  if (tail.startsWith('G') && !tail.startsWith('GR')) return '골드';
+  if (tail.startsWith('GR') || tail.startsWith('T')) return '녹박';
+  return '기본';
+}
+
 app.get('/certificate/:id', async (req, res) => {
   try {
     const plant = await sheets.findById(req.params.id);
     if (!plant) return res.status(404).render('not_found', { id: req.params.id });
-    res.render('certificate', { plant, pageUrl: certificateUrl(req, req.params.id) });
+    const grade = String(req.query.grade || '').trim() || gradeOf(plant); // ?grade= 로 미리보기 가능
+    res.render('certificate', { plant, grade, pageUrl: certificateUrl(req, req.params.id) });
   } catch (err) {
     console.error(err);
     res.status(500).send('보증서를 불러오는 중 오류가 발생했습니다: ' + err.message);
@@ -123,6 +135,16 @@ app.get('/api/varieties', requireLogin, async (req, res) => {
     res.json({ ok: true, names });
   } catch (e) {
     res.json({ ok: false, error: e.message, names: [] });
+  }
+});
+
+// ---- API: 등급 시트 미리보기 (등록 화면 옆 창) ----
+app.get('/api/sheet-preview', requireLogin, async (req, res) => {
+  try {
+    const r = await sheets.getSheetPreview(String(req.query.grade || ''));
+    res.json({ ok: true, tab: r.tab, rows: r.rows });
+  } catch (e) {
+    res.json({ ok: false, error: e.message, rows: [] });
   }
 });
 
@@ -179,6 +201,7 @@ app.post('/admin/new', requireLogin, upload.single('photo'), async (req, res) =>
       소유이력: 이력,
       관리자메시지: form['관리자메시지'],
       상태: '미인증',
+      등급: form['등급'],
     });
 
     // ② 선택한 등급 시트 맨 아래에도 기록
@@ -266,6 +289,32 @@ app.post('/admin/settings', requireLogin, async (req, res) => {
   }
 });
 
+// ---- 이력: 제출자별 등록 요약 + 소유권 이전 ----
+app.get('/admin/history', requireLogin, async (req, res) => {
+  try {
+    const [groups, transfers] = await Promise.all([sheets.buildHistory(), sheets.getTransfers()]);
+    res.render('history', { groups, transfers, grades: Object.keys(sheets.GRADE_TABS), msg: req.query.ok ? '소유권 이전이 완료되었습니다.' : null, error: null });
+  } catch (err) {
+    console.error(err);
+    res.render('history', { groups: [], transfers: [], grades: Object.keys(sheets.GRADE_TABS), msg: null, error: err.message });
+  }
+});
+
+app.post('/admin/transfer', requireLogin, async (req, res) => {
+  try {
+    const number = (req.body.number || '').trim();
+    const newName = (req.body.newName || '').trim();
+    const newPhone = (req.body.newPhone || '').trim();
+    if (!number || !newName || !newPhone) throw new Error('넘버, 새 소유자 성함, 연락처를 모두 입력해 주세요.');
+    await sheets.transferOwnership(number, newName, newPhone);
+    res.redirect('/admin/history?ok=1');
+  } catch (err) {
+    console.error(err);
+    const [groups, transfers] = await Promise.all([sheets.buildHistory().catch(() => []), sheets.getTransfers().catch(() => [])]);
+    res.render('history', { groups, transfers, grades: Object.keys(sheets.GRADE_TABS), msg: null, error: err.message });
+  }
+});
+
 // ---- 기존 개체 보증서 재발송 (구 발송 페이지) ----
 app.get('/admin/resend', requireLogin, (req, res) => {
   res.render('admin', { result: null, error: null, form: {}, grades: Object.keys(sheets.GRADE_TABS) });
@@ -305,6 +354,69 @@ app.post('/admin/send', requireLogin, async (req, res) => {
   } catch (err) {
     console.error(err);
     res.render('admin', { error: err.message, form, result: null, grades: Object.keys(sheets.GRADE_TABS) });
+  }
+});
+
+// =============================================================
+// 공개 페이지: 방주 소개(/about) + 멤버십 가입(/join, 전자서명)
+// =============================================================
+
+// 가입 요건 목록 — 여기만 고치면 가입창에 그대로 반영됩니다.
+// (id는 시트에 기록되는 짧은 이름, need는 총 몇 개를 충족해야 하는지)
+const MEMBER_RULE = { need: 3 };
+const MEMBER_CRITERIA = [
+  { id: '골드10', label: '골드 등급 이상 보증서 10개 이상 보유' },
+  { id: '구매1천', label: '지양하월시아 누적 구매 1,000만원 이상' },
+  { id: '키핑', label: '지양하월시아에 하월시아를 키핑 중' },
+  { id: '컬렉션30', label: '지양하월시아 출신 개체 30주 이상 보유 (방주 등록 기준)' },
+  { id: '대회출품', label: '하월시아 대회·전시에 지양 개체로 출품(수상)한 이력' },
+];
+// 보너스 요건: 충족 시 위 요건 1개를 충족한 것으로 인정
+const MEMBER_BONUS = { id: '보너스-초기라벨3세트', label: '[보너스] 초기(2015~10년대) 개체를 정품 라벨 완전 세트(한글판+시리얼번호판 2장 = 1세트)로 총 3세트 보유' };
+
+app.get('/about', (req, res) => {
+  res.render('about', { joinUrl: '/join', royalUrl: '/royal' });
+});
+
+app.get('/join', (req, res) => {
+  res.render('join', { error: null, done: false, form: {}, criteria: MEMBER_CRITERIA, bonus: MEMBER_BONUS, need: MEMBER_RULE.need });
+});
+
+app.post('/join', async (req, res) => {
+  const form = {
+    name: (req.body.name || '').trim(),
+    phone: (req.body.phone || '').trim(),
+    criteria: [].concat(req.body.criteria || []),
+    agree: req.body.agree === 'on',
+    signature: String(req.body.signature || ''),
+  };
+  try {
+    if (!form.name) throw new Error('성함을 입력해 주세요.');
+    if (!form.phone.replace(/[^0-9]/g, '').match(/^01[0-9]{8,9}$/)) throw new Error('휴대폰 번호를 정확히 입력해 주세요.');
+    if (form.criteria.length < MEMBER_RULE.need) throw new Error(`가입 요건 중 ${MEMBER_RULE.need}가지 이상을 선택(충족)해야 합니다.`);
+    if (!form.agree) throw new Error('방주 프로젝트 규정 동의에 체크해 주세요.');
+    if (!form.signature.startsWith('data:image/png;base64,')) throw new Error('서명을 입력해 주세요. (서명란에 손가락/마우스로 서명)');
+
+    // 서명 이미지를 사진 저장소에 파일로 보관
+    const b64 = form.signature.replace(/^data:image\/png;base64,/, '');
+    if (b64.length > 1.5 * 1024 * 1024) throw new Error('서명 이미지가 너무 큽니다. 다시 시도해 주세요.');
+    const fname = 'sig_' + form.phone.replace(/[^0-9]/g, '') + '_' + Date.now() + '.png';
+    fs.writeFileSync(path.join(PHOTO_DIR, fname), Buffer.from(b64, 'base64'));
+
+    const now = new Date();
+    const stamp = now.toISOString().slice(0, 10) + ' ' + now.toTimeString().slice(0, 5);
+    await sheets.appendJoinApplication({
+      일시: stamp,
+      성함: form.name,
+      연락처: form.phone,
+      충족요건: form.criteria.join(', '),
+      서명이미지: photoUrl(req, fname),
+      동의: '규정 동의함 (전자서명)',
+    });
+    res.render('join', { error: null, done: true, form: {}, criteria: MEMBER_CRITERIA, bonus: MEMBER_BONUS, need: MEMBER_RULE.need });
+  } catch (err) {
+    console.error(err);
+    res.render('join', { error: err.message, done: false, form, criteria: MEMBER_CRITERIA, bonus: MEMBER_BONUS, need: MEMBER_RULE.need });
   }
 });
 

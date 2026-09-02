@@ -11,11 +11,10 @@
   const 사진 = v(plant['사진URL']);
   const 소유자 = v(plant['소유자']);
   const 발급일 = v(plant['발급일']);
-  const 상태 = v(plant['상태']) || '정품 인증';
+  const 상태 = v(plant['상태']) || '미인증';
   const 교배 = (모본 && 부본) ? (모본 + ' × ' + 부본) : (모본 || 부본);
   const 메시지 = v(plant['관리자메시지']) ||
     '한 점 한 점 정성으로 길러낸 귀한 하월시아입니다. 살아있는 보석을 소장해 주셔서 진심으로 감사드립니다. 오래도록 아름답게 함께하시길 바랍니다.';
-  // 소유이력: "날짜 | 내용" 형식 한 줄 = 타임라인 한 칸
   const 이력 = v(plant['소유이력']).split(/\r?\n/).map((line) => {
     const t = line.trim();
     if (!t) return null;
@@ -23,6 +22,9 @@
     if (idx === -1) return { when: '', who: t };
     return { when: t.slice(0, idx).trim(), who: t.slice(idx + 1).trim() };
   }).filter(Boolean);
+  // 등급별 표기
+  const gradeKey = (typeof grade !== 'undefined' && grade) ? grade : '기본';
+  const gradeEn = { 녹박: 'GREEN', 적박: 'CRIMSON', 골드: 'GOLD', 로얄: 'ROYAL' }[gradeKey] || '';
 %>
 <!DOCTYPE html>
 <html lang="ko">
@@ -30,61 +32,73 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title><%= 품종명 %> · 디지털 보증서 | ARK PROJECT</title>
-  <!-- 카톡/문자 미리보기 카드 (Open Graph) -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content="<%= 품종명 %> · 정품 디지털 보증서" />
-  <meta property="og:description" content="지양하월시아 방주 프로젝트 · <%= 고유번호 %> · <%= 상태 %>" />
+  <meta property="og:description" content="ARK PROJECT BY JIYANG · <%= 고유번호 %> · <%= 상태 %>" />
   <meta property="og:url" content="<%= pageUrl %>" />
   <% if (사진) { %><meta property="og:image" content="<%= 사진 %>" /><% } %>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&family=Noto+Serif+KR:wght@300;400;600&display=swap" rel="stylesheet" />
   <style>
-    :root { --green:#1A3620; --green-deep:#0E1F12; --gold:#D4AF37; --gold-soft:#E8D9A0; --paper:#FBF8F0; }
+    /* ── 기본(그린) 팔레트 ── */
+    :root { --g1:#1F4129; --g2:#122A18; --g3:#0C1F10; --gold:#D2AC55; --gold2:#E9D6A0; --ink:#F6F0DF; --sealA:#E8CE72; --sealB:#95762B; }
+    /* ── 등급별 팔레트: 받는 분의 느낌이 다르게 ── */
+    body.grade-적박 { --g1:#571323; --g2:#360A14; --g3:#22050C; --gold:#E0B36A; --gold2:#F1DDB4; --sealA:#F2D695; --sealB:#A87F35; }
+    body.grade-골드 { --g1:#423312; --g2:#241B08; --g3:#151004; --gold:#E8C468; --gold2:#F4E3B2; --sealA:#F4DE9A; --sealB:#A8842F; }
+    body.grade-로얄 { --g1:#1E1B17; --g2:#100E0B; --g3:#060505; --gold:#D8B25C; --gold2:#EBD8A4; --sealA:#EAD088; --sealB:#A07E2F; }
     * { box-sizing:border-box; margin:0; padding:0; }
-    body { font-family:'Noto Sans KR',sans-serif; background:radial-gradient(circle at 50% 0%, #244A2E 0%, var(--green) 45%, var(--green-deep) 100%); color:var(--paper); min-height:100vh; padding:32px 16px 60px; -webkit-font-smoothing:antialiased; }
-    .card { max-width:480px; margin:0 auto; background:linear-gradient(180deg,#1F4129 0%,#16301D 100%); border:1px solid rgba(212,175,55,0.45); border-radius:18px; box-shadow:0 30px 70px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(212,175,55,0.12); overflow:hidden; position:relative; }
-    .header { text-align:center; padding:30px 24px 18px; border-bottom:1px solid rgba(212,175,55,0.25); }
-    .brand { font-family:'Playfair Display',serif; letter-spacing:3px; font-size:13px; color:var(--gold); text-transform:uppercase; }
-    .brand .by { color:var(--gold-soft); opacity:0.8; }
-    .crest { width:42px; height:42px; margin:0 auto 12px; border:1.5px solid var(--gold); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--gold); font-size:20px; }
-    .title { font-family:'Playfair Display',serif; font-size:15px; letter-spacing:6px; color:var(--gold-soft); margin-top:10px; text-transform:uppercase; }
-    .photo-wrap { padding:26px 26px 8px; }
-    .photo-frame { border:2px solid var(--gold); border-radius:10px; padding:8px; background:rgba(0,0,0,0.25); box-shadow:0 8px 24px rgba(0,0,0,0.4); }
+    body { font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif; background:radial-gradient(circle at 50% 0%, var(--g1) 0%, var(--g2) 48%, var(--g3) 100%); color:var(--ink); min-height:100vh; padding:34px 16px 64px; -webkit-font-smoothing:antialiased; }
+    .card { max-width:500px; margin:0 auto; background:linear-gradient(178deg,var(--g1),var(--g2) 55%,var(--g3)); border:1px solid var(--gold); border-radius:16px; box-shadow:0 26px 60px rgba(0,0,0,0.55), inset 0 0 0 1px rgba(233,214,160,0.10); overflow:hidden; position:relative; padding:44px 34px 30px; }
+    /* 모노그램 워터마크 */
+    .card::before { content:'A'; position:absolute; top:44%; left:50%; transform:translate(-50%,-50%); font-family:'Playfair Display',serif; font-size:400px; color:rgba(210,172,85,0.055); pointer-events:none; line-height:1; }
+    .inner { position:relative; }
+    /* 상단 브랜드 (중앙) */
+    .head { text-align:center; margin-bottom:24px; }
+    .brand { font-family:'Playfair Display',serif; letter-spacing:7px; font-size:16px; color:var(--gold); text-transform:uppercase; }
+    .by { font-family:'Playfair Display',serif; letter-spacing:5px; font-size:10px; color:var(--gold2); opacity:0.85; text-transform:uppercase; margin-top:6px; }
+    .coa { font-family:'Cormorant Garamond',serif; letter-spacing:4px; font-size:12px; color:var(--gold2); opacity:0.9; text-transform:uppercase; margin-top:14px; }
+    /* 사진 */
+    .photo-frame { border:1.5px solid var(--gold); border-radius:10px; padding:7px; background:rgba(0,0,0,0.28); margin-bottom:22px; }
     .photo-frame svg, .photo-frame img { width:100%; display:block; border-radius:6px; aspect-ratio:4/3; object-fit:cover; }
-    .variety { text-align:center; padding:18px 24px 4px; font-family:'Cormorant Garamond','Playfair Display',serif; font-size:30px; font-weight:600; color:#fff; line-height:1.2; }
-    .plant-id { text-align:center; color:var(--gold); letter-spacing:3px; font-size:14px; font-weight:500; padding-bottom:18px; }
-    .info { padding:6px 28px 4px; }
-    .row { display:flex; justify-content:space-between; gap:14px; padding:11px 0; border-bottom:1px dashed rgba(212,175,55,0.2); font-size:14px; }
-    .row:last-child { border-bottom:none; }
-    .row .k { color:var(--gold-soft); opacity:0.85; white-space:nowrap; }
-    .row .v { text-align:right; color:#fff; font-weight:400; }
-    .section-title { font-family:'Playfair Display',serif; color:var(--gold); letter-spacing:2px; font-size:13px; text-transform:uppercase; padding:22px 28px 8px; }
-    .timeline { padding:0 28px 6px; }
-    .tl-item { position:relative; padding:0 0 14px 22px; font-size:13.5px; }
-    .tl-item::before { content:''; position:absolute; left:3px; top:4px; width:9px; height:9px; border-radius:50%; background:var(--gold); box-shadow:0 0 0 3px rgba(212,175,55,0.2); }
-    .tl-item::after { content:''; position:absolute; left:7px; top:14px; bottom:0; width:1px; background:rgba(212,175,55,0.3); }
+    /* ↓ 여기서부터 갤러리 캡션(좌측 정렬) */
+    .variety { font-family:'Cormorant Garamond','Noto Serif KR',serif; font-size:30px; font-weight:600; color:#fff; line-height:1.25; text-align:left; }
+    .plant-id { color:var(--gold); letter-spacing:2px; font-size:13px; margin:7px 0 18px; text-align:left; }
+    .info { margin-bottom:6px; }
+    .row { display:flex; gap:14px; font-size:13.5px; padding:5px 0; }
+    .row .k { min-width:92px; color:var(--gold2); opacity:0.85; }
+    .row .v { color:#fff; }
+    .section-title { font-family:'Playfair Display',serif; color:var(--gold); letter-spacing:2px; font-size:12px; text-transform:uppercase; margin:20px 0 8px; }
+    .tl-item { position:relative; padding:0 0 12px 20px; font-size:13px; }
+    .tl-item::before { content:''; position:absolute; left:2px; top:5px; width:8px; height:8px; border-radius:50%; background:var(--gold); box-shadow:0 0 0 3px rgba(210,172,85,0.2); }
+    .tl-item::after { content:''; position:absolute; left:5.5px; top:14px; bottom:0; width:1px; background:rgba(210,172,85,0.3); }
     .tl-item:last-child::after { display:none; }
     .tl-item .who { color:#fff; }
-    .tl-item .when { color:var(--gold-soft); opacity:0.8; font-size:12px; }
-    .message { margin:18px 24px; padding:20px; background:rgba(0,0,0,0.22); border:1px solid rgba(212,175,55,0.25); border-radius:10px; font-size:14px; line-height:1.7; color:var(--gold-soft); font-style:italic; }
-    .signature { text-align:right; padding:4px 28px 0; font-family:'Cormorant Garamond',serif; font-size:22px; color:#fff; }
-    .signature small { display:block; font-family:'Noto Sans KR'; font-size:11px; color:var(--gold-soft); letter-spacing:1px; font-style:normal; }
-    .seal-wrap { text-align:center; padding:24px 0 30px; }
-    .seal { display:inline-flex; flex-direction:column; align-items:center; justify-content:center; width:92px; height:92px; border-radius:50%; background:radial-gradient(circle at 35% 30%, #E6C75A, var(--gold) 55%, #A8821F 100%); color:var(--green-deep); box-shadow:0 6px 16px rgba(0,0,0,0.45); border:2px solid #F0E2A8; }
-    .seal .s1 { font-family:'Playfair Display',serif; font-weight:700; font-size:11px; letter-spacing:1px; }
-    .seal .s2 { font-size:9px; letter-spacing:1px; margin-top:2px; }
-    .footer { text-align:center; color:var(--gold-soft); opacity:0.6; font-size:11px; letter-spacing:1px; padding:4px 24px 28px; }
-    .status-badge { display:inline-block; margin:0 auto; font-size:11px; letter-spacing:1px; color:var(--green-deep); background:var(--gold-soft); padding:3px 12px; border-radius:20px; font-weight:700; }
+    .tl-item .when { color:var(--gold2); opacity:0.8; font-size:11.5px; }
+    .message { margin:20px 0 16px; font-size:13px; line-height:1.85; color:var(--gold2); font-style:italic; }
+    .sign-seal { display:flex; align-items:flex-end; justify-content:space-between; gap:14px; margin-top:6px; }
+    .signature { font-family:'Cormorant Garamond',serif; font-size:22px; color:#fff; }
+    .signature small { display:block; font-family:'Malgun Gothic','맑은 고딕',sans-serif; font-size:10px; color:var(--gold2); letter-spacing:2px; margin-top:3px; }
+    .seal { width:82px; height:82px; border-radius:50%; background:radial-gradient(circle at 35% 30%, var(--sealA), var(--gold) 58%, var(--sealB)); color:var(--g3); display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:'Playfair Display',serif; font-size:10px; letter-spacing:1px; border:2px solid var(--gold2); box-shadow:0 6px 16px rgba(0,0,0,0.45); flex-shrink:0; }
+    .badges { display:flex; align-items:center; gap:10px; margin-top:18px; }
+    .status-badge { font-size:11px; letter-spacing:2px; color:var(--g3); background:var(--gold2); padding:4px 14px; border-radius:20px; font-weight:700; }
+    .grade-badge { font-size:10px; letter-spacing:3px; color:var(--gold); border:1px solid var(--gold); padding:4px 12px; border-radius:20px; }
+    /* 등급별 하단 무늬 */
+    .motif { height:10px; margin:24px -34px 14px; opacity:0.85; }
+    .motif.기본, .motif.녹박 { background:repeating-linear-gradient(45deg, var(--gold) 0 2px, transparent 2px 10px); }
+    .motif.적박 { background:repeating-linear-gradient(-45deg, var(--gold) 0 6px, transparent 6px 12px); height:7px; }
+    .motif.골드 { background:linear-gradient(var(--gold), var(--gold)) top/100% 1.5px no-repeat, linear-gradient(var(--gold), var(--gold)) bottom/100% 1.5px no-repeat, repeating-linear-gradient(90deg, var(--gold) 0 8px, transparent 8px 16px) center/100% 3px no-repeat; }
+    .motif.로얄 { background:repeating-linear-gradient(90deg, var(--gold) 0 12px, transparent 12px 16px, var(--gold2) 16px 18px, transparent 18px 30px); height:6px; box-shadow:0 4px 0 -2.5px var(--gold), 0 -4px 0 -2.5px var(--gold); }
+    .footer { text-align:center; color:var(--gold2); opacity:0.6; font-size:10.5px; letter-spacing:1px; line-height:1.8; }
   </style>
 </head>
-<body>
+<body class="grade-<%= gradeKey %>">
   <div class="card">
-    <div class="header">
-      <div class="crest">&#10086;</div>
-      <div class="brand">ARK PROJECT <span class="by">BY JIYANG</span></div>
-      <div class="title">CERTIFICATE OF AUTHENTICITY</div>
-    </div>
+    <div class="inner">
+      <div class="head">
+        <div class="brand">Ark Project</div>
+        <div class="by">By Jiyang</div>
+        <div class="coa">Certificate of Authenticity</div>
+      </div>
 
-    <div class="photo-wrap">
       <div class="photo-frame">
         <% if (사진) { %>
         <img src="<%= 사진 %>" alt="<%= 품종명 %>" />
@@ -108,56 +122,53 @@
             <path d="M0 0 L-44 -140 L-18 -150 Z" fill="#d9f3e3"/>
             <path d="M0 0 L44 -140 L18 -150 Z" fill="#d9f3e3"/>
           </g>
-          <text x="240" y="346" fill="#D4AF37" font-size="14" text-anchor="middle" font-family="serif" letter-spacing="2">사진 준비 중</text>
+          <text x="240" y="346" fill="#D2AC55" font-size="14" text-anchor="middle" font-family="serif" letter-spacing="2">사진 준비 중</text>
         </svg>
         <% } %>
       </div>
-    </div>
 
-    <div class="variety"><%= 품종명 %></div>
-    <div class="plant-id"><%= 고유번호 %></div>
+      <div class="variety"><%= 품종명 %></div>
+      <div class="plant-id"><%= 고유번호 %></div>
 
-    <div class="info">
-      <% if (육종가) { %><div class="row"><span class="k">육종가</span><span class="v"><%= 육종가 %></span></div><% } %>
-      <% if (육종연도) { %><div class="row"><span class="k">육종 연도</span><span class="v"><%= 육종연도 %></span></div><% } %>
-      <% if (교배) { %><div class="row"><span class="k">교배 정보</span><span class="v"><%= 교배 %></span></div><% } %>
-      <% if (마커) { %><div class="row"><span class="k">DNA 마커</span><span class="v"><%= 마커 %></span></div><% } %>
-      <% if (소유자) { %><div class="row"><span class="k">현재 소유자</span><span class="v"><%= 소유자 %></span></div><% } %>
-      <% if (발급일) { %><div class="row"><span class="k">발급일</span><span class="v"><%= 발급일 %></span></div><% } %>
-    </div>
-
-    <% if (이력.length > 0) { %>
-    <div class="section-title">Provenance · 소유 이력</div>
-    <div class="timeline">
-      <% 이력.forEach(function (item) { %>
-      <div class="tl-item">
-        <div class="who"><%= item.who %></div>
-        <% if (item.when) { %><div class="when"><%= item.when %></div><% } %>
+      <div class="info">
+        <% if (육종가) { %><div class="row"><span class="k">육종가</span><span class="v"><%= 육종가 %></span></div><% } %>
+        <% if (육종연도) { %><div class="row"><span class="k">육종 연도</span><span class="v"><%= 육종연도 %></span></div><% } %>
+        <% if (교배) { %><div class="row"><span class="k">교배 정보</span><span class="v"><%= 교배 %></span></div><% } %>
+        <% if (마커) { %><div class="row"><span class="k">DNA 마커</span><span class="v"><%= 마커 %></span></div><% } %>
+        <% if (소유자) { %><div class="row"><span class="k">현재 소유자</span><span class="v"><%= 소유자 %></span></div><% } %>
+        <% if (발급일) { %><div class="row"><span class="k">발급일</span><span class="v"><%= 발급일 %></span></div><% } %>
       </div>
-      <% }); %>
-    </div>
-    <% } %>
 
-    <div class="message"><%= 메시지 %></div>
-    <div class="signature">
-      지양하월시아
-      <small>JIYANG HAWORTHIA · 대표</small>
-    </div>
-
-    <div class="seal-wrap">
-      <div class="seal">
-        <div class="s1">JIYANG</div>
-        <div class="s2">ARK · 認證</div>
+      <% if (이력.length > 0) { %>
+      <div class="section-title">Provenance · 소유 이력</div>
+      <div class="timeline">
+        <% 이력.forEach(function (item) { %>
+        <div class="tl-item">
+          <div class="who"><%= item.who %></div>
+          <% if (item.when) { %><div class="when"><%= item.when %></div><% } %>
+        </div>
+        <% }); %>
       </div>
-    </div>
+      <% } %>
 
-    <div style="text-align:center; padding-bottom:18px;">
-      <span class="status-badge"><%= 상태 %></span>
-    </div>
+      <div class="message"><%= 메시지 %></div>
 
-    <div class="footer">
-      본 보증서는 지양하월시아 방주 프로젝트의 디지털 인증서입니다.<br/>
-      무단 증식 및 불법 유통은 협의서에 따라 제한됩니다.
+      <div class="sign-seal">
+        <div class="signature">지양하월시아<small>JIYANG HAWORTHIA · 대표</small></div>
+        <div class="seal"><span>JIYANG</span><span>ARK·認證</span></div>
+      </div>
+
+      <div class="badges">
+        <span class="status-badge"><%= 상태 %></span>
+        <% if (gradeEn) { %><span class="grade-badge"><%= gradeEn %> GRADE</span><% } %>
+      </div>
+
+      <div class="motif <%= gradeKey %>"></div>
+
+      <div class="footer">
+        본 보증서는 지양하월시아 방주 프로젝트의 디지털 인증서입니다.<br/>
+        무단 증식 및 불법 유통은 협의서에 따라 제한됩니다.
+      </div>
     </div>
   </div>
 </body>

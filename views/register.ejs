@@ -39,6 +39,22 @@
     .alert.ok { background:rgba(212,175,55,0.12); border:1px solid rgba(212,175,55,0.5); color:var(--gold-soft); }
     .alert.ok a { color:var(--gold); word-break:break-all; }
     #numStatus { font-size:12px; margin-top:6px; }
+    .main-grid { display:grid; grid-template-columns:minmax(0,1fr) 380px; gap:20px; align-items:start; }
+    .main-grid.nopanel { grid-template-columns:minmax(0,1fr); }
+    .preview { position:sticky; top:12px; background:rgba(0,0,0,0.28); border:1px solid var(--line); border-radius:14px; overflow:hidden; display:none; }
+    .preview.show { display:block; }
+    .preview .p-head { display:flex; align-items:center; gap:8px; background:rgba(212,175,55,0.10); padding:12px 14px; border-bottom:1px solid var(--line); font-size:13px; color:#fff; }
+    .preview .p-head small { color:var(--gold-soft); opacity:0.7; margin-left:auto; font-size:11px; }
+    .preview .p-search { padding:10px 12px; border-bottom:1px solid var(--line); }
+    .preview .p-search input { width:100%; padding:9px 10px; border-radius:6px; font-size:13px; border:1px solid rgba(212,175,55,0.3); background:rgba(255,255,255,0.06); color:#fff; font-family:inherit; }
+    .preview .p-list { max-height:64vh; overflow:auto; }
+    .p-item { padding:9px 13px; border-bottom:1px solid rgba(212,175,55,0.12); font-size:12px; line-height:1.55; cursor:pointer; }
+    .p-item:hover { background:rgba(212,175,55,0.08); }
+    .p-item .no { color:var(--gold); margin-right:8px; }
+    .p-item .d { color:#fff; white-space:pre-wrap; word-break:break-word; }
+    .p-item .owner { color:var(--gold-soft); font-size:11px; opacity:0.8; }
+    .p-hint { padding:9px 13px; font-size:11px; color:var(--gold-soft); opacity:0.7; }
+    @media (max-width:900px) { .main-grid { grid-template-columns:1fr; } .preview { position:static; } .preview .p-list { max-height:40vh; } }
   </style>
 </head>
 <body>
@@ -62,6 +78,7 @@
     </div>
     <% } %>
 
+    <div class="main-grid nopanel" id="mainGrid">
     <form method="post" action="/admin/new" enctype="multipart/form-data">
       <div class="panel">
         <div class="section-head"><span class="dot"></span><h2>기본 정보</h2><span class="req-note">★ 필수 입력</span></div>
@@ -155,6 +172,13 @@
 
       <button class="submit" type="submit">개체 등록 + 보증서 발송</button>
     </form>
+
+    <aside class="preview" id="previewPanel">
+      <div class="p-head">📗 <span id="pvTitle">시트 미리보기</span><small id="pvCount"></small></div>
+      <div class="p-search"><input type="text" id="pvSearch" placeholder="번호·품종명 검색 (예: 다알리아)" /></div>
+      <div class="p-list" id="pvList"><div class="p-hint">등급을 선택하면 해당 시트의 번호와 내용(D열)이 여기 표시됩니다. 줄을 클릭하면 내용이 복사됩니다.</div></div>
+    </aside>
+    </div>
   </div>
 
   <script>
@@ -179,6 +203,7 @@
           }
         })
         .catch(function () { numStatus.textContent = '⚠ 넘버 제안 실패 — 직접 입력해 주세요.'; });
+      loadPreview(g);
       fetch('/api/varieties?grade=' + encodeURIComponent(g))
         .then(function (r) { return r.json(); })
         .then(function (d) {
@@ -190,6 +215,58 @@
           });
         })
         .catch(function () {});
+    });
+
+    // 등급 시트 미리보기 패널
+    var pvPanel = document.getElementById('previewPanel');
+    var pvList = document.getElementById('pvList');
+    var pvTitle = document.getElementById('pvTitle');
+    var pvCount = document.getElementById('pvCount');
+    var pvSearch = document.getElementById('pvSearch');
+    var pvRows = [];
+
+    function renderPreview(filter) {
+      var q = (filter || '').trim().toLowerCase();
+      var rows = pvRows;
+      if (q) rows = rows.filter(function (r) { return (r.no + ' ' + r.d + ' ' + r.owner).toLowerCase().indexOf(q) !== -1; });
+      var html = '';
+      var shown = rows.slice(-400); // 아래쪽(최신) 위주로 표시
+      for (var i = shown.length - 1; i >= 0; i--) {
+        var r = shown[i];
+        html += '<div class="p-item" data-d="' + encodeURIComponent(r.d) + '">'
+          + '<span class="no">' + (r.no || r.row + '행') + '</span>'
+          + '<span class="d">' + r.d.replace(/</g, '&lt;').replace(/\n/g, '<br/>') + '</span>'
+          + (r.owner ? '<div class="owner">등록자: ' + r.owner + '</div>' : '')
+          + '</div>';
+      }
+      pvList.innerHTML = html || '<div class="p-hint">검색 결과가 없습니다.</div>';
+      pvCount.textContent = rows.length + '행';
+    }
+
+    function loadPreview(g) {
+      pvPanel.classList.add('show');
+      document.getElementById('mainGrid').classList.remove('nopanel');
+      pvTitle.textContent = g + ' 시트';
+      pvList.innerHTML = '<div class="p-hint">불러오는 중...</div>';
+      fetch('/api/sheet-preview?grade=' + encodeURIComponent(g))
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          pvRows = d.rows || [];
+          pvTitle.textContent = (d.tab || g) + '';
+          renderPreview('');
+        })
+        .catch(function () { pvList.innerHTML = '<div class="p-hint">불러오기 실패</div>'; });
+    }
+
+    pvSearch.addEventListener('input', function () { renderPreview(pvSearch.value); });
+    pvList.addEventListener('click', function (e) {
+      var item = e.target.closest('.p-item');
+      if (!item) return;
+      var text = decodeURIComponent(item.getAttribute('data-d'));
+      (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(function () {
+        item.style.background = 'rgba(212,175,55,0.25)';
+        setTimeout(function () { item.style.background = ''; }, 400);
+      }).catch(function () {});
     });
 
     // 사진 선택/촬영 → 하나의 photo 입력으로 합치기

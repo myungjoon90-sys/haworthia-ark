@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>등록 이력 | ARK PROJECT</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&display=swap" rel="stylesheet" />
+  <style>
+    :root { --gold:#D4AF37; --gold-soft:#E8D9A0; --line:rgba(212,175,55,0.22); }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif; background:linear-gradient(160deg,#1A3620,#0E1F12); color:#FBF8F0; min-height:100vh; padding:26px 14px 70px; }
+    h1 { font-size:19px; font-weight:600; margin-bottom:6px; }
+    .desc { font-size:12.5px; color:var(--gold-soft); opacity:0.8; margin-bottom:16px; line-height:1.7; }
+    .search { margin-bottom:14px; }
+    .search input { width:100%; max-width:420px; padding:11px 12px; border-radius:8px; font-size:14px; border:1px solid rgba(212,175,55,0.3); background:rgba(255,255,255,0.06); color:#fff; font-family:inherit; }
+    .person { background:rgba(0,0,0,0.24); border:1px solid var(--line); border-radius:12px; margin-bottom:10px; overflow:hidden; }
+    .p-head { display:flex; align-items:center; gap:14px; padding:14px 16px; cursor:pointer; flex-wrap:wrap; }
+    .p-head:hover { background:rgba(212,175,55,0.06); }
+    .p-name { font-size:15px; font-weight:600; color:#fff; }
+    .p-phone { font-size:13px; color:var(--gold-soft); letter-spacing:1px; }
+    .p-total { margin-left:auto; font-size:13px; color:var(--gold); font-weight:700; }
+    .p-badges { display:flex; gap:6px; }
+    .badge { font-size:11px; padding:3px 10px; border-radius:12px; border:1px solid rgba(212,175,55,0.4); color:var(--gold-soft); }
+    .badge.녹박 { border-color:#7FBF8F; color:#BFE8CF; }
+    .badge.적박 { border-color:#D98A8A; color:#F2C6C6; }
+    .badge.골드 { border-color:#E6C75A; color:#F0E0A6; }
+    .badge.로얄 { border-color:#fff; color:#fff; }
+    .p-items { display:none; border-top:1px solid var(--line); }
+    .person.open .p-items { display:block; }
+    .item-row { display:flex; gap:12px; padding:9px 18px; font-size:12.5px; border-bottom:1px solid rgba(212,175,55,0.1); flex-wrap:wrap; }
+    .item-row:last-child { border-bottom:none; }
+    .item-row .g { min-width:38px; color:var(--gold-soft); }
+    .item-row .n { color:var(--gold); letter-spacing:1px; min-width:200px; }
+    .item-row .v { color:#fff; flex:1; }
+    .item-row .d { color:var(--gold-soft); opacity:0.7; font-size:11.5px; }
+    h2 { font-size:16px; font-weight:600; margin:30px 0 8px; }
+    .panel { background:rgba(0,0,0,0.24); border:1px solid var(--line); border-radius:12px; padding:18px; margin-bottom:14px; }
+    .tf { display:flex; gap:8px; flex-wrap:wrap; }
+    .tf input { flex:1; min-width:160px; padding:11px 12px; border-radius:8px; font-size:14px; border:1px solid rgba(212,175,55,0.3); background:rgba(255,255,255,0.06); color:#fff; font-family:inherit; }
+    .tf button { background:linear-gradient(180deg,#E6C75A,#D4AF37); color:#10220f; border:none; border-radius:8px; padding:0 20px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; }
+    .tf-hint { font-size:11.5px; color:var(--gold-soft); opacity:0.7; margin-top:8px; line-height:1.6; }
+    .tr-row { display:flex; gap:10px; padding:10px 14px; font-size:12.5px; border-bottom:1px solid rgba(212,175,55,0.12); flex-wrap:wrap; align-items:center; }
+    .tr-row .arrow { color:var(--gold); }
+    .ok { margin-bottom:14px; padding:12px 15px; border-radius:10px; font-size:13.5px; background:rgba(212,175,55,0.12); border:1px solid rgba(212,175,55,0.5); color:var(--gold-soft); }
+    .err { margin-bottom:14px; padding:12px 15px; border-radius:10px; font-size:13.5px; background:rgba(180,50,50,0.18); border:1px solid rgba(220,100,100,0.5); color:#ffd9d9; }
+    .empty { font-size:13px; color:var(--gold-soft); opacity:0.7; padding:14px 4px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <%- include('partials/nav', { active: 'history', grades: grades }) %>
+    <h1>📒 등록 이력 — 제출자별 요약</h1>
+    <div class="desc">로얄넘버 등록 페이지로 제출된 기록을 연락처 기준으로 묶어 보여줍니다. 이름을 클릭하면 보유 넘버 목록이 펼쳐집니다.</div>
+    <% if (msg) { %><div class="ok">✅ <%= msg %></div><% } %>
+    <% if (error) { %><div class="err">⚠️ <%= error %></div><% } %>
+
+    <div class="search"><input type="text" id="pSearch" placeholder="이름·연락처·넘버로 검색" /></div>
+
+    <div id="people">
+    <% groups.forEach(function (g) { %>
+    <div class="person" data-text="<%= (g.이름 + ' ' + g.연락처 + ' ' + g.항목.map(function(it){return it.넘버 + ' ' + it.품종명;}).join(' ')) %>">
+      <div class="p-head" onclick="this.parentElement.classList.toggle('open')">
+        <span class="p-name"><%= g.이름 || '(이름 없음)' %></span>
+        <span class="p-phone"><%= g.연락처 %></span>
+        <span class="p-badges">
+          <% Object.keys(g.등급별).forEach(function (k) { %><span class="badge <%= k %>"><%= k %> <%= g.등급별[k] %></span><% }); %>
+        </span>
+        <span class="p-total">총 <%= g.총개수 %>개</span>
+      </div>
+      <div class="p-items">
+        <% g.항목.forEach(function (it) { %>
+        <div class="item-row">
+          <span class="g"><%= it.등급 %></span>
+          <span class="n"><%= it.넘버 || '(넘버 미확인)' %></span>
+          <span class="v"><%= it.품종명 %></span>
+          <span class="d"><%= it.제출일 %> <%= it.상태 %></span>
+        </div>
+        <% }); %>
+      </div>
+    </div>
+    <% }); %>
+    <% if (!groups.length) { %><div class="empty">아직 제출된 등록이 없습니다.</div><% } %>
+    </div>
+
+    <h2>🔁 소유권 이전</h2>
+    <div class="panel">
+      <form class="tf" method="post" action="/admin/transfer">
+        <input type="text" name="number" placeholder="넘버 (예: JY-QQ-JY001-26-RG0762)" />
+        <input type="text" name="newName" placeholder="새 소유자 성함" />
+        <input type="tel" name="newPhone" placeholder="새 소유자 연락처" />
+        <button type="submit">이전 처리</button>
+      </form>
+      <div class="tf-hint">기존 등록자는 아래 이전 기록에 남고, 시트의 제출자 칸은 새 소유자로 바뀝니다. 판매·양도로 새 주인이 생겼을 때 사용하세요. (고객이 /royal 페이지에서 이미 등록된 넘버를 제출하면 "관리자 확인 필요"로 접수되며, 여기서 이전 처리하면 됩니다)</div>
+    </div>
+
+    <div class="panel" style="padding:0;">
+      <% transfers.forEach(function (t) { %>
+      <div class="tr-row">
+        <span style="color:var(--gold-soft);opacity:0.7;"><%= t.일시 %></span>
+        <span style="color:var(--gold);letter-spacing:1px;"><%= t.넘버 %></span>
+        <span><%= t.품종명 %></span>
+        <span><%= t.이전소유자 %> (<%= t.이전연락처 %>)</span>
+        <span class="arrow">→</span>
+        <span style="color:#fff;font-weight:600;"><%= t.새소유자 %> (<%= t.새연락처 %>)</span>
+      </div>
+      <% }); %>
+      <% if (!transfers.length) { %><div class="empty" style="padding:14px 16px;">아직 이전 기록이 없습니다.</div><% } %>
+    </div>
+  </div>
+  <script>
+    var ps = document.getElementById('pSearch');
+    ps.addEventListener('input', function () {
+      var q = ps.value.trim().toLowerCase();
+      document.querySelectorAll('#people .person').forEach(function (el) {
+        el.style.display = !q || el.getAttribute('data-text').toLowerCase().indexOf(q) !== -1 ? '' : 'none';
+      });
+    });
+  </script>
+</body>
+</html>

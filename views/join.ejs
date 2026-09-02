@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>방주 멤버십 가입 | ARK PROJECT</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root { --gold:#D2AC55; --gold2:#E9D6A0; --line:rgba(210,172,85,0.25); }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif; background:linear-gradient(160deg,#1A3620,#0E1F12); color:#F6F0DF; min-height:100vh; padding:40px 16px 70px; }
+    .wrap { max-width:560px; margin:0 auto; }
+    .head { text-align:center; margin-bottom:26px; }
+    .brand { font-family:'Playfair Display',serif; letter-spacing:6px; font-size:19px; color:var(--gold); text-transform:uppercase; }
+    .by { font-family:'Playfair Display',serif; letter-spacing:4px; font-size:10px; color:var(--gold2); opacity:0.85; margin-top:5px; text-transform:uppercase; }
+    h1 { font-size:19px; font-weight:600; color:#fff; margin-top:16px; }
+    .lead { font-size:13px; color:var(--gold2); opacity:0.9; margin-top:8px; line-height:1.8; }
+    .panel { background:rgba(0,0,0,0.24); border:1px solid var(--line); border-radius:14px; padding:22px 20px; margin-bottom:16px; }
+    .panel h2 { font-size:14px; font-weight:600; color:var(--gold2); margin-bottom:12px; letter-spacing:1px; }
+    label.f { display:block; font-size:13px; color:var(--gold2); margin:14px 0 6px; }
+    label.f:first-of-type { margin-top:0; }
+    input[type=text], input[type=tel] { width:100%; padding:13px 12px; border-radius:8px; font-size:15px; border:1px solid rgba(210,172,85,0.3); background:rgba(255,255,255,0.06); color:#fff; font-family:inherit; }
+    input:focus { outline:none; border-color:var(--gold); }
+    .crit { display:flex; gap:10px; align-items:flex-start; padding:11px 4px; border-bottom:1px solid rgba(210,172,85,0.12); font-size:13.5px; line-height:1.6; cursor:pointer; }
+    .crit:last-child { border-bottom:none; }
+    .crit input { margin-top:4px; accent-color:var(--gold); width:16px; height:16px; flex-shrink:0; }
+    .crit.bonus { background:rgba(210,172,85,0.08); border:1px dashed rgba(210,172,85,0.45); border-radius:10px; padding:12px 10px; margin-top:10px; }
+    .crit-note { font-size:12px; color:var(--gold2); opacity:0.75; margin-top:10px; line-height:1.6; }
+    #critCount { color:var(--gold); font-weight:700; }
+    canvas#sigPad { width:100%; height:170px; background:#FBF8F0; border-radius:10px; touch-action:none; cursor:crosshair; display:block; }
+    .sig-tools { display:flex; align-items:center; gap:10px; margin-top:10px; }
+    .sig-tools button { border:1px solid rgba(210,172,85,0.4); background:none; color:var(--gold2); border-radius:8px; padding:9px 14px; font-size:13px; cursor:pointer; font-family:inherit; }
+    .sig-hint { font-size:12px; color:var(--gold2); opacity:0.7; }
+    .agree { display:flex; gap:9px; align-items:flex-start; font-size:12.5px; line-height:1.75; color:var(--gold2); }
+    .agree input { margin-top:3px; accent-color:var(--gold); }
+    button.submit { width:100%; margin-top:6px; padding:16px; border:none; border-radius:10px; background:linear-gradient(180deg,#E6C75A,#D2AC55); color:#10220f; font-size:17px; font-weight:700; letter-spacing:1px; cursor:pointer; font-family:inherit; }
+    .alert { margin-bottom:16px; padding:15px 17px; border-radius:12px; font-size:13.5px; line-height:1.8; }
+    .alert.error { background:rgba(180,50,50,0.18); border:1px solid rgba(220,100,100,0.5); color:#ffd9d9; }
+    .alert.ok { background:rgba(210,172,85,0.12); border:1px solid rgba(210,172,85,0.5); color:var(--gold2); }
+    .alert.ok b { color:#fff; }
+    .backlink { text-align:center; margin-top:22px; font-size:12px; }
+    .backlink a { color:var(--gold2); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="head">
+      <div class="brand">Ark Project</div>
+      <div class="by">By Jiyang</div>
+      <h1>방주 멤버십 가입 신청</h1>
+      <div class="lead">아래 가입 요건 중 <b style="color:#fff;"><%= need %>가지 이상</b>을 충족하시면 신청하실 수 있습니다.<br/>관리자 확인 후 개별 연락으로 안내드립니다.</div>
+    </div>
+
+    <% if (error) { %><div class="alert error">⚠️ <%= error %></div><% } %>
+
+    <% if (done) { %>
+    <div class="alert ok">
+      ✅ <b>가입 신청이 접수되었습니다.</b><br/>
+      서명과 함께 신청 내용이 안전하게 기록되었으며, 관리자 확인(요건 검토) 후
+      입력하신 연락처로 안내드리겠습니다. 감사합니다.
+    </div>
+    <div class="backlink"><a href="/about">← 방주 프로젝트 소개로 돌아가기</a></div>
+    <% } else { %>
+
+    <form method="post" action="/join" id="joinForm">
+      <div class="panel">
+        <h2>신청자 정보</h2>
+        <label class="f">성함</label>
+        <input type="text" name="name" value="<%= form.name || '' %>" placeholder="예: 홍길동" />
+        <label class="f">휴대폰 번호</label>
+        <input type="tel" name="phone" value="<%= form.phone || '' %>" placeholder="예: 01012345678" />
+      </div>
+
+      <div class="panel">
+        <h2>가입 요건 — 해당하는 항목에 모두 체크 (<span id="critCount">0</span>/<%= need %> 이상)</h2>
+        <% criteria.forEach(function (c) { %>
+        <label class="crit"><input type="checkbox" name="criteria" value="<%= c.id %>" /><span><%= c.label %></span></label>
+        <% }); %>
+        <label class="crit bonus"><input type="checkbox" name="criteria" value="<%= bonus.id %>" /><span><%= bonus.label %><br/><small style="opacity:0.75;">보너스 요건 — 충족 시 위 요건 1개를 충족한 것으로 인정됩니다.</small></span></label>
+        <div class="crit-note">체크하신 요건은 관리자가 보유 보증서·구매 이력·라벨 실물 등으로 확인합니다. 사실과 다르면 가입이 제한될 수 있습니다.</div>
+      </div>
+
+      <div class="panel">
+        <h2>규정 동의 · 전자서명</h2>
+        <div class="agree" style="margin-bottom:14px;">
+          <input type="checkbox" name="agree" id="agree" />
+          <label for="agree">
+            [필수] 방주 프로젝트 규정(등록 개체만 보증, 무단 증식·위조 금지, 소유권 이전 절차, 개인정보 수집·이용)에 동의하며,
+            아래 서명은 본인이 직접 작성한 것임을 확인합니다.
+          </label>
+        </div>
+        <canvas id="sigPad"></canvas>
+        <div class="sig-tools">
+          <button type="button" id="sigClear">지우기</button>
+          <span class="sig-hint">손가락(휴대폰) 또는 마우스로 서명해 주세요.</span>
+        </div>
+        <input type="hidden" name="signature" id="sigData" />
+      </div>
+
+      <button class="submit" type="submit">서명하고 가입 신청하기</button>
+    </form>
+    <div class="backlink"><a href="/about">← 방주 프로젝트 소개</a></div>
+    <% } %>
+  </div>
+
+  <script>
+    // 요건 체크 개수 표시
+    var boxes = document.querySelectorAll('input[name="criteria"]');
+    var cnt = document.getElementById('critCount');
+    boxes.forEach(function (b) { b.addEventListener('change', function () {
+      var n = document.querySelectorAll('input[name="criteria"]:checked').length;
+      if (cnt) cnt.textContent = n;
+    }); });
+
+    // ---- 전자서명 패드 ----
+    var pad = document.getElementById('sigPad');
+    if (pad) {
+      var ctx = pad.getContext('2d');
+      var drawing = false, drew = false;
+      function resize() {
+        var ratio = window.devicePixelRatio || 1;
+        var w = pad.clientWidth, h = pad.clientHeight;
+        var old = drew ? pad.toDataURL() : null;
+        pad.width = w * ratio; pad.height = h * ratio;
+        ctx.scale(ratio, ratio);
+        ctx.lineWidth = 2.4; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#1A2B14';
+        if (old) { var img = new Image(); img.onload = function () { ctx.drawImage(img, 0, 0, w, h); }; img.src = old; }
+      }
+      resize(); window.addEventListener('resize', resize);
+      function pos(e) {
+        var r = pad.getBoundingClientRect();
+        var t = e.touches ? e.touches[0] : e;
+        return { x: t.clientX - r.left, y: t.clientY - r.top };
+      }
+      function start(e) { drawing = true; drew = true; var p = pos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); e.preventDefault(); }
+      function move(e) { if (!drawing) return; var p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); e.preventDefault(); }
+      function end() { drawing = false; }
+      pad.addEventListener('mousedown', start); pad.addEventListener('mousemove', move); window.addEventListener('mouseup', end);
+      pad.addEventListener('touchstart', start, { passive: false }); pad.addEventListener('touchmove', move, { passive: false }); pad.addEventListener('touchend', end);
+      document.getElementById('sigClear').addEventListener('click', function () {
+        ctx.clearRect(0, 0, pad.width, pad.height); drew = false;
+      });
+      document.getElementById('joinForm').addEventListener('submit', function (e) {
+        if (!drew) { e.preventDefault(); alert('서명란에 서명해 주세요.'); return; }
+        document.getElementById('sigData').value = pad.toDataURL('image/png');
+      });
+    }
+  </script>
+</body>
+</html>
