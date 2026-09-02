@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= key %> 시트 | ARK PROJECT</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&display=swap" rel="stylesheet" />
+  <style>
+    :root { --gold:#D4AF37; --gold-soft:#E8D9A0; --line:rgba(212,175,55,0.22); }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif; background:linear-gradient(160deg,#1A3620,#0E1F12); color:#FBF8F0; min-height:100vh; padding:26px 14px 60px; }
+    .wrap { max-width:1200px; margin:0 auto; }
+    .bar { display:flex; align-items:center; gap:12px; margin-bottom:14px; flex-wrap:wrap; }
+    .bar h1 { font-size:19px; font-weight:600; color:#fff; }
+    .bar .tabname { font-size:13px; color:var(--gold-soft); opacity:0.8; }
+    .bar .refresh { margin-left:auto; color:#10220f; background:linear-gradient(180deg,#E6C75A,#D4AF37); border:none; border-radius:8px; padding:10px 16px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; text-decoration:none; }
+    .meta { font-size:12px; color:var(--gold-soft); opacity:0.7; margin-bottom:12px; }
+    .tablebox { overflow:auto; max-height:72vh; border:1px solid var(--line); border-radius:12px; background:rgba(0,0,0,0.25); }
+    table { border-collapse:collapse; width:100%; font-size:12.5px; }
+    th, td { border:1px solid rgba(212,175,55,0.15); padding:7px 9px; text-align:left; vertical-align:top; max-width:420px; white-space:pre-wrap; word-break:break-word; }
+    thead th { position:sticky; top:0; background:#24422C; color:var(--gold-soft); font-weight:600; z-index:2; }
+    tbody tr:nth-child(even) { background:rgba(255,255,255,0.025); }
+    td.num { color:var(--gold); white-space:nowrap; }
+    td.sub { background:rgba(212,175,55,0.10); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <%- include('partials/nav', { active: 'sheet-' + key, grades: grades }) %>
+    <div class="bar">
+      <h1>📗 <%= key %> 시트</h1>
+      <span class="tabname">(구글 시트 탭: <%= tab %> · 총 <%= values.length %>행)</span>
+      <a class="refresh" href="">↻ 새로고침</a>
+    </div>
+    <div class="meta">구글 시트와 실시간 연동 — 이 페이지를 열 때마다 최신 내용을 그대로 불러옵니다. K~N열은 손님 제출 기록입니다.</div>
+    <div class="tablebox">
+      <table>
+        <thead>
+          <tr><th>#</th><th>No</th><th>메모</th><th>MP번호</th><th>내용(넘버·품종명)</th><th>E</th><th>F</th><th>G</th><th>H</th><th>I</th><th>생성넘버</th><th>제출자명</th><th>연락처</th><th>제출일</th><th>등록상태</th></tr>
+        </thead>
+        <tbody>
+          <% values.forEach(function (row, i) {
+               var r = [];
+               for (var c = 0; c < 14; c++) r.push(String((row && row[c] !== undefined && row[c] !== null) ? row[c] : ''));
+               if (i === 0) return; // 원본 제목줄(긴 설명)은 생략
+               if (!r.join('').trim()) return;
+          %>
+          <tr>
+            <td class="num"><%= i + 1 %></td>
+            <td><%= r[0] %></td>
+            <td><%= r[1].length > 60 ? r[1].slice(0, 60) + '…' : r[1] %></td>
+            <td><%= r[2] %></td>
+            <td><%= r[3] %></td>
+            <td><%= r[4] %></td>
+            <td><%= r[5] %></td>
+            <td><%= r[6] %></td>
+            <td><%= r[7] %></td>
+            <td><%= r[8] %></td>
+            <td class="num"><%= r[9] %></td>
+            <td class="sub"><%= r[10] %></td>
+            <td class="sub"><%= r[11] %></td>
+            <td class="sub"><%= r[12] %></td>
+            <td class="sub"><%= r[13] %></td>
+          </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>

@@ -3,144 +3,210 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>개체 등록 · 보증서 발행 | ARK PROJECT</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <title>개체 등록 + 보증서 발송 | ARK PROJECT</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&display=swap" rel="stylesheet" />
   <style>
-    :root { --green:#1A3620; --green2:#16301D; --gold:#D4AF37; --gold-soft:#E8D9A0; --paper:#FBF8F0; --line:rgba(212,175,55,0.22); }
+    :root { --gold:#D4AF37; --gold-soft:#E8D9A0; --paper:#FBF8F0; --line:rgba(212,175,55,0.22); }
     * { box-sizing:border-box; margin:0; padding:0; }
-    body { font-family:'Noto Sans KR',sans-serif; background:linear-gradient(160deg,#1A3620,#0E1F12); color:var(--paper); min-height:100vh; padding:26px 14px 60px; }
-    .wrap { max-width:680px; margin:0 auto; }
-    .top { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
-    .logo { font-family:'Playfair Display',serif; color:var(--gold); letter-spacing:3px; font-size:15px; }
-    .nav a, .logout { color:var(--gold-soft); font-size:12px; text-decoration:none; border:1px solid rgba(212,175,55,0.4); padding:6px 12px; border-radius:6px; background:none; cursor:pointer; margin-left:6px; font-family:inherit; }
-    .nav a.active { background:var(--gold); color:#10220f; border-color:var(--gold); }
-    .panel { background:rgba(0,0,0,0.22); border:1px solid var(--line); border-radius:14px; overflow:hidden; }
-    .section-head { display:flex; align-items:center; gap:8px; background:rgba(212,175,55,0.10); padding:13px 18px; border-bottom:1px solid var(--line); }
+    body { font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif; background:linear-gradient(160deg,#1A3620,#0E1F12); color:var(--paper); min-height:100vh; padding:26px 14px 80px; }
+    .wrap { max-width:760px; margin:0 auto; }
+    .panel { background:rgba(0,0,0,0.22); border:1px solid var(--line); border-radius:14px; overflow:hidden; margin-bottom:18px; }
+    .section-head { display:flex; align-items:center; gap:8px; background:rgba(212,175,55,0.10); padding:14px 18px; border-bottom:1px solid var(--line); }
     .section-head .dot { width:7px; height:7px; border-radius:50%; background:var(--gold); }
-    .section-head h2 { font-size:14px; font-weight:500; color:#fff; letter-spacing:0.5px; }
-    .req-note { margin-left:auto; font-size:11px; color:var(--gold-soft); opacity:0.7; }
+    .section-head h2 { font-size:15px; font-weight:600; color:#fff; }
+    .req-note { margin-left:auto; font-size:12px; color:var(--gold-soft); opacity:0.7; }
     table.form { width:100%; border-collapse:collapse; }
     table.form tr { border-bottom:1px solid var(--line); }
     table.form tr:last-child { border-bottom:none; }
-    table.form th { width:34%; text-align:left; vertical-align:top; padding:14px 16px; font-weight:400; font-size:13px; color:var(--gold-soft); background:rgba(255,255,255,0.02); }
+    table.form th { width:30%; text-align:left; vertical-align:top; padding:15px 16px; font-weight:500; font-size:14px; color:var(--gold-soft); background:rgba(255,255,255,0.02); }
     table.form th .star { color:var(--gold); margin-right:3px; }
-    table.form td { padding:10px 16px; }
-    input[type=text], textarea, select { width:100%; padding:11px 12px; border-radius:7px; font-size:14px; border:1px solid rgba(212,175,55,0.30); background:rgba(255,255,255,0.06); color:#fff; font-family:inherit; }
+    table.form td { padding:11px 16px; }
+    input[type=text], input[type=tel], textarea, select { width:100%; padding:12px; border-radius:7px; font-size:15px; border:1px solid rgba(212,175,55,0.30); background:rgba(255,255,255,0.06); color:#fff; font-family:inherit; }
+    select { background:#16301D; }
     input:focus, textarea:focus, select:focus { outline:none; border-color:var(--gold); }
     textarea { resize:vertical; min-height:78px; line-height:1.6; }
-    .hint { font-size:11px; color:var(--gold-soft); opacity:0.6; margin-top:5px; }
+    .hint { font-size:12px; color:var(--gold-soft); opacity:0.65; margin-top:6px; line-height:1.5; }
     .id-row { display:flex; gap:8px; }
-    .id-row button { white-space:nowrap; border:1px solid rgba(212,175,55,0.4); background:rgba(212,175,55,0.12); color:var(--gold-soft); border-radius:7px; padding:0 12px; font-size:12px; cursor:pointer; font-family:inherit; }
     .pair { display:flex; gap:10px; }
     .pair > div { flex:1; }
-    .actions { margin-top:20px; }
-    button.submit { width:100%; padding:15px; border:none; border-radius:9px; background:linear-gradient(180deg,#E6C75A,#D4AF37); color:#10220f; font-size:16px; font-weight:700; letter-spacing:1px; cursor:pointer; font-family:inherit; }
-    .alert { margin-bottom:16px; padding:14px 16px; border-radius:10px; font-size:14px; line-height:1.6; }
+    .photo-btns { display:flex; gap:8px; margin-bottom:6px; }
+    .photo-btns label { flex:1; text-align:center; border:1px solid rgba(212,175,55,0.45); background:rgba(212,175,55,0.12); color:var(--gold-soft); border-radius:8px; padding:12px; font-size:14px; cursor:pointer; }
+    .photo-btns input { display:none; }
+    #photoName { font-size:12px; color:#fff; }
+    button.submit { width:100%; padding:17px; border:none; border-radius:10px; background:linear-gradient(180deg,#E6C75A,#D4AF37); color:#10220f; font-size:18px; font-weight:700; letter-spacing:1px; cursor:pointer; font-family:inherit; }
+    .alert { margin-bottom:16px; padding:15px 17px; border-radius:10px; font-size:14px; line-height:1.7; }
     .alert.error { background:rgba(180,50,50,0.18); border:1px solid rgba(220,100,100,0.5); color:#ffd9d9; }
     .alert.ok { background:rgba(212,175,55,0.12); border:1px solid rgba(212,175,55,0.5); color:var(--gold-soft); }
     .alert.ok a { color:var(--gold); word-break:break-all; }
+    #numStatus { font-size:12px; margin-top:6px; }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="top">
-      <div class="logo">ARK PROJECT · BY JIYANG</div>
-      <div class="nav">
-        <a href="/admin/new" class="active">개체 등록</a>
-        <a href="/admin">보증서 발송</a>
-        <form method="post" action="/admin/logout" style="display:inline;"><button class="logout" type="submit">로그아웃</button></form>
-      </div>
-    </div>
+    <%- include('partials/nav', { active: 'new', grades: grades }) %>
 
     <% if (error) { %>
     <div class="alert error">⚠️ <%= error %></div>
     <% } %>
     <% if (result) { %>
     <div class="alert ok">
-      ✅ <b><%= result.품종명 %></b> (<%= result.고유번호 %>) 등록 완료! 구글 시트에 저장되었습니다.<br/>
-      보증서 미리보기: <a href="<%= result.url %>" target="_blank"><%= result.url %></a><br/>
-      이제 <a href="/admin">[보증서 발송]</a> 탭에서 고객에게 발송할 수 있습니다.
+      ✅ <b><%= result.품종명 %></b> (<%= result.고유번호 %>) 등록 완료 — 구글 시트에 저장되었습니다.
+      <% if (result.gradeTab) { %><br/>📗 등급 시트 <b><%= result.gradeTab %></b> 맨 아래에도 추가되었습니다.<% } %>
+      <% if (result.사진URL) { %><br/>📷 사진 업로드 완료.<% } %>
+      <% if (result.send) { %>
+      <br/>📨 <b><%= result.send.phone %></b> 번호로 <b><%= result.send.channel %></b> 보증서 발송 완료 — 상태가 <b>정품 인증</b>으로 바뀌었습니다.
+      <% } else { %>
+      <br/>ℹ️ 전화번호를 입력하지 않아 발송은 하지 않았습니다. 상태는 <b>미인증</b>이며, [재발송] 탭에서 언제든 발송할 수 있습니다.
+      <% } %>
+      <br/>보증서 보기: <a href="<%= result.url %>" target="_blank"><%= result.url %></a>
     </div>
     <% } %>
 
-    <form method="post" action="/admin/new">
-      <div class="panel" style="margin-bottom:18px;">
+    <form method="post" action="/admin/new" enctype="multipart/form-data">
+      <div class="panel">
         <div class="section-head"><span class="dot"></span><h2>기본 정보</h2><span class="req-note">★ 필수 입력</span></div>
         <table class="form">
           <tr>
-            <th><span class="star">★</span>고유번호</th>
+            <th><span class="star">★</span>등급 (기록될 시트)</th>
             <td>
-              <div class="id-row">
-                <input type="text" name="고유번호" id="plantId" value="<%= form['고유번호'] || '' %>" placeholder="HW-2026-0001" />
-                <button type="button" onclick="document.getElementById('plantId').value='<%= suggestedId %>';">추천번호</button>
-              </div>
-              <div class="hint">보증서를 찾는 열쇠입니다. 중복 불가. (추천: <%= suggestedId %>)</div>
+              <select name="grade" id="gradeSel">
+                <option value="">— 등급 선택 (선택하면 넘버 자동 제안) —</option>
+                <% grades.forEach(function (g) { %><option value="<%= g %>"><%= g %></option><% }); %>
+              </select>
+              <div class="hint">선택한 등급 시트의 맨 아래 넘버에 이어서 다음 넘버가 자동으로 만들어지고, 연도(예: 26)는 올해로 자동 반영됩니다.</div>
+            </td>
+          </tr>
+          <tr>
+            <th><span class="star">★</span>고유번호 (넘버)</th>
+            <td>
+              <input type="text" name="plantId" id="plantId" value="<%= form['plantId'] || '' %>" placeholder="등급을 선택하면 자동 입력됩니다" />
+              <div id="numStatus" class="hint"></div>
             </td>
           </tr>
           <tr>
             <th><span class="star">★</span>품종명</th>
-            <td><input type="text" name="품종명" value="<%= form['품종명'] || '' %>" placeholder="예: 옵투사 만상 「청룡」" /></td>
-          </tr>
-          <tr>
-            <th>상태</th>
-            <td><input type="text" name="상태" value="<%= form['상태'] || '정품 인증' %>" /></td>
-          </tr>
-        </table>
-      </div>
-
-      <div class="panel" style="margin-bottom:18px;">
-        <div class="section-head"><span class="dot"></span><h2>육종 정보</h2></div>
-        <table class="form">
-          <tr><th>육종가</th><td><input type="text" name="육종가" value="<%= form['육종가'] || '지양하월시아' %>" /></td></tr>
-          <tr><th>육종 연도</th><td><input type="text" name="육종연도" value="<%= form['육종연도'] || '' %>" placeholder="예: 2024" /></td></tr>
-          <tr>
-            <th>모본 · 부본 (교배 정보)</th>
             <td>
-              <div class="pair">
-                <div><input type="text" name="모본" value="<%= form['모본'] || '' %>" placeholder="모본 (씨받이)" /></div>
-                <div><input type="text" name="부본" value="<%= form['부본'] || '' %>" placeholder="부본 (꽃가루)" /></div>
-              </div>
+              <input type="text" name="variety" list="varietyList" id="varietyInput" value="<%= form['variety'] || '' %>" placeholder="입력하면 시트의 품종명이 자동완성됩니다" autocomplete="off" />
+              <datalist id="varietyList"></datalist>
             </td>
-          </tr>
-          <tr><th>DNA 마커</th><td><input type="text" name="DNA마커" value="<%= form['DNA마커'] || '' %>" placeholder="예: 등록완료 JY-0001" /></td></tr>
-        </table>
-      </div>
-
-      <div class="panel" style="margin-bottom:18px;">
-        <div class="section-head"><span class="dot"></span><h2>사진 · 인증</h2></div>
-        <table class="form">
-          <tr>
-            <th>사진 URL</th>
-            <td>
-              <input type="text" name="사진URL" value="<%= form['사진URL'] || '' %>" placeholder="https://.../plant.jpg" />
-              <div class="hint">.jpg / .png 로 끝나는 이미지 주소 권장. 비우면 '사진 준비 중'으로 표시됩니다.</div>
-            </td>
-          </tr>
-          <tr>
-            <th>관리자 메시지</th>
-            <td><textarea name="관리자메시지" placeholder="비우면 기본 환영 문구가 들어갑니다."><%= form['관리자메시지'] || '' %></textarea></td>
           </tr>
         </table>
       </div>
 
       <div class="panel">
-        <div class="section-head"><span class="dot"></span><h2>소유 정보</h2></div>
+        <div class="section-head"><span class="dot"></span><h2>육종 정보</h2></div>
         <table class="form">
-          <tr><th>현 소유자</th><td><input type="text" name="소유자" value="<%= form['소유자'] || '' %>" placeholder="예: 홍길동 (발송 시 자동 기록도 됩니다)" /></td></tr>
+          <tr><th>육종가</th><td><input type="text" name="breeder" value="<%= form['breeder'] || '지양하월시아' %>" /></td></tr>
+          <tr><th>육종 연도</th><td><input type="text" name="bredYear" value="<%= form['bredYear'] || '' %>" placeholder="예: 2024" /></td></tr>
+          <tr>
+            <th>모본 · 부본</th>
+            <td>
+              <div class="pair">
+                <div><input type="text" name="mother" value="<%= form['mother'] || '' %>" placeholder="모본 (씨받이)" /></div>
+                <div><input type="text" name="father" value="<%= form['father'] || '' %>" placeholder="부본 (꽃가루)" /></div>
+              </div>
+            </td>
+          </tr>
+          <tr><th>DNA 마커</th><td><input type="text" name="dna" value="<%= form['dna'] || '' %>" /></td></tr>
+        </table>
+      </div>
+
+      <div class="panel">
+        <div class="section-head"><span class="dot"></span><h2>사진 · 메시지</h2></div>
+        <table class="form">
+          <tr>
+            <th>개체 사진</th>
+            <td>
+              <div class="photo-btns">
+                <label>📁 사진 파일 선택<input type="file" name="photo" id="photoFile" accept="image/*" /></label>
+                <label>📷 바로 촬영 (휴대폰)<input type="file" id="photoCam" accept="image/*" capture="environment" /></label>
+              </div>
+              <span id="photoName">선택된 사진 없음</span>
+              <div class="hint">휴대폰에서 열면 [바로 촬영]으로 카메라가 켜집니다. 업로드한 사진은 보증서에 자동으로 들어갑니다.</div>
+            </td>
+          </tr>
+          <tr>
+            <th>관리자 메시지</th>
+            <td><textarea name="adminMsg" placeholder="비우면 기본 환영 문구가 들어갑니다."><%= form['adminMsg'] || '' %></textarea></td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="panel">
+        <div class="section-head"><span class="dot"></span><h2>소유 정보 · 발송</h2></div>
+        <table class="form">
+          <tr><th>현 소유자</th><td><input type="text" name="owner" value="<%= form['owner'] || '' %>" placeholder="예: 홍길동" /></td></tr>
           <tr>
             <th>소유자 이전 기록</th>
             <td>
-              <textarea name="소유이력" placeholder="2024 | 최초 육종 (지양하월시아)&#10;2026-06 | 홍길동 님 분양"><%= form['소유이력'] || '' %></textarea>
-              <div class="hint">한 줄이 보증서의 타임라인 한 칸이 됩니다. "날짜 | 내용" 형식 권장.</div>
+              <textarea name="history" placeholder="예: 2026-09-02 | 홍길동님 분양"><%= form['history'] || '' %></textarea>
+              <div class="hint">"최초 육종 (지양하월시아)" 줄은 자동으로 맨 위에 들어가니 적지 않으셔도 됩니다. 한 줄 = 타임라인 한 칸.</div>
+            </td>
+          </tr>
+          <tr>
+            <th>고객 휴대폰 번호</th>
+            <td>
+              <input type="tel" name="phone" value="<%= form['phone'] || '' %>" placeholder="예: 01012345678 — 입력하면 등록 즉시 보증서가 발송됩니다" />
+              <div class="hint">입력 시: 등록 → 보증서 자동 발송 → 상태 '정품 인증'. 비우면: 등록만 하고 상태 '미인증'.</div>
             </td>
           </tr>
         </table>
       </div>
 
-      <div class="actions">
-        <button class="submit" type="submit">개체 등록하기</button>
-      </div>
+      <button class="submit" type="submit">개체 등록 + 보증서 발송</button>
     </form>
   </div>
+
+  <script>
+    // 등급 선택 → 다음 넘버 자동 제안 + 품종명 자동완성 목록 불러오기
+    var gradeSel = document.getElementById('gradeSel');
+    var plantId = document.getElementById('plantId');
+    var numStatus = document.getElementById('numStatus');
+    var varietyList = document.getElementById('varietyList');
+
+    gradeSel.addEventListener('change', function () {
+      var g = gradeSel.value;
+      if (!g) return;
+      numStatus.textContent = '넘버 계산 중...';
+      fetch('/api/next-number?grade=' + encodeURIComponent(g))
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (d.ok) {
+            plantId.value = d.suggest;
+            numStatus.textContent = '✔ ' + d.tab + ' 시트 맨 아래 넘버(' + d.last + ') 다음 번호입니다. 수정도 가능합니다.';
+          } else {
+            numStatus.textContent = '⚠ ' + d.error;
+          }
+        })
+        .catch(function () { numStatus.textContent = '⚠ 넘버 제안 실패 — 직접 입력해 주세요.'; });
+      fetch('/api/varieties?grade=' + encodeURIComponent(g))
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          varietyList.innerHTML = '';
+          (d.names || []).forEach(function (n) {
+            var o = document.createElement('option');
+            o.value = n;
+            varietyList.appendChild(o);
+          });
+        })
+        .catch(function () {});
+    });
+
+    // 사진 선택/촬영 → 하나의 photo 입력으로 합치기
+    var photoFile = document.getElementById('photoFile');
+    var photoCam = document.getElementById('photoCam');
+    var photoName = document.getElementById('photoName');
+    photoFile.addEventListener('change', function () {
+      if (photoFile.files.length) photoName.textContent = '✔ ' + photoFile.files[0].name;
+    });
+    photoCam.addEventListener('change', function () {
+      if (photoCam.files.length) {
+        var dt = new DataTransfer();
+        dt.items.add(photoCam.files[0]);
+        photoFile.files = dt.files;
+        photoName.textContent = '✔ 촬영한 사진 1장';
+      }
+    });
+  </script>
 </body>
 </html>

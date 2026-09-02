@@ -1,19 +1,24 @@
 // =============================================================
-// server.js  —  지양하월시아 방주 프로젝트 디지털 보증서 시스템
+// server.js  —  지양하월시아 방주 프로젝트 디지털 보증서 시스템 (v4)
 // 주요 경로(URL):
-//   GET  /certificate/:id   → 고객용 디지털 보증서 페이지
-//   GET  /admin             → 관리자 로그인 / 보증서 발송 페이지
-//   GET  /admin/new         → 개체 등록(보증서 발행) 폼
-//   POST /admin/new         → 개체 등록 처리 (구글 시트에 새 행 추가)
-//   POST /admin/login       → 관리자 로그인 처리
-//   POST /admin/send        → 제품번호 입력 → 보증서 링크를 고객에게 알림톡/문자 발송
-//   GET  /healthz           → 서버 상태 확인용
+//   GET  /certificate/:id     → 고객용 디지털 보증서 페이지
+//   GET  /royal               → 로얄넘버 정품 등록 (고객 공개 페이지)
+//   GET  /admin               → 관리자 로그인 → 통합 등록·발송 페이지로 이동
+//   GET  /admin/new           → 개체 등록 + 보증서 발송 (통합 페이지)
+//   GET  /admin/sheet/:key    → 녹박/적박/골드/로얄 시트 실시간 뷰어
+//   GET  /admin/settings      → 설정(수정·추가 기능 백로그)
+//   GET  /admin/resend        → 기존 개체 보증서 재발송
+//   GET  /api/next-number     → 등급 선택 시 다음 넘버 자동 제안
+//   GET  /api/varieties       → 품종명 자동완성 목록
+//   GET  /healthz             → 서버 상태 확인용
 // =============================================================
 
 require('dotenv').config();
 const path = require('path');
+const fs = require('fs');
 const express = require('express');
 const session = require('express-session');
+const multer = require('multer');
 
 const sheets = require('./lib/sheets');
 const messaging = require('./lib/messaging');
@@ -21,14 +26,30 @@ const messaging = require('./lib/messaging');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 배포 후 도메인 (예: https://ark.up.railway.app, 끝에 / 없이)
 const BASE_URL = (process.env.BASE_URL || '').replace(/\/$/, '');
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'change-me';
+
+// ---- 사진 저장 폴더 (Railway 볼륨 /data 가 있으면 거기에, 없으면 로컬 폴더) ----
+const PHOTO_DIR = process.env.PHOTO_DIR || (fs.existsSync('/data') ? '/data/photos' : path.join(__dirname, 'photos_local'));
+try { fs.mkdirSync(PHOTO_DIR, { recursive: true }); } catch (e) { console.warn('사진 폴더 생성 실패:', e.message); }
+
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => cb(null, PHOTO_DIR),
+    filename: (req, file, cb) => {
+      const ext = (path.extname(file.originalname || '') || '.jpg').toLowerCase().slice(0, 6);
+      const safe = String((req.body && req.body.plantId) || 'photo').replace(/[^A-Za-z0-9가-힣一-鿿\-]/g, '').slice(0, 60);
+      cb(null, `${safe}_${Date.now()}${ext}`);
+    },
+  }),
+  limits: { fileSize: 15 * 1024 * 1024 },
+});
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/photos', express.static(PHOTO_DIR));
 app.use(
   session({
     secret: process.env.SESSION_SECRET || 'jiyang-ark-secret',
@@ -42,11 +63,15 @@ function certificateUrl(req, id) {
   const base = BASE_URL || `${req.protocol}://${req.get('host')}`;
   return `${base}/certificate/${encodeURIComponent(id)}`;
 }
+function photoUrl(req, filename) {
+  const base = BASE_URL || `${req.protocol}://${req.get('host')}`;
+  return `${base}/photos/${encodeURIComponent(filename)}`;
+}
 
 app.get('/healthz', (req, res) => res.send('ok'));
 app.get('/', (req, res) => res.redirect('/admin'));
 
-// 고객용 보증서 페이지
+// ---- 고객용 보증서 페이지 ----
 app.get('/certificate/:id', async (req, res) => {
   try {
     const plant = await sheets.findById(req.params.id);
@@ -58,20 +83,21 @@ app.get('/certificate/:id', async (req, res) => {
   }
 });
 
+// ---- 관리자 로그인 ----
 function requireLogin(req, res, next) {
   if (req.session && req.session.isAdmin) return next();
   return res.redirect('/admin');
 }
 
 app.get('/admin', (req, res) => {
-  if (req.session && req.session.isAdmin) return res.render('admin', { result: null, error: null, form: {} });
+  if (req.session && req.session.isAdmin) return res.redirect('/admin/new');
   res.render('login', { error: null });
 });
 
 app.post('/admin/login', (req, res) => {
   if (req.body.password === ADMIN_PASSWORD) {
     req.session.isAdmin = true;
-    return res.redirect('/admin');
+    return res.redirect('/admin/new');
   }
   res.render('login', { error: '비밀번호가 올바르지 않습니다.' });
 });
@@ -80,69 +106,171 @@ app.post('/admin/logout', (req, res) => {
   req.session.destroy(() => res.redirect('/admin'));
 });
 
-// 올해 기준 다음 고유번호 추천 (예: HW-2026-0007)
-async function suggestNextId() {
-  const year = new Date().getFullYear();
-  const prefix = 'HW-' + year + '-';
-  let max = 0;
+// ---- API: 등급 선택 시 다음 넘버 제안 ----
+app.get('/api/next-number', requireLogin, async (req, res) => {
   try {
-    const rows = await sheets.getAllRows();
-    rows.forEach((r) => {
-      const id = (r['고유번호'] || '').trim();
-      if (id.indexOf(prefix) === 0) {
-        const n = parseInt(id.slice(prefix.length), 10);
-        if (!isNaN(n) && n > max) max = n;
-      }
-    });
+    const r = await sheets.suggestGradeNumber(String(req.query.grade || ''));
+    res.json({ ok: true, suggest: r.suggest, last: r.last, lastRow: r.lastRow, tab: r.tab });
   } catch (e) {
-    console.warn('번호 추천 중 경고:', e.message);
+    res.json({ ok: false, error: e.message });
   }
-  return prefix + String(max + 1).padStart(4, '0');
-}
-
-// 개체 등록 폼
-app.get('/admin/new', requireLogin, async (req, res) => {
-  const suggestedId = await suggestNextId();
-  res.render('register', { error: null, result: null, form: { 고유번호: suggestedId }, suggestedId });
 });
 
-// 개체 등록 처리 (시트에 새 행 추가)
-app.post('/admin/new', requireLogin, async (req, res) => {
-  const b = req.body;
+// ---- API: 품종명 자동완성 목록 ----
+app.get('/api/varieties', requireLogin, async (req, res) => {
+  try {
+    const names = await sheets.listVarieties(String(req.query.grade || '로얄'));
+    res.json({ ok: true, names });
+  } catch (e) {
+    res.json({ ok: false, error: e.message, names: [] });
+  }
+});
+
+// ---- 통합: 개체 등록 + 보증서 자동 발송 ----
+app.get('/admin/new', requireLogin, (req, res) => {
+  res.render('register', { error: null, result: null, form: {}, grades: Object.keys(sheets.GRADE_TABS) });
+});
+
+app.post('/admin/new', requireLogin, upload.single('photo'), async (req, res) => {
+  const b = req.body || {};
+  const nowYear = new Date().getFullYear();
   const form = {
-    고유번호: (b['고유번호'] || '').trim(),
-    품종명: (b['품종명'] || '').trim(),
-    육종가: (b['육종가'] || '').trim() || '지양하월시아',
-    육종연도: (b['육종연도'] || '').trim(),
-    모본: (b['모본'] || '').trim(),
-    부본: (b['부본'] || '').trim(),
-    DNA마커: (b['DNA마커'] || '').trim(),
-    사진URL: (b['사진URL'] || '').trim(),
-    소유자: (b['소유자'] || '').trim(),
-    소유이력: (b['소유이력'] || '').trim(),
-    관리자메시지: (b['관리자메시지'] || '').trim(),
-    상태: (b['상태'] || '').trim() || '정품 인증',
+    등급: (b.grade || '').trim(),
+    고유번호: (b.plantId || '').trim(),
+    품종명: (b.variety || '').trim(),
+    육종가: (b.breeder || '').trim() || '지양하월시아',
+    육종연도: (b.bredYear || '').trim(),
+    모본: (b.mother || '').trim(),
+    부본: (b.father || '').trim(),
+    DNA마커: (b.dna || '').trim(),
+    소유자: (b.owner || '').trim(),
+    소유이력: (b.history || '').trim(),
+    관리자메시지: (b.adminMsg || '').trim(),
+    고객전화: (b.phone || '').trim(),
   };
   try {
-    if (!form['고유번호']) throw new Error('고유번호는 필수입니다.');
+    if (!form['고유번호']) throw new Error('고유번호(넘버)는 필수입니다. 등급을 선택하면 자동으로 제안됩니다.');
     if (!form['품종명']) throw new Error('품종명은 필수입니다.');
     const exists = await sheets.findById(form['고유번호']);
-    if (exists) throw new Error('고유번호 "' + form['고유번호'] + '" 는 이미 등록되어 있습니다. 다른 번호를 사용하세요.');
-    await sheets.appendRow(form);
-    const url = certificateUrl(req, form['고유번호']);
+    if (exists) throw new Error('고유번호 "' + form['고유번호'] + '" 는 이미 등록되어 있습니다.');
+
+    // 사진 업로드 처리
+    let 사진URL = '';
+    if (req.file) 사진URL = photoUrl(req, req.file.filename);
+
+    // 소유이력: 최초 육종 줄 자동 삽입
+    let 이력 = form['소유이력'];
+    if (!/최초\s*육종/.test(이력)) {
+      const firstLine = `${form['육종연도'] || nowYear} | 최초 육종 (지양하월시아)`;
+      이력 = 이력 ? firstLine + '\n' + 이력 : firstLine;
+    }
+
+    // ① Plants 탭에 기록 (상태 기본: 미인증)
+    await sheets.appendRow({
+      고유번호: form['고유번호'],
+      품종명: form['품종명'],
+      육종가: form['육종가'],
+      육종연도: form['육종연도'],
+      모본: form['모본'],
+      부본: form['부본'],
+      DNA마커: form['DNA마커'],
+      사진URL,
+      소유자: form['소유자'],
+      소유이력: 이력,
+      관리자메시지: form['관리자메시지'],
+      상태: '미인증',
+    });
+
+    // ② 선택한 등급 시트 맨 아래에도 기록
+    let gradeTab = null;
+    if (form['등급']) {
+      try {
+        gradeTab = await sheets.appendGradeRow(form['등급'], form['고유번호'], form['품종명']);
+      } catch (e) {
+        console.warn('등급 시트 기록 경고:', e.message);
+      }
+    }
+
+    // ③ 전화번호가 있으면 보증서 자동 발송 → 상태 '정품 인증' 전환
+    let sendInfo = null;
+    if (form['고객전화']) {
+      const url = certificateUrl(req, form['고유번호']);
+      const sendResult = await messaging.sendCertificate({
+        to: form['고객전화'],
+        name: form['소유자'] || '',
+        url,
+      });
+      const plant = await sheets.findById(form['고유번호']);
+      if (plant) {
+        await sheets.updateRow(plant._rowNumber, {
+          상태: '정품 인증',
+          발급일: new Date().toISOString().slice(0, 10),
+        });
+      }
+      sendInfo = { channel: sendResult.channel, phone: form['고객전화'], url };
+    }
+
     res.render('register', {
       error: null,
       form: {},
-      suggestedId: await suggestNextId(),
-      result: { 고유번호: form['고유번호'], 품종명: form['품종명'], url },
+      grades: Object.keys(sheets.GRADE_TABS),
+      result: {
+        고유번호: form['고유번호'],
+        품종명: form['품종명'],
+        url: certificateUrl(req, form['고유번호']),
+        gradeTab,
+        사진URL,
+        send: sendInfo,
+      },
     });
   } catch (err) {
     console.error(err);
-    res.render('register', { error: err.message, form, result: null, suggestedId: form['고유번호'] });
+    const viewForm = { grade: form['등급'], plantId: form['고유번호'], variety: form['품종명'], breeder: form['육종가'], bredYear: form['육종연도'], mother: form['모본'], father: form['부본'], dna: form['DNA마커'], owner: form['소유자'], history: form['소유이력'], adminMsg: form['관리자메시지'], phone: form['고객전화'] };
+    res.render('register', { error: err.message, form: viewForm, result: null, grades: Object.keys(sheets.GRADE_TABS) });
   }
 });
 
-// 보증서 발송 처리
+// ---- 등급 시트 실시간 뷰어 ----
+app.get('/admin/sheet/:key', requireLogin, async (req, res) => {
+  try {
+    const key = req.params.key;
+    if (!sheets.GRADE_TABS[key]) return res.status(404).send('알 수 없는 시트입니다.');
+    const { tab, values } = await sheets.readGradeSheet(key);
+    res.render('sheet_view', { key, tab, values, grades: Object.keys(sheets.GRADE_TABS) });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('시트를 불러오는 중 오류: ' + err.message);
+  }
+});
+
+// ---- 설정 (수정·추가 기능 백로그) ----
+app.get('/admin/settings', requireLogin, async (req, res) => {
+  try {
+    const items = await sheets.getSettings();
+    res.render('settings', { items, grades: Object.keys(sheets.GRADE_TABS), added: req.query.ok === '1', error: null });
+  } catch (err) {
+    console.error(err);
+    res.render('settings', { items: [], grades: Object.keys(sheets.GRADE_TABS), added: false, error: err.message });
+  }
+});
+
+app.post('/admin/settings', requireLogin, async (req, res) => {
+  try {
+    const text = (req.body.item || '').trim();
+    if (text) await sheets.addSetting(text);
+    res.redirect('/admin/settings?ok=1');
+  } catch (err) {
+    console.error(err);
+    const items = await sheets.getSettings().catch(() => []);
+    res.render('settings', { items, grades: Object.keys(sheets.GRADE_TABS), added: false, error: err.message });
+  }
+});
+
+// ---- 기존 개체 보증서 재발송 (구 발송 페이지) ----
+app.get('/admin/resend', requireLogin, (req, res) => {
+  res.render('admin', { result: null, error: null, form: {}, grades: Object.keys(sheets.GRADE_TABS) });
+});
+
 app.post('/admin/send', requireLogin, async (req, res) => {
   const form = {
     id: (req.body.id || '').trim(),
@@ -155,7 +283,7 @@ app.post('/admin/send', requireLogin, async (req, res) => {
     const plant = await sheets.findById(form.id);
     if (!plant) throw new Error('고유번호 "' + form.id + '" 에 해당하는 개체를 시트에서 찾지 못했습니다.');
     const today = new Date().toISOString().slice(0, 10);
-    const updates = { 발급일: today };
+    const updates = { 발급일: today, 상태: '정품 인증' };
     if (form.name) updates['소유자'] = form.name;
     try {
       await sheets.updateRow(plant._rowNumber, updates);
@@ -171,18 +299,17 @@ app.post('/admin/send', requireLogin, async (req, res) => {
     res.render('admin', {
       error: null,
       form: {},
+      grades: Object.keys(sheets.GRADE_TABS),
       result: { channel: sendResult.channel, id: form.id, variety: plant['품종명'] || '', phone: form.phone, url },
     });
   } catch (err) {
     console.error(err);
-    res.render('admin', { error: err.message, form, result: null });
+    res.render('admin', { error: err.message, form, result: null, grades: Object.keys(sheets.GRADE_TABS) });
   }
 });
 
 // =============================================================
 // 로얄넘버 정품 등록 (고객이 직접 제출하는 공개 페이지)
-//   GET  /royal  → 제출 폼
-//   POST /royal  → 넘버를 '로얄넘버' 탭과 대조 → 일치하면 그 행에 자동 기록
 // =============================================================
 
 app.get('/royal', (req, res) => {
@@ -206,19 +333,14 @@ app.post('/royal', async (req, res) => {
 
     const row = await sheets.findRoyalByNumber(form.number);
 
-    // ① 넘버가 마스터 목록에 없음 → 로그만 남기고 확인대기 안내
     if (!row) {
       await sheets.appendSubmissionLog({
         제출일시: stamp, 입력넘버: form.number, 성함: form.name,
         연락처: form.phone, 일치여부: '불일치', 처리상태: '관리자 확인 필요',
       });
-      return res.render('royal', {
-        error: null, form: {},
-        result: { type: 'pending', number: form.number },
-      });
+      return res.render('royal', { error: null, form: {}, result: { type: 'pending', number: form.number } });
     }
 
-    // ② 이미 다른 사람이 등록한 넘버 → 중복 안내 (기존 기록은 덮어쓰지 않음)
     const existingName = (row['제출자명'] || '').trim();
     const existingPhone = (row['제출자연락처'] || '').replace(/[^0-9]/g, '');
     if (existingName && existingPhone && existingPhone !== form.phone.replace(/[^0-9]/g, '')) {
@@ -226,14 +348,10 @@ app.post('/royal', async (req, res) => {
         제출일시: stamp, 입력넘버: form.number, 성함: form.name,
         연락처: form.phone, 일치여부: '일치(중복제출)', 처리상태: '관리자 확인 필요',
       });
-      return res.render('royal', {
-        error: null, form: {},
-        result: { type: 'duplicate', number: form.number },
-      });
+      return res.render('royal', { error: null, form: {}, result: { type: 'duplicate', number: form.number } });
     }
 
-    // ③ 정상 매칭 → 해당 행에 제출자 정보 자동 기록
-    await sheets.updateRoyalRow(row._rowNumber, row._headers, {
+    await sheets.updateRoyalRow(row._sheet, row._rowNumber, {
       제출자명: form.name,
       제출자연락처: form.phone,
       제출일: stamp,
@@ -243,10 +361,7 @@ app.post('/royal', async (req, res) => {
       제출일시: stamp, 입력넘버: form.number, 성함: form.name,
       연락처: form.phone, 일치여부: '일치', 처리상태: '자동기록 완료',
     });
-    res.render('royal', {
-      error: null, form: {},
-      result: { type: 'ok', number: form.number, name: form.name },
-    });
+    res.render('royal', { error: null, form: {}, result: { type: 'ok', number: form.number, name: form.name } });
   } catch (err) {
     console.error(err);
     res.render('royal', { error: err.message, form, result: null });
@@ -254,6 +369,7 @@ app.post('/royal', async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log('✅ 방주 보증서 서버가 실행되었습니다. 포트: ' + PORT);
+  console.log('✅ 방주 보증서 서버(v4)가 실행되었습니다. 포트: ' + PORT);
+  console.log('📷 사진 저장 폴더: ' + PHOTO_DIR);
   if (!BASE_URL) console.log('ℹ️  BASE_URL 환경변수가 비어 있습니다. 배포 후 도메인을 BASE_URL에 넣어주세요.');
 });
