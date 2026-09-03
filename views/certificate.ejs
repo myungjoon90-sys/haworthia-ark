@@ -24,7 +24,7 @@
   }).filter(Boolean);
   // 등급별 표기
   const gradeKey = (typeof grade !== 'undefined' && grade) ? grade : '기본';
-  const gradeEn = { 녹박: 'GREEN', 적박: 'CRIMSON', 골드: 'GOLD', 로얄: 'ROYAL' }[gradeKey] || '';
+  const gradeEn = { 녹박: 'GREEN', 적박: 'RED', 골드: 'GOLD', 로얄: 'ROYAL' }[gradeKey] || '';
   // 공개 링크(QR)에서는 개인정보 숨김, 구매자 전용 링크(k 토큰)에서만 전체 표시
   const isFull = (typeof full !== 'undefined') ? !!full : true;
   const 상태zh = /정품/.test(상태) ? '正品認證' : '未認證';
