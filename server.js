@@ -492,7 +492,7 @@ app.post('/admin/send', requireLogin, async (req, res) => {
 // (id는 시트에 기록되는 짧은 이름, need는 총 몇 개를 충족해야 하는지)
 const MEMBER_RULE = { need: 3 };
 const MEMBER_CRITERIA = [
-  { id: '골드10', label: '골드 등급 이상 보증서 10개 이상 보유' },
+  { id: '골드10', label: '골드 등급 이상, 디지털 보증서 10개 이상 보유 (넘버 제출)' },
   { id: '구매1천', label: '지양하월시아 누적 구매 1,000만원 이상' },
   { id: '키핑', label: '지양하월시아에 하월시아를 키핑 중' },
   { id: '컬렉션30', label: '지양하월시아 출신 개체 30주 이상 보유 (방주 등록 기준)' },
@@ -548,6 +548,16 @@ app.post('/join', async (req, res) => {
     if (!form.agree) throw new Error('방주 프로젝트 규정 동의에 체크해 주세요.');
     if (!form.signature.startsWith('data:image/png;base64,')) throw new Error('서명을 입력해 주세요. (서명란에 손가락/마우스로 서명)');
 
+    // '골드10' 요건 체크 시: 넘버 제출 필수 + 골드·로얄 시트와 자동 대조
+    let 제출넘버 = '', 자동확인 = '';
+    if (form.criteria.includes('골드10')) {
+      const goldNumbers = (req.body.goldNumbers || '').trim();
+      const check = await sheets.verifyGoldPlusNumbers(goldNumbers, form.phone);
+      if (check.제출 < 10) throw new Error(`골드 등급 이상 넘버를 10개 이상 적어 주세요. (현재 인식된 넘버: ${check.제출}개)`);
+      제출넘버 = check.목록.join('\n');
+      자동확인 = `제출 ${check.제출}개 / 골드+ 시트 확인 ${check.확인}개 / 본인 정품등록 ${check.본인등록}개`;
+    }
+
     // 서명 이미지를 사진 저장소에 파일로 보관
     const b64 = form.signature.replace(/^data:image\/png;base64,/, '');
     if (b64.length > 1.5 * 1024 * 1024) throw new Error('서명 이미지가 너무 큽니다. 다시 시도해 주세요.');
@@ -563,8 +573,10 @@ app.post('/join', async (req, res) => {
       충족요건: form.criteria.join(', '),
       서명이미지: photoUrl(req, fname),
       동의: '규정 동의함 (전자서명)',
+      제출넘버,
+      자동확인,
     });
-    messaging.sendAdminAlert(`[방주] 새 멤버십 가입 신청\n${form.name} / ${form.phone}\n요건: ${form.criteria.join(', ')}`).catch(() => {});
+    messaging.sendAdminAlert(`[방주] 새 멤버십 가입 신청\n${form.name} / ${form.phone}\n요건: ${form.criteria.join(', ')}` + (자동확인 ? `\n넘버 자동확인: ${자동확인}` : '')).catch(() => {});
     res.render('join', { error: null, done: true, form: {}, criteria: MEMBER_CRITERIA, bonus: MEMBER_BONUS, need: MEMBER_RULE.need });
   } catch (err) {
     console.error(err);

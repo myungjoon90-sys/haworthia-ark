@@ -76,8 +76,26 @@
         <% criteria.forEach(function (c) { %>
         <label class="crit"><input type="checkbox" name="criteria" value="<%= c.id %>" /><span><%= c.label %></span></label>
         <% }); %>
+        <div id="goldNumBox" style="display:none; margin:10px 0 4px; padding:12px; background:rgba(255,255,255,0.04); border:1px solid rgba(210,172,85,0.3); border-radius:10px;">
+          <label class="f" style="margin-top:0;">보유하신 골드 등급 이상 넘버 (10개 이상, 줄바꿈 또는 쉼표로 구분)</label>
+          <textarea name="goldNumbers" rows="5" style="width:100%; padding:12px; border-radius:8px; font-size:13px; border:1px solid rgba(210,172,85,0.3); background:rgba(255,255,255,0.06); color:#fff; font-family:inherit; line-height:1.7;" placeholder="JY-OM-N009-20-G0001&#10;JY-QQ-JY001-26-RG0762&#10;..."></textarea>
+          <div class="crit-note" style="margin-top:6px;">적어주신 넘버는 방주 명부와 자동 대조됩니다. 정품 등록이 완료된 넘버만 인정되니, 아직 등록 전이라면 <a href="/royal" target="_blank" style="color:var(--gold);">정품 등록</a>을 먼저 진행해 주세요.</div>
+        </div>
         <label class="crit bonus"><input type="checkbox" name="criteria" value="<%= bonus.id %>" /><span><%= bonus.label %><br/><small style="opacity:0.75;">보너스 요건 — 충족 시 위 요건 1개를 충족한 것으로 인정됩니다.</small></span></label>
         <div class="crit-note">체크하신 요건은 관리자가 보유 보증서·구매 이력·라벨 실물 등으로 확인합니다. 사실과 다르면 가입이 제한될 수 있습니다.</div>
+      </div>
+
+      <div class="panel">
+        <h2>방주 협의서 (요지)</h2>
+        <div style="max-height:180px; overflow-y:auto; padding:14px 16px; background:rgba(255,255,255,0.04); border:1px solid rgba(210,172,85,0.3); border-radius:10px; font-size:12.5px; line-height:1.9; color:#F0E9D8;">
+          하월시아 방주 프로젝트 협의서는 오랜 시간 정성과 노력을 기울여 온 회원들의 권리를 지키기 위한 약속입니다.<br/><br/>
+          하나. 본 협의는 서로의 <b>신뢰</b>를 바탕으로 하며, 회원은 약속을 지키고 배신하지 않습니다.<br/>
+          하나. 보호 대상 품종은 <b>내부에서 먼저 나누는 것</b>을 원칙으로 하며, 충분한 육종과 준비를 마치기 전에는 외부에 유출하지 않습니다.<br/>
+          하나. 본 협의의 보호·관리 대상은 세계적으로 인정받는 수준의 <b>로얄급 품종에 한정</b>합니다.<br/>
+          하나. 무단 증식·불법 유통·위조는 협의서에 따라 제한되며, 위반 시 명부 제외 등 조치될 수 있습니다.<br/>
+          하나. 재분양 시 지양하월시아에 우선 매수 기회를 제공합니다.<br/><br/>
+          ※ 위 내용은 요지이며, 협의서 전문은 가입 승인 시 개별 전달됩니다. 아래 서명은 본 요지에 대한 동의를 포함합니다.
+        </div>
       </div>
 
       <div class="panel">
@@ -111,6 +129,14 @@
       var n = document.querySelectorAll('input[name="criteria"]:checked').length;
       if (cnt) cnt.textContent = n;
     }); });
+
+    // 골드10 요건 체크 시 넘버 입력란 표시
+    var goldBox = document.getElementById('goldNumBox');
+    document.querySelectorAll('input[name="criteria"]').forEach(function (b) {
+      b.addEventListener('change', function () {
+        if (b.value === '골드10' && goldBox) goldBox.style.display = b.checked ? 'block' : 'none';
+      });
+    });
 
     // ---- 전자서명 패드 ----
     var pad = document.getElementById('sigPad');
