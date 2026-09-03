@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QR 택 · <%= id %> | ARK PROJECT</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    :root { --gold:#D4AF37; --gold-soft:#E8D9A0; --line:rgba(212,175,55,0.22); }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif; background:linear-gradient(160deg,#1A3620,#0E1F12); color:#FBF8F0; min-height:100vh; padding:26px 14px 60px; }
+    .toolbar { display:flex; gap:10px; align-items:center; margin-bottom:18px; }
+    .toolbar h1 { font-size:18px; font-weight:600; }
+    .toolbar button { margin-left:auto; background:linear-gradient(180deg,#E6C75A,#D4AF37); color:#10220f; border:none; border-radius:8px; padding:11px 18px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; }
+    .hint { font-size:12px; color:var(--gold-soft); opacity:0.7; margin-bottom:18px; line-height:1.7; }
+    /* 택(라벨) — 인쇄 시 이것만 나옴 */
+    .tag { width:52mm; background:#fff; color:#12240F; border-radius:8px; padding:5mm 4mm; text-align:center; border:1px solid #ccc; }
+    .tag .t-brand { font-family:'Playfair Display',serif; font-size:8pt; letter-spacing:2px; color:#8A6E2B; }
+    .tag .t-by { font-family:'Playfair Display',serif; font-size:5.5pt; letter-spacing:2px; color:#8A6E2B; opacity:0.8; margin-top:1mm; }
+    .tag #qrbox { display:flex; justify-content:center; margin:3mm 0; }
+    .tag .t-num { font-size:7.5pt; letter-spacing:0.5px; font-weight:700; word-break:break-all; }
+    .tag .t-name { font-size:8.5pt; margin-top:1mm; }
+    .tag .t-grade { display:inline-block; font-size:6pt; letter-spacing:1px; border:1px solid #8A6E2B; color:#8A6E2B; border-radius:8px; padding:1px 6px; margin-top:2mm; }
+    .tag .t-foot { font-size:5.5pt; color:#777; margin-top:2mm; }
+    @media print {
+      body { background:#fff; padding:0; }
+      .toolbar, .hint, .taskbar, .brandblock { display:none !important; }
+      .tag { border:1px dashed #999; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <%- include('partials/nav', { active: '', grades: grades }) %>
+    <div class="toolbar">
+      <h1>🏷 QR 택 — <%= id %></h1>
+      <button onclick="window.print()">🖨 인쇄</button>
+    </div>
+    <div class="hint">
+      QR에는 <b>공개 조회용 보증서 링크</b>만 담겨 있어, 라벨을 누가 보더라도 구매자 이름·이력 같은 개인정보는 보이지 않습니다.
+      인쇄해서 화분 택에 붙이면 손님이 폰으로 찍어 바로 정품 확인이 가능합니다. (52mm 폭 기준)
+    </div>
+    <div class="tag">
+      <div class="t-brand">ARK PROJECT</div>
+      <div class="t-by">BY JIYANG</div>
+      <div id="qrbox"></div>
+      <div class="t-num"><%= id %></div>
+      <% if (variety) { %><div class="t-name"><%= variety %></div><% } %>
+      <% if (grade && grade !== '기본') { %><div class="t-grade"><%= grade %> GRADE</div><% } %>
+      <div class="t-foot">QR을 찍으면 정품 보증서가 열립니다</div>
+    </div>
+  </div>
+  <script>
+    new QRCode(document.getElementById('qrbox'), {
+      text: '<%= publicUrl %>',
+      width: 116, height: 116, correctLevel: QRCode.CorrectLevel.M,
+    });
+  </script>
+</body>
+</html>

@@ -16,6 +16,7 @@
 require('dotenv').config();
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
 const express = require('express');
 const session = require('express-session');
 const multer = require('multer');
@@ -63,6 +64,18 @@ function certificateUrl(req, id) {
   const base = BASE_URL || `${req.protocol}://${req.get('host')}`;
   return `${base}/certificate/${encodeURIComponent(id)}`;
 }
+// 서명 토큰: 구매자 전용 링크(전체 정보)와 공개 링크(개인정보 숨김)를 구분
+function certToken(id) {
+  return crypto.createHmac('sha256', process.env.SESSION_SECRET || 'jiyang-ark-secret')
+    .update('cert:' + String(id)).digest('hex').slice(0, 10);
+}
+function ownerCertUrl(req, id) {
+  return certificateUrl(req, id) + '?k=' + certToken(id);
+}
+function signPayload(str) {
+  return crypto.createHmac('sha256', process.env.SESSION_SECRET || 'jiyang-ark-secret')
+    .update('card:' + str).digest('hex').slice(0, 12);
+}
 function photoUrl(req, filename) {
   const base = BASE_URL || `${req.protocol}://${req.get('host')}`;
   return `${base}/photos/${encodeURIComponent(filename)}`;
@@ -88,7 +101,8 @@ app.get('/certificate/:id', async (req, res) => {
     const plant = await sheets.findById(req.params.id);
     if (!plant) return res.status(404).render('not_found', { id: req.params.id });
     const grade = String(req.query.grade || '').trim() || gradeOf(plant); // ?grade= 로 미리보기 가능
-    res.render('certificate', { plant, grade, pageUrl: certificateUrl(req, req.params.id) });
+    const full = String(req.query.k || '') === certToken(req.params.id); // 구매자 전용 링크만 전체 표시
+    res.render('certificate', { plant, grade, full, pageUrl: certificateUrl(req, req.params.id) });
   } catch (err) {
     console.error(err);
     res.status(500).send('보증서를 불러오는 중 오류가 발생했습니다: ' + err.message);
@@ -217,7 +231,7 @@ app.post('/admin/new', requireLogin, upload.single('photo'), async (req, res) =>
     // ③ 전화번호가 있으면 보증서 자동 발송 → 상태 '정품 인증' 전환
     let sendInfo = null;
     if (form['고객전화']) {
-      const url = certificateUrl(req, form['고유번호']);
+      const url = ownerCertUrl(req, form['고유번호']);
       const sendResult = await messaging.sendCertificate({
         to: form['고객전화'],
         name: form['소유자'] || '',
@@ -289,6 +303,119 @@ app.post('/admin/settings', requireLogin, async (req, res) => {
   }
 });
 
+// ---- 대시보드 ----
+app.get('/admin/dashboard', requireLogin, async (req, res) => {
+  try {
+    const stats = await sheets.getDashboardStats();
+    res.render('dashboard', { stats, grades: Object.keys(sheets.GRADE_TABS), error: null });
+  } catch (err) {
+    console.error(err);
+    res.render('dashboard', { stats: null, grades: Object.keys(sheets.GRADE_TABS), error: err.message });
+  }
+});
+
+// ---- QR 택 (인쇄용) : QR에는 공개 링크만 담겨 개인정보가 노출되지 않음 ----
+app.get('/admin/qr/:id', requireLogin, async (req, res) => {
+  const id = req.params.id;
+  const plant = await sheets.findById(id).catch(() => null);
+  res.render('qr_tag', {
+    id,
+    variety: plant ? (plant['품종명'] || '') : '',
+    grade: plant ? gradeOf(plant) : '기본',
+    publicUrl: certificateUrl(req, id),
+    grades: Object.keys(sheets.GRADE_TABS),
+  });
+});
+
+// ---- 회원 관리: 명단 + 멤버십 카드 발급 ----
+app.get('/admin/members', requireLogin, async (req, res) => {
+  try {
+    const members = await sheets.getJoinApplicants();
+    // 각 회원의 카드 링크 생성 (서명된 링크)
+    const base = BASE_URL || `${req.protocol}://${req.get('host')}`;
+    members.forEach((m) => {
+      const payload = Buffer.from(JSON.stringify({ n: m.성함, no: m.회원번호, d: m.일시.slice(0, 10), p: m.연락처 }), 'utf8').toString('base64url');
+      m.cardUrl = `${base}/card?d=${payload}&k=${signPayload(payload)}`;
+    });
+    res.render('members', { members, grades: Object.keys(sheets.GRADE_TABS), sent: req.query.sent || '', error: null });
+  } catch (err) {
+    console.error(err);
+    res.render('members', { members: [], grades: Object.keys(sheets.GRADE_TABS), sent: '', error: err.message });
+  }
+});
+
+app.post('/admin/members/card', requireLogin, async (req, res) => {
+  try {
+    const phone = (req.body.phone || '').trim();
+    const url = (req.body.cardUrl || '').trim();
+    const name = (req.body.name || '').trim();
+    if (!phone || !url) throw new Error('연락처와 카드 링크가 필요합니다.');
+    await messaging.sendCertificate({ to: phone, name, url });
+    res.redirect('/admin/members?sent=' + encodeURIComponent(name));
+  } catch (err) {
+    console.error(err);
+    const members = await sheets.getJoinApplicants().catch(() => []);
+    res.render('members', { members, grades: Object.keys(sheets.GRADE_TABS), sent: '', error: err.message });
+  }
+});
+
+// ---- 회원 카드 (서명 링크로만 접근) ----
+app.get('/card', (req, res) => {
+  try {
+    const d = String(req.query.d || '');
+    if (!d || String(req.query.k || '') !== signPayload(d)) return res.status(404).render('not_found', { id: 'MEMBER CARD' });
+    const info = JSON.parse(Buffer.from(d, 'base64url').toString('utf8'));
+    res.render('member_card', { name: info.n, no: info.no, date: info.d, dq: d, kq: String(req.query.k || '') });
+  } catch (e) {
+    res.status(404).render('not_found', { id: 'MEMBER CARD' });
+  }
+});
+
+// ---- 회원 전용 특별분양 (회원 카드의 서명 링크로만 접근) ----
+function verifyMemberLink(req) {
+  const d = String((req.query.d !== undefined ? req.query.d : req.body.d) || '');
+  const k = String((req.query.k !== undefined ? req.query.k : req.body.k) || '');
+  if (!d || k !== signPayload(d)) return null;
+  try { return { info: JSON.parse(Buffer.from(d, 'base64url').toString('utf8')), d, k }; }
+  catch (e) { return null; }
+}
+
+app.get('/offers', async (req, res) => {
+  const m = verifyMemberLink(req);
+  if (!m) return res.status(404).render('not_found', { id: 'MEMBERS ONLY' });
+  try {
+    const offers = await sheets.getOffers();
+    res.render('offers', { offers, member: m.info, d: m.d, k: m.k, error: null, done: null });
+  } catch (err) {
+    console.error(err);
+    res.render('offers', { offers: [], member: m.info, d: m.d, k: m.k, error: err.message, done: null });
+  }
+});
+
+app.post('/offers/reserve', async (req, res) => {
+  const m = verifyMemberLink(req);
+  if (!m) return res.status(404).render('not_found', { id: 'MEMBERS ONLY' });
+  const offerId = (req.body.offerId || '').trim();
+  const memo = (req.body.memo || '').trim();
+  const phone = (req.body.phone || m.info.p || '').trim();
+  try {
+    if (req.body.pledge !== 'on') throw new Error('재분양 시 지양 우선환원 서약에 동의해 주셔야 예약할 수 있습니다.');
+    if (!phone.replace(/[^0-9]/g, '').match(/^01[0-9]{8,9}$/)) throw new Error('연락처를 확인해 주세요.');
+    const r = await sheets.reserveOffer({ offerId, name: m.info.n, phone, memberNo: m.info.no, memo });
+    const msg = r.예약후 >= r.offer.수량
+      ? `🎉 [방주 특별분양 성사!] ${r.offer.품종명} — 정원 ${r.offer.수량}명 전원 모집 완료 (마지막 예약: ${m.info.n})`
+      : `[방주 특별분양 예약] ${r.offer.품종명} ${r.예약후}/${r.offer.수량}
+${m.info.n} (${m.info.no}) / ${phone}`;
+    messaging.sendAdminAlert(msg).catch(() => {});
+    const offers = await sheets.getOffers();
+    res.render('offers', { offers, member: m.info, d: m.d, k: m.k, error: null, done: { 품종명: r.offer.품종명, 예약후: r.예약후, 수량: r.offer.수량 } });
+  } catch (err) {
+    console.error(err);
+    const offers = await sheets.getOffers().catch(() => []);
+    res.render('offers', { offers, member: m.info, d: m.d, k: m.k, error: err.message, done: null });
+  }
+});
+
 // ---- 이력: 제출자별 등록 요약 + 소유권 이전 ----
 app.get('/admin/history', requireLogin, async (req, res) => {
   try {
@@ -339,7 +466,7 @@ app.post('/admin/send', requireLogin, async (req, res) => {
     } catch (e) {
       console.warn('시트 업데이트 경고(발송은 계속 진행):', e.message);
     }
-    const url = certificateUrl(req, form.id);
+    const url = ownerCertUrl(req, form.id);
     const sendResult = await messaging.sendCertificate({
       to: form.phone,
       name: form.name || plant['소유자'] || '',
@@ -373,6 +500,30 @@ const MEMBER_CRITERIA = [
 ];
 // 보너스 요건: 충족 시 위 요건 1개를 충족한 것으로 인정
 const MEMBER_BONUS = { id: '보너스-초기라벨3세트', label: '[보너스] 초기(2015~10년대) 개체를 정품 라벨 완전 세트(한글판+시리얼번호판 2장 = 1세트)로 총 3세트 보유' };
+
+// 공개 정품 조회: 넘버 상태만 확인 (개인정보 없음)
+app.get('/verify', async (req, res) => {
+  const q = (req.query.n || '').trim();
+  if (!q) return res.render('verify', { q: '', result: null, error: null });
+  try {
+    const result = await sheets.verifyNumber(q);
+    res.render('verify', { q, result, error: null });
+  } catch (err) {
+    console.error(err);
+    res.render('verify', { q, result: null, error: err.message });
+  }
+});
+
+// 공개 방주 리스트 (작출자별 등재 품종)
+app.get('/list', async (req, res) => {
+  try {
+    const groups = await sheets.getArkList();
+    res.render('ark_list', { groups, error: null });
+  } catch (err) {
+    console.error(err);
+    res.render('ark_list', { groups: [], error: err.message });
+  }
+});
 
 app.get('/about', (req, res) => {
   res.render('about', { joinUrl: '/join', royalUrl: '/royal' });
@@ -413,6 +564,7 @@ app.post('/join', async (req, res) => {
       서명이미지: photoUrl(req, fname),
       동의: '규정 동의함 (전자서명)',
     });
+    messaging.sendAdminAlert(`[방주] 새 멤버십 가입 신청\n${form.name} / ${form.phone}\n요건: ${form.criteria.join(', ')}`).catch(() => {});
     res.render('join', { error: null, done: true, form: {}, criteria: MEMBER_CRITERIA, bonus: MEMBER_BONUS, need: MEMBER_RULE.need });
   } catch (err) {
     console.error(err);
@@ -428,7 +580,7 @@ app.get('/royal', (req, res) => {
   res.render('royal', { error: null, result: null, form: {} });
 });
 
-app.post('/royal', async (req, res) => {
+app.post('/royal', upload.single('photo'), async (req, res) => {
   const form = {
     number: (req.body.number || '').trim(),
     name: (req.body.name || '').trim(),
@@ -442,6 +594,8 @@ app.post('/royal', async (req, res) => {
     if (!form.name) throw new Error('성함을 입력해 주세요.');
     if (!form.phone.replace(/[^0-9]/g, '').match(/^01[0-9]{8,9}$/)) throw new Error('휴대폰 번호를 정확히 입력해 주세요. (예: 01012345678)');
     if (!form.agree) throw new Error('개인정보 수집·이용에 동의해 주셔야 등록이 가능합니다.');
+    if (!req.file) throw new Error('개체와 라벨이 함께 나온 사진을 반드시 올려 주세요. (도용 방지를 위한 실물 확인용)');
+    const 제출사진 = photoUrl(req, req.file.filename);
 
     const row = await sheets.findRoyalByNumber(form.number);
 
@@ -450,6 +604,7 @@ app.post('/royal', async (req, res) => {
         제출일시: stamp, 입력넘버: form.number, 성함: form.name,
         연락처: form.phone, 일치여부: '불일치', 처리상태: '관리자 확인 필요',
       });
+      messaging.sendAdminAlert(`[방주] 새 넘버 제출(목록 불일치)\n${form.name} / ${form.phone}\n${form.number}\n사진: ${제출사진}`).catch(() => {});
       return res.render('royal', { error: null, form: {}, result: { type: 'pending', number: form.number } });
     }
 
@@ -460,6 +615,7 @@ app.post('/royal', async (req, res) => {
         제출일시: stamp, 입력넘버: form.number, 성함: form.name,
         연락처: form.phone, 일치여부: '일치(중복제출)', 처리상태: '관리자 확인 필요',
       });
+      messaging.sendAdminAlert(`[방주] 중복 제출(소유권 확인 필요)\n${form.name} / ${form.phone}\n${form.number}\n사진: ${제출사진}`).catch(() => {});
       return res.render('royal', { error: null, form: {}, result: { type: 'duplicate', number: form.number } });
     }
 
@@ -468,7 +624,9 @@ app.post('/royal', async (req, res) => {
       제출자연락처: form.phone,
       제출일: stamp,
       등록상태: '제출완료(확인대기)',
+      제출사진,
     });
+    messaging.sendAdminAlert(`[방주] 새 정품 등록 제출\n${form.name} / ${form.phone}\n${form.number}\n사진: ${제출사진}`).catch(() => {});
     await sheets.appendSubmissionLog({
       제출일시: stamp, 입력넘버: form.number, 성함: form.name,
       연락처: form.phone, 일치여부: '일치', 처리상태: '자동기록 완료',
@@ -479,6 +637,24 @@ app.post('/royal', async (req, res) => {
     res.render('royal', { error: err.message, form, result: null });
   }
 });
+
+// ---- 자동 백업: 하루 1회 전체 탭을 JSON 파일로 저장 (사진 볼륨과 같은 저장소) ----
+const BACKUP_DIR = path.join(path.dirname(PHOTO_DIR), 'backups');
+async function runBackup() {
+  try {
+    const data = await sheets.dumpAllTabs();
+    fs.mkdirSync(BACKUP_DIR, { recursive: true });
+    const name = 'backup-' + new Date().toISOString().slice(0, 10) + '.json';
+    fs.writeFileSync(path.join(BACKUP_DIR, name), JSON.stringify(data));
+    const files = fs.readdirSync(BACKUP_DIR).filter((f) => f.startsWith('backup-')).sort();
+    while (files.length > 14) fs.unlinkSync(path.join(BACKUP_DIR, files.shift()));
+    console.log('🗄  자동 백업 완료:', name);
+  } catch (e) {
+    console.warn('자동 백업 실패(다음 회차에 재시도):', e.message);
+  }
+}
+setTimeout(runBackup, 3 * 60 * 1000);           // 서버 시작 3분 후 1회
+setInterval(runBackup, 24 * 60 * 60 * 1000);    // 이후 24시간마다
 
 app.listen(PORT, () => {
   console.log('✅ 방주 보증서 서버(v4)가 실행되었습니다. 포트: ' + PORT);

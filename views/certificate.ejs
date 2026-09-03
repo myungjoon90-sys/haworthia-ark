@@ -25,6 +25,9 @@
   // 등급별 표기
   const gradeKey = (typeof grade !== 'undefined' && grade) ? grade : '기본';
   const gradeEn = { 녹박: 'GREEN', 적박: 'CRIMSON', 골드: 'GOLD', 로얄: 'ROYAL' }[gradeKey] || '';
+  // 공개 링크(QR)에서는 개인정보 숨김, 구매자 전용 링크(k 토큰)에서만 전체 표시
+  const isFull = (typeof full !== 'undefined') ? !!full : true;
+  const 상태zh = /정품/.test(상태) ? '正品認證' : '未認證';
 %>
 <!DOCTYPE html>
 <html lang="ko">
@@ -88,10 +91,17 @@
     .motif.골드 { background:linear-gradient(var(--gold), var(--gold)) top/100% 1.5px no-repeat, linear-gradient(var(--gold), var(--gold)) bottom/100% 1.5px no-repeat, repeating-linear-gradient(90deg, var(--gold) 0 8px, transparent 8px 16px) center/100% 3px no-repeat; }
     .motif.로얄 { background:repeating-linear-gradient(90deg, var(--gold) 0 12px, transparent 12px 16px, var(--gold2) 16px 18px, transparent 18px 30px); height:6px; box-shadow:0 4px 0 -2.5px var(--gold), 0 -4px 0 -2.5px var(--gold); }
     .footer { text-align:center; color:var(--gold2); opacity:0.6; font-size:10.5px; letter-spacing:1px; line-height:1.8; }
+    .lang-toggle { max-width:500px; margin:0 auto 10px; text-align:right; }
+    .lang-toggle button { background:none; border:1px solid var(--gold); color:var(--gold2); border-radius:16px; padding:6px 16px; font-size:13px; cursor:pointer; font-family:inherit; }
+    .savebar { max-width:500px; margin:16px auto 0; text-align:center; }
+    .savebar button { background:linear-gradient(180deg, var(--sealA), var(--gold)); color:var(--g3); border:none; border-radius:10px; padding:13px 26px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; letter-spacing:1px; }
+    .savebar .s-hint { font-size:11px; color:var(--gold2); opacity:0.6; margin-top:8px; }
   </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body class="grade-<%= gradeKey %>">
-  <div class="card">
+  <div class="lang-toggle"><button id="langBtn" type="button">中</button></div>
+  <div class="card" id="certCard">
     <div class="inner">
       <div class="head">
         <div class="brand">Ark Project</div>
@@ -131,16 +141,16 @@
       <div class="plant-id"><%= 고유번호 %></div>
 
       <div class="info">
-        <% if (육종가) { %><div class="row"><span class="k">육종가</span><span class="v"><%= 육종가 %></span></div><% } %>
-        <% if (육종연도) { %><div class="row"><span class="k">육종 연도</span><span class="v"><%= 육종연도 %></span></div><% } %>
-        <% if (교배) { %><div class="row"><span class="k">교배 정보</span><span class="v"><%= 교배 %></span></div><% } %>
-        <% if (마커) { %><div class="row"><span class="k">DNA 마커</span><span class="v"><%= 마커 %></span></div><% } %>
-        <% if (소유자) { %><div class="row"><span class="k">현재 소유자</span><span class="v"><%= 소유자 %></span></div><% } %>
-        <% if (발급일) { %><div class="row"><span class="k">발급일</span><span class="v"><%= 발급일 %></span></div><% } %>
+        <% if (육종가) { %><div class="row"><span class="k tr" data-zh="培育者">육종가</span><span class="v"><%= 육종가 %></span></div><% } %>
+        <% if (육종연도) { %><div class="row"><span class="k tr" data-zh="培育年份">육종 연도</span><span class="v"><%= 육종연도 %></span></div><% } %>
+        <% if (교배) { %><div class="row"><span class="k tr" data-zh="交配資訊">교배 정보</span><span class="v"><%= 교배 %></span></div><% } %>
+        <% if (마커) { %><div class="row"><span class="k tr" data-zh="DNA標記">DNA 마커</span><span class="v"><%= 마커 %></span></div><% } %>
+        <% if (소유자 && isFull) { %><div class="row"><span class="k tr" data-zh="購買者">구매자</span><span class="v"><%= 소유자 %></span></div><% } %>
+        <% if (발급일) { %><div class="row"><span class="k tr" data-zh="發放日期">발급일</span><span class="v"><%= 발급일 %></span></div><% } %>
       </div>
 
-      <% if (이력.length > 0) { %>
-      <div class="section-title">Provenance · 소유 이력</div>
+      <% if (이력.length > 0 && isFull) { %>
+      <div class="section-title tr" data-zh="Provenance · 所有履歷">Provenance · 소유 이력</div>
       <div class="timeline">
         <% 이력.forEach(function (item) { %>
         <div class="tl-item">
@@ -151,6 +161,11 @@
       </div>
       <% } %>
 
+      <% if (!isFull) { %>
+      <div style="font-size:11px; color:var(--gold2); opacity:0.7; margin:14px 0 4px; line-height:1.7;" class="tr" data-zh="※ 購買者資訊與所有履歷僅在購買者專用連結中顯示。">
+        ※ 구매자 정보와 소유 이력은 구매자 전용 링크에서만 표시됩니다.
+      </div>
+      <% } %>
       <div class="message"><%= 메시지 %></div>
 
       <div class="sign-seal">
@@ -159,17 +174,47 @@
       </div>
 
       <div class="badges">
-        <span class="status-badge"><%= 상태 %></span>
+        <span class="status-badge tr" data-zh="<%= 상태zh %>"><%= 상태 %></span>
         <% if (gradeEn) { %><span class="grade-badge"><%= gradeEn %> GRADE</span><% } %>
+      </div>
+      <div style="font-size:10.5px; color:var(--gold2); opacity:0.75; margin-top:10px; letter-spacing:0.5px;">
+        <span class="tr" data-zh="※ 等級每年更新，但以購買年度所屬等級為準。">※ 등급은 매년 갱신되나, 구매 연도에 해당하는 등급으로 인정됩니다.</span>
       </div>
 
       <div class="motif <%= gradeKey %>"></div>
 
       <div class="footer">
-        본 보증서는 지양하월시아 방주 프로젝트의 디지털 인증서입니다.<br/>
-        무단 증식 및 불법 유통은 협의서에 따라 제한됩니다.
+        <span class="tr" data-zh="本證書為 JIYANG HAWORTHIA 方舟計畫之數位認證書。">본 보증서는 지양하월시아 방주 프로젝트의 디지털 인증서입니다.</span><br/>
+        <span class="tr" data-zh="未經許可之增殖與非法流通，依協議書予以限制。">무단 증식 및 불법 유통은 협의서에 따라 제한됩니다.</span>
       </div>
     </div>
   </div>
+  <div class="savebar">
+    <button id="saveImg" type="button">📥 보증서 이미지로 저장</button>
+    <div class="s-hint">카카오톡 프로필·SNS에 올릴 수 있는 이미지 파일로 저장됩니다.</div>
+  </div>
+  <script>
+    // 한 / 中 언어 전환 (표기 라벨만 전환, 개체 정보는 그대로)
+    var zh = false;
+    document.getElementById('langBtn').addEventListener('click', function () {
+      zh = !zh;
+      this.textContent = zh ? '한' : '中';
+      document.querySelectorAll('.tr').forEach(function (el) {
+        if (!el.getAttribute('data-ko')) el.setAttribute('data-ko', el.textContent);
+        el.textContent = zh ? (el.getAttribute('data-zh') || el.textContent) : el.getAttribute('data-ko');
+      });
+    });
+    // 보증서를 이미지 파일로 저장
+    document.getElementById('saveImg').addEventListener('click', function () {
+      var btn = this; btn.disabled = true; btn.textContent = '이미지 생성 중...';
+      html2canvas(document.getElementById('certCard'), { useCORS: true, scale: 2, backgroundColor: null }).then(function (canvas) {
+        var a = document.createElement('a');
+        a.download = '방주보증서_<%= 고유번호 %>.png';
+        a.href = canvas.toDataURL('image/png');
+        a.click();
+        btn.disabled = false; btn.textContent = '📥 보증서 이미지로 저장';
+      }).catch(function () { btn.disabled = false; btn.textContent = '📥 보증서 이미지로 저장'; });
+    });
+  </script>
 </body>
 </html>

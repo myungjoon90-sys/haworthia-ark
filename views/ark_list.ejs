@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>방주 등재 품종 리스트 | ARK PROJECT</title>
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="방주 등재 품종 리스트 · ARK PROJECT" />
+  <meta property="og:description" content="방주 프로젝트에 등재된 작출자별 품종 명단입니다." />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet" />
+  <style>
+    :root { --g1:#1F4129; --g2:#122A18; --g3:#0C1F10; --gold:#D2AC55; --gold2:#E9D6A0; --line:rgba(210,172,85,0.25); }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif; background:radial-gradient(circle at 50% 0%, var(--g1) 0%, var(--g2) 48%, var(--g3) 100%); color:#F6F0DF; min-height:100vh; padding:48px 18px 80px; }
+    .wrap { max-width:640px; margin:0 auto; }
+    .hero { text-align:center; margin-bottom:38px; }
+    .crest { width:48px; height:48px; margin:0 auto 14px; border:1.5px solid var(--gold); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--gold); font-size:22px; }
+    .brand { font-family:'Playfair Display',serif; letter-spacing:7px; font-size:20px; color:var(--gold); text-transform:uppercase; }
+    .by { font-family:'Playfair Display',serif; letter-spacing:4px; font-size:10px; color:var(--gold2); opacity:0.85; text-transform:uppercase; margin-top:6px; }
+    h1 { font-size:18px; font-weight:600; color:#fff; margin-top:16px; letter-spacing:1px; }
+    .lead { font-size:12.5px; color:var(--gold2); opacity:0.85; margin-top:8px; line-height:1.8; }
+    .maker { margin-bottom:34px; }
+    .maker-head { display:flex; align-items:baseline; gap:10px; padding-bottom:10px; border-bottom:1px solid var(--gold); margin-bottom:14px; }
+    .maker-label { font-family:'Playfair Display',serif; font-size:11px; letter-spacing:3px; color:var(--gold2); opacity:0.8; text-transform:uppercase; }
+    .maker-name { font-size:19px; font-weight:700; color:#fff; letter-spacing:1px; }
+    .maker-count { margin-left:auto; font-size:12px; color:var(--gold); }
+    .vlist { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .vcard { border:1px solid var(--line); border-radius:12px; padding:16px 14px; background:rgba(0,0,0,0.22); }
+    .vname { font-family:'Cormorant Garamond','Malgun Gothic',serif; font-size:18px; font-weight:600; color:#fff; }
+    .vdesc { font-size:11.5px; color:var(--gold2); opacity:0.8; margin-top:6px; line-height:1.6; }
+    .vcard img { width:100%; border-radius:8px; margin-bottom:10px; aspect-ratio:4/3; object-fit:cover; border:1px solid var(--line); }
+    .empty { text-align:center; font-size:13px; color:var(--gold2); opacity:0.7; padding:30px 0; }
+    .err { margin-bottom:16px; padding:14px 16px; border-radius:12px; font-size:13px; background:rgba(180,50,50,0.18); border:1px solid rgba(220,100,100,0.5); color:#ffd9d9; }
+    .backlink { text-align:center; margin-top:30px; font-size:12px; }
+    .backlink a { color:var(--gold2); }
+    .note { text-align:center; font-size:10.5px; color:var(--gold2); opacity:0.55; margin-top:24px; line-height:1.8; letter-spacing:0.5px; }
+    @media (max-width:460px) { .vlist { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <div class="crest">&#10086;</div>
+      <div class="brand">Ark Project</div>
+      <div class="by">By Jiyang</div>
+      <h1>방주 등재 품종 리스트</h1>
+      <div class="lead">방주 프로젝트에 등재된 작출자별 품종 명단입니다.</div>
+    </div>
+
+    <% if (error) { %><div class="err">⚠️ <%= error %></div><% } %>
+
+    <% groups.forEach(function (g) { %>
+    <div class="maker">
+      <div class="maker-head">
+        <span class="maker-label">작출자</span>
+        <span class="maker-name"><%= g.작출자 %></span>
+        <span class="maker-count"><%= g.품종.length %>품종</span>
+      </div>
+      <div class="vlist">
+        <% g.품종.forEach(function (v) { %>
+        <div class="vcard">
+          <% if (v.사진URL) { %><img src="<%= v.사진URL %>" alt="<%= v.품종명 %>" /><% } %>
+          <div class="vname"><%= v.품종명 %></div>
+          <% if (v.설명) { %><div class="vdesc"><%= v.설명 %></div><% } %>
+        </div>
+        <% }); %>
+      </div>
+    </div>
+    <% }); %>
+    <% if (!groups.length) { %><div class="empty">등재된 품종이 아직 없습니다.</div><% } %>
+
+    <div class="note">※ 등급은 매년 갱신되나, 구매 연도에 해당하는 등급으로 인정됩니다.</div>
+    <div class="backlink"><a href="/about">← 방주 프로젝트 소개</a> &nbsp;·&nbsp; <a href="/royal">로얄넘버 정품 등록 →</a></div>
+  </div>
+</body>
+</html>

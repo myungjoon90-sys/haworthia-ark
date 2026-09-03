@@ -61,8 +61,7 @@
     <% if (result && result.type === 'ok') { %>
     <div class="alert ok">
       ✅ <b><%= result.number %></b> 넘버가 확인되어 <b><%= result.name %></b>님 성함으로 등록 신청이 완료되었습니다.<br/><br/>
-      📷 <b>개체의 현재 사진</b>을 지양하월시아 카카오톡 채널(또는 문자)로 보내 주시면,
-      관리자 확인 후 디지털 보증서 링크를 보내 드립니다.
+      📷 제출해 주신 사진으로 실물 확인 후, 디지털 보증서 링크를 보내 드립니다.
     </div>
     <% } else if (result && result.type === 'pending') { %>
     <div class="alert ok">
@@ -79,7 +78,7 @@
 
     <% if (!result) { %>
     <div class="panel">
-      <form method="post" action="/royal">
+      <form method="post" action="/royal" enctype="multipart/form-data" id="royalForm">
         <label>로얄넘버</label>
         <input type="text" name="number" value="<%= form.number || '' %>" placeholder="개체에 부여된 넘버를 입력해 주세요" />
         <div class="hint">띄어쓰기나 하이픈(-)이 달라도 괜찮습니다.</div>
@@ -90,6 +89,13 @@
         <label>휴대폰 번호</label>
         <input type="tel" name="phone" value="<%= form.phone || '' %>" placeholder="예: 01012345678" />
         <div class="hint">보증서 링크를 알림톡(문자)으로 보내 드리는 데 사용됩니다.</div>
+
+        <label style="display:block; font-size:13px; color:var(--gold-soft); margin:16px 0 7px;">개체 사진 (필수)</label>
+        <div style="display:flex; gap:8px;">
+          <label style="flex:1; text-align:center; border:1px solid rgba(212,175,55,0.45); background:rgba(212,175,55,0.12); color:var(--gold-soft); border-radius:8px; padding:12px; font-size:13px; cursor:pointer;">📁 사진 선택<input type="file" name="photo" id="rPhotoFile" accept="image/*" style="display:none;" /></label>
+          <label style="flex:1; text-align:center; border:1px solid rgba(212,175,55,0.45); background:rgba(212,175,55,0.12); color:var(--gold-soft); border-radius:8px; padding:12px; font-size:13px; cursor:pointer;">📷 바로 촬영<input type="file" id="rPhotoCam" accept="image/*" capture="environment" style="display:none;" /></label>
+        </div>
+        <div id="rPhotoName" class="hint" style="margin-top:6px;">개체와 라벨(넘버)이 함께 나오도록 찍어 주세요. 실물 확인용입니다.</div>
 
         <div class="agree">
           <input type="checkbox" name="agree" id="agree" />
@@ -109,5 +115,22 @@
       등록 비용은 무료이며, 제출하신 정보는 안전하게 관리됩니다.
     </div>
   </div>
+  <script>
+    var rf = document.getElementById('rPhotoFile');
+    var rc = document.getElementById('rPhotoCam');
+    var rn = document.getElementById('rPhotoName');
+    if (rf) {
+      rf.addEventListener('change', function () { if (rf.files.length) rn.textContent = '✔ ' + rf.files[0].name; });
+      rc.addEventListener('change', function () {
+        if (rc.files.length) {
+          var dt = new DataTransfer(); dt.items.add(rc.files[0]); rf.files = dt.files;
+          rn.textContent = '✔ 촬영한 사진 1장';
+        }
+      });
+      document.getElementById('royalForm').addEventListener('submit', function (e) {
+        if (!rf.files.length) { e.preventDefault(); alert('개체와 라벨이 함께 나온 사진을 올려 주세요.'); }
+      });
+    }
+  </script>
 </body>
 </html>

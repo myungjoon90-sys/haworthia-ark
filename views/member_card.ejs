@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>방주 멤버십 카드 | ARK PROJECT</title>
+  <meta property="og:title" content="ARK PROJECT · 방주 멤버십 카드" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif; background:radial-gradient(circle at 50% 20%, #26221C 0%, #12100D 50%, #050404 100%); color:#EBD8A4; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px 14px; }
+    .card { width:100%; max-width:400px; aspect-ratio:1.586; border-radius:18px; position:relative; overflow:hidden;
+      background:linear-gradient(160deg,#1E1B17 0%,#100E0B 55%,#060505 100%); border:1px solid #D8B25C;
+      box-shadow:0 30px 70px rgba(0,0,0,0.7), inset 0 0 0 1px rgba(235,216,164,0.12); padding:26px 26px 22px;
+      display:flex; flex-direction:column; }
+    .card::before { content:'A'; position:absolute; right:-20px; bottom:-60px; font-family:'Playfair Display',serif; font-size:230px; color:rgba(216,178,92,0.07); line-height:1; pointer-events:none; }
+    .top { display:flex; justify-content:space-between; align-items:flex-start; }
+    .brand { font-family:'Playfair Display',serif; letter-spacing:4px; font-size:14px; color:#D8B25C; text-transform:uppercase; }
+    .by { font-family:'Playfair Display',serif; letter-spacing:3px; font-size:8px; color:#EBD8A4; opacity:0.8; margin-top:4px; text-transform:uppercase; }
+    .tier { font-size:9px; letter-spacing:3px; border:1px solid #D8B25C; color:#D8B25C; border-radius:14px; padding:4px 12px; height:fit-content; }
+    .mid { margin-top:auto; }
+    .label { font-size:8.5px; letter-spacing:3px; color:#EBD8A4; opacity:0.6; text-transform:uppercase; }
+    .name { font-family:'Cormorant Garamond','Malgun Gothic',serif; font-size:30px; font-weight:600; color:#fff; margin:4px 0 12px; }
+    .bottom { display:flex; justify-content:space-between; align-items:flex-end; }
+    .no { font-size:13px; letter-spacing:3px; color:#D8B25C; }
+    .since { font-size:9px; letter-spacing:1px; color:#EBD8A4; opacity:0.7; text-align:right; line-height:1.6; }
+    .foot { position:fixed; bottom:18px; left:0; right:0; text-align:center; font-size:10px; color:#EBD8A4; opacity:0.5; letter-spacing:1px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="top">
+      <div><div class="brand">Ark Project</div><div class="by">By Jiyang</div></div>
+      <div class="tier">MEMBER</div>
+    </div>
+    <div class="mid">
+      <div class="label">Member</div>
+      <div class="name"><%= name %></div>
+      <div class="bottom">
+        <div class="no"><%= no %></div>
+        <div class="since">MEMBER SINCE<br/><%= date %></div>
+      </div>
+    </div>
+  </div>
+  <div style="position:fixed; bottom:44px; left:0; right:0; text-align:center;">
+    <a href="/offers?d=<%= dq %>&k=<%= kq %>" style="display:inline-block; background:linear-gradient(180deg,#EAD088,#D8B25C); color:#12100D; text-decoration:none; border-radius:10px; padding:13px 26px; font-size:14px; font-weight:700; letter-spacing:1px;">✦ 회원 전용 특별분양 보기</a>
+  </div>
+  <div class="foot">본 카드는 방주 프로젝트 정식 회원임을 증명합니다 · JIYANG HAWORTHIA</div>
+</body>
+</html>

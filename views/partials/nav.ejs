@@ -8,7 +8,9 @@
   <% (grades || []).forEach(function (g) { %>
   <a href="/admin/sheet/<%= encodeURIComponent(g) %>" class="tb-btn <%= active === 'sheet-' + g ? 'on' : '' %>"><%= g %></a>
   <% }); %>
+  <a href="/admin/dashboard" class="tb-btn <%= active === 'dashboard' ? 'on' : '' %>">대시보드</a>
   <a href="/admin/history" class="tb-btn <%= active === 'history' ? 'on' : '' %>">이력</a>
+  <a href="/admin/members" class="tb-btn <%= active === 'members' ? 'on' : '' %>">회원</a>
   <a href="/admin/resend" class="tb-btn sub <%= active === 'resend' ? 'on' : '' %>">재발송</a>
   <a href="/admin/settings" class="tb-btn sub <%= active === 'settings' ? 'on' : '' %>">⚙ 설정</a>
   <form method="post" action="/admin/logout" class="tb-out"><button type="submit">로그아웃</button></form>

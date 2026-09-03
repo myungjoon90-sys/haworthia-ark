@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>대시보드 | ARK PROJECT</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&display=swap" rel="stylesheet" />
+  <style>
+    :root { --gold:#D4AF37; --gold-soft:#E8D9A0; --line:rgba(212,175,55,0.22); }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif; background:linear-gradient(160deg,#1A3620,#0E1F12); color:#FBF8F0; min-height:100vh; padding:26px 14px 60px; }
+    h1 { font-size:19px; font-weight:600; margin-bottom:16px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:12px; margin-bottom:22px; }
+    .stat { background:rgba(0,0,0,0.24); border:1px solid var(--line); border-radius:12px; padding:18px; }
+    .stat .k { font-size:12px; color:var(--gold-soft); margin-bottom:8px; }
+    .stat .v { font-size:30px; font-weight:700; color:#fff; }
+    .stat.alert .v { color:#F2C6C6; }
+    .stat.gold .v { color:var(--gold); }
+    .gline { display:flex; gap:10px; flex-wrap:wrap; margin-top:8px; }
+    .gpill { font-size:12px; padding:6px 12px; border-radius:14px; border:1px solid var(--line); color:var(--gold-soft); }
+    .gpill b { color:#fff; margin-left:4px; }
+    .hint { font-size:12px; color:var(--gold-soft); opacity:0.7; line-height:1.7; }
+    .err { margin-bottom:14px; padding:12px 15px; border-radius:10px; font-size:13.5px; background:rgba(180,50,50,0.18); border:1px solid rgba(220,100,100,0.5); color:#ffd9d9; }
+    a.q { color:var(--gold); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <%- include('partials/nav', { active: 'dashboard', grades: grades }) %>
+    <h1>📊 대시보드</h1>
+    <% if (error) { %><div class="err">⚠️ <%= error %></div><% } %>
+    <% if (stats) { %>
+    <div class="grid">
+      <div class="stat gold"><div class="k">총 정품 등록 (손님 제출)</div><div class="v"><%= stats.총등록 %></div>
+        <div class="gline"><% Object.keys(stats.등급별등록).forEach(function (k) { %><span class="gpill"><%= k %><b><%= stats.등급별등록[k] %></b></span><% }); %></div>
+      </div>
+      <div class="stat"><div class="k">최근 7일 제출</div><div class="v"><%= stats.최근7일제출 %></div></div>
+      <div class="stat alert"><div class="k">관리자 확인 대기 (불일치·중복)</div><div class="v"><%= stats.확인대기 %></div><div class="hint"><a class="q" href="/admin/history">이력 탭에서 처리 →</a></div></div>
+      <div class="stat alert"><div class="k">멤버십 심사 대기</div><div class="v"><%= stats.가입심사대기 %></div><div class="hint"><a class="q" href="/admin/members">회원 탭에서 확인 →</a></div></div>
+      <div class="stat"><div class="k">소유권 이전 누적</div><div class="v"><%= stats.이전기록수 %></div></div>
+    </div>
+    <div class="hint">숫자는 구글 시트 실시간 기준입니다 (45초 캐시). 시트 백업은 매일 자동으로 서버 저장소에 보관됩니다 (최근 14일치 유지).</div>
+    <% } %>
+  </div>
+</body>
+</html>

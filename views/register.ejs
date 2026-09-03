@@ -75,6 +75,7 @@
       <br/>ℹ️ 전화번호를 입력하지 않아 발송은 하지 않았습니다. 상태는 <b>미인증</b>이며, [재발송] 탭에서 언제든 발송할 수 있습니다.
       <% } %>
       <br/>보증서 보기: <a href="<%= result.url %>" target="_blank"><%= result.url %></a>
+      &nbsp;|&nbsp; <a href="/admin/qr/<%= encodeURIComponent(result.고유번호) %>" target="_blank">🏷 QR 택 인쇄</a>
     </div>
     <% } %>
 
@@ -152,7 +153,7 @@
       <div class="panel">
         <div class="section-head"><span class="dot"></span><h2>소유 정보 · 발송</h2></div>
         <table class="form">
-          <tr><th>현 소유자</th><td><input type="text" name="owner" value="<%= form['owner'] || '' %>" placeholder="예: 홍길동" /></td></tr>
+          <tr><th>구매자</th><td><input type="text" name="owner" value="<%= form['owner'] || '' %>" placeholder="예: 홍길동 (보증서의 구매자로 표시됩니다)" /></td></tr>
           <tr>
             <th>소유자 이전 기록</th>
             <td>

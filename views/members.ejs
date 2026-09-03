@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>회원 관리 | ARK PROJECT</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&display=swap" rel="stylesheet" />
+  <style>
+    :root { --gold:#D4AF37; --gold-soft:#E8D9A0; --line:rgba(212,175,55,0.22); }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif; background:linear-gradient(160deg,#1A3620,#0E1F12); color:#FBF8F0; min-height:100vh; padding:26px 14px 60px; }
+    h1 { font-size:19px; font-weight:600; margin-bottom:6px; }
+    .desc { font-size:12.5px; color:var(--gold-soft); opacity:0.8; margin-bottom:16px; line-height:1.7; }
+    .ok { margin-bottom:14px; padding:12px 15px; border-radius:10px; font-size:13.5px; background:rgba(212,175,55,0.12); border:1px solid rgba(212,175,55,0.5); color:var(--gold-soft); }
+    .err { margin-bottom:14px; padding:12px 15px; border-radius:10px; font-size:13.5px; background:rgba(180,50,50,0.18); border:1px solid rgba(220,100,100,0.5); color:#ffd9d9; }
+    .m { display:flex; gap:12px; align-items:center; flex-wrap:wrap; background:rgba(0,0,0,0.24); border:1px solid var(--line); border-radius:12px; padding:13px 16px; margin-bottom:10px; }
+    .m .no { font-size:12px; letter-spacing:1px; color:var(--gold); min-width:70px; }
+    .m .nm { font-size:15px; font-weight:600; color:#fff; }
+    .m .ph { font-size:13px; color:var(--gold-soft); }
+    .m .st { font-size:11px; padding:4px 10px; border-radius:12px; border:1px solid rgba(212,175,55,0.4); color:var(--gold-soft); }
+    .m .st.승인 { background:rgba(80,180,110,0.2); color:#BFE8CF; border-color:rgba(120,200,150,0.4); }
+    .m .actions { margin-left:auto; display:flex; gap:8px; align-items:center; }
+    .m a.card { color:var(--gold); font-size:12px; }
+    .m form button { background:linear-gradient(180deg,#E6C75A,#D4AF37); color:#10220f; border:none; border-radius:8px; padding:9px 13px; font-size:12px; font-weight:700; cursor:pointer; font-family:inherit; }
+    .empty { font-size:13px; color:var(--gold-soft); opacity:0.7; padding:14px 4px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <%- include('partials/nav', { active: 'members', grades: grades }) %>
+    <h1>👑 회원 관리 — 방주 멤버십</h1>
+    <div class="desc">
+      가입 신청자 명단입니다. 요건 확인 후 구글 시트 '가입신청' 탭에서 상태를 <b>승인</b>으로 바꾸고,
+      [카드 발송]을 누르면 디지털 멤버십 카드 링크가 문자로 발송됩니다. [카드 보기]로 미리 확인할 수 있습니다.
+    </div>
+    <% if (sent) { %><div class="ok">✅ <b><%= sent %></b>님께 멤버십 카드를 발송했습니다.</div><% } %>
+    <% if (error) { %><div class="err">⚠️ <%= error %></div><% } %>
+
+    <% members.forEach(function (m) { %>
+    <div class="m">
+      <span class="no"><%= m.회원번호 %></span>
+      <span class="nm"><%= m.성함 %></span>
+      <span class="ph"><%= m.연락처 %></span>
+      <span class="st <%= m.상태.includes('승인') ? '승인' : '' %>"><%= m.상태 || '심사 대기' %></span>
+      <span style="font-size:11px; color:var(--gold-soft); opacity:0.7;"><%= m.충족요건 %></span>
+      <span class="actions">
+        <a class="card" href="<%= m.cardUrl %>" target="_blank">카드 보기</a>
+        <form method="post" action="/admin/members/card">
+          <input type="hidden" name="phone" value="<%= m.연락처 %>" />
+          <input type="hidden" name="name" value="<%= m.성함 %>" />
+          <input type="hidden" name="cardUrl" value="<%= m.cardUrl %>" />
+          <button type="submit">📨 카드 발송</button>
+        </form>
+      </span>
+    </div>
+    <% }); %>
+    <% if (!members.length) { %><div class="empty">아직 가입 신청이 없습니다.</div><% } %>
+  </div>
+</body>
+</html>

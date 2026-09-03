@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>회원 전용 특별분양 | ARK PROJECT</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet" />
+  <style>
+    :root { --gold:#D8B25C; --gold2:#EBD8A4; --line:rgba(216,178,92,0.28); }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif; background:radial-gradient(circle at 50% 10%, #26221C 0%, #12100D 50%, #050404 100%); color:#F2E9D5; min-height:100vh; padding:44px 16px 80px; }
+    .wrap { max-width:560px; margin:0 auto; }
+    .head { text-align:center; margin-bottom:10px; }
+    .brand { font-family:'Playfair Display',serif; letter-spacing:7px; font-size:20px; color:var(--gold); text-transform:uppercase; }
+    .by { font-family:'Playfair Display',serif; letter-spacing:4px; font-size:10px; color:var(--gold2); opacity:0.85; margin-top:6px; text-transform:uppercase; }
+    h1 { font-size:19px; font-weight:600; color:#fff; margin-top:16px; }
+    .who { text-align:center; font-size:12.5px; color:var(--gold2); opacity:0.85; margin:8px 0 20px; }
+    .rulebox { background:rgba(216,178,92,0.08); border:1px dashed var(--line); border-radius:12px; padding:15px 17px; font-size:12.5px; line-height:1.8; color:var(--gold2); margin-bottom:22px; }
+    .rulebox b { color:#fff; }
+    .offer { background:rgba(255,255,255,0.03); border:1px solid var(--line); border-radius:16px; overflow:hidden; margin-bottom:22px; }
+    .offer img { width:100%; aspect-ratio:4/3; object-fit:cover; display:block; border-bottom:1px solid var(--line); }
+    .o-body { padding:20px 20px 22px; }
+    .o-name { font-family:'Cormorant Garamond','Malgun Gothic',serif; font-size:24px; font-weight:600; color:#fff; }
+    .o-desc { font-size:13px; color:var(--gold2); opacity:0.9; line-height:1.8; margin:8px 0 14px; }
+    .o-meta { display:flex; gap:16px; font-size:13px; margin-bottom:14px; flex-wrap:wrap; }
+    .o-meta .m { color:var(--gold2); }
+    .o-meta .m b { color:#fff; font-weight:600; }
+    .bar { height:10px; background:rgba(255,255,255,0.08); border-radius:6px; overflow:hidden; margin-bottom:7px; }
+    .bar .fill { height:100%; background:linear-gradient(90deg,#EAD088,var(--gold)); border-radius:6px; }
+    .bar-label { display:flex; justify-content:space-between; font-size:12px; color:var(--gold2); margin-bottom:14px; }
+    .bar-label b { color:#fff; }
+    .phase { text-align:center; padding:13px; border-radius:10px; font-size:14px; font-weight:700; letter-spacing:1px; }
+    .phase.full { background:rgba(120,200,150,0.15); color:#BFE8CF; border:1px solid rgba(120,200,150,0.4); }
+    .phase.failed { background:rgba(150,60,60,0.18); color:#F2C6C6; border:1px solid rgba(220,120,120,0.4); }
+    .rform label { display:block; font-size:12.5px; color:var(--gold2); margin:12px 0 6px; }
+    .rform input[type=tel], .rform input[type=text] { width:100%; padding:12px; border-radius:8px; font-size:14px; border:1px solid var(--line); background:rgba(255,255,255,0.06); color:#fff; font-family:inherit; }
+    .pledge { display:flex; gap:9px; align-items:flex-start; font-size:12px; line-height:1.7; color:var(--gold2); margin-top:14px; }
+    .pledge input { margin-top:3px; accent-color:var(--gold); }
+    .rform button { width:100%; margin-top:14px; padding:15px; border:none; border-radius:10px; background:linear-gradient(180deg,#EAD088,var(--gold)); color:#12100D; font-size:15px; font-weight:700; letter-spacing:1px; cursor:pointer; font-family:inherit; }
+    .alert { margin-bottom:18px; padding:15px 17px; border-radius:12px; font-size:13.5px; line-height:1.8; }
+    .alert.error { background:rgba(180,50,50,0.18); border:1px solid rgba(220,100,100,0.5); color:#ffd9d9; }
+    .alert.ok { background:rgba(216,178,92,0.12); border:1px solid rgba(216,178,92,0.5); color:var(--gold2); }
+    .alert.ok b { color:#fff; }
+    .empty { text-align:center; font-size:13.5px; color:var(--gold2); opacity:0.75; padding:44px 0; line-height:1.9; }
+    .foot { text-align:center; font-size:10.5px; color:var(--gold2); opacity:0.5; margin-top:30px; letter-spacing:1px; line-height:1.8; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="head">
+      <div class="brand">Ark Project</div>
+      <div class="by">By Jiyang</div>
+      <h1>✦ 회원 전용 특별분양</h1>
+    </div>
+    <div class="who"><%= member.no %> · <b style="color:#fff;"><%= member.n %></b>님만 보실 수 있는 페이지입니다.</div>
+
+    <div class="rulebox">
+      <b>전량 완판 조건부 분양</b> — 이 분양은 <b>정원 전원이 모여야만 성사</b>됩니다.
+      마감일까지 정원이 채워지지 않으면 분양 자체가 취소되며, 예약 의무도 사라집니다.
+      회원당 1구, 선착순으로 정원이 차는 즉시 마감됩니다. 성사 시 결제·수령 안내를 개별 연락드립니다.
+    </div>
+
+    <% if (error) { %><div class="alert error">⚠️ <%= error %></div><% } %>
+    <% if (done) { %>
+    <div class="alert ok">
+      ✅ <b><%= done.품종명 %></b> 예약이 접수되었습니다 — 현재 <b><%= done.예약후 %> / <%= done.수량 %></b>
+      <% if (done.예약후 >= done.수량) { %><br/>🎉 <b>정원이 모두 모여 분양이 성사되었습니다!</b> 결제·수령 안내를 곧 보내드립니다.<% } else { %><br/>정원이 모두 모이면 성사 안내를 드립니다.<% } %>
+    </div>
+    <% } %>
+
+    <% offers.forEach(function (o) { %>
+    <div class="offer">
+      <% if (o.사진URL) { %><img src="<%= o.사진URL %>" alt="<%= o.품종명 %>" /><% } %>
+      <div class="o-body">
+        <div class="o-name"><%= o.품종명 %></div>
+        <% if (o.설명) { %><div class="o-desc"><%= o.설명 %></div><% } %>
+        <div class="o-meta">
+          <% if (o.가격) { %><span class="m">분양가 <b><%= Number(String(o.가격).replace(/[^0-9]/g,'')) ? Number(String(o.가격).replace(/[^0-9]/g,'')).toLocaleString('ko-KR') + '원' : o.가격 %></b></span><% } %>
+          <span class="m">정원 <b><%= o.수량 %>명</b></span>
+          <% if (o.마감일) { %><span class="m">마감 <b><%= o.마감일 %></b></span><% } %>
+        </div>
+        <div class="bar"><div class="fill" style="width:<%= o.수량 ? Math.min(100, Math.round(o.예약 / o.수량 * 100)) : 0 %>%;"></div></div>
+        <div class="bar-label"><span>예약 현황</span><span><b><%= o.예약 %></b> / <%= o.수량 %> <% if (o.수량 - o.예약 > 0 && o.phase === 'open') { %>· <b><%= o.수량 - o.예약 %>명</b> 남음<% } %></span></div>
+
+        <% if (o.phase === 'full') { %>
+        <div class="phase full">🎉 정원 달성 — 분양 성사</div>
+        <% } else if (o.phase === 'failed') { %>
+        <div class="phase failed">이번 분양은 정원 미달로 성사되지 않았습니다</div>
+        <% } else { %>
+        <form class="rform" method="post" action="/offers/reserve">
+          <input type="hidden" name="d" value="<%= d %>" />
+          <input type="hidden" name="k" value="<%= k %>" />
+          <input type="hidden" name="offerId" value="<%= o.id %>" />
+          <% if (!member.p) { %>
+          <label>연락처</label>
+          <input type="tel" name="phone" placeholder="예: 01012345678" />
+          <% } %>
+          <label>메모 (선택)</label>
+          <input type="text" name="memo" placeholder="전달하실 말씀이 있으면 적어주세요" />
+          <div class="pledge">
+            <input type="checkbox" name="pledge" id="pl-<%= o.id %>" />
+            <label for="pl-<%= o.id %>" style="margin:0;">[필수] 본 개체를 재분양(판매)하게 될 경우, 지양하월시아에 우선 매수 기회를 드릴 것을 서약합니다.</label>
+          </div>
+          <button type="submit">1구 예약하기</button>
+        </form>
+        <% } %>
+      </div>
+    </div>
+    <% }); %>
+    <% if (!offers.length) { %>
+    <div class="empty">지금 진행 중인 특별분양이 없습니다.<br/>새 분양이 열리면 회원님께 안내드리겠습니다.</div>
+    <% } %>
+
+    <div class="foot">ARK PROJECT · 회원 전용 — 본 페이지의 내용은 외부에 공유하지 말아 주세요.</div>
+  </div>
+</body>
+</html>
