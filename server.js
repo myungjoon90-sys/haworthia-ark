@@ -82,7 +82,7 @@ function photoUrl(req, filename) {
 }
 
 app.get('/healthz', (req, res) => res.send('ok'));
-app.get('/', (req, res) => res.redirect('/admin'));
+app.get('/', (req, res) => res.redirect('/about'));
 
 // ---- 고객용 보증서 페이지 ----
 function gradeOf(plant) {

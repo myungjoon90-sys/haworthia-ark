@@ -1,0 +1,605 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>등급별 보증서 미리보기</title><style>body{font-family:"Malgun Gothic",sans-serif;background:#0B0F0C;color:#eee;padding:24px;}h1{text-align:center;font-size:20px;margin-bottom:4px;}p{text-align:center;font-size:13px;color:#aaa;margin-bottom:24px;}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:24px;max-width:1400px;margin:0 auto;}.slot{}.cap{font-size:16px;font-weight:700;margin-bottom:8px;}iframe{width:100%;height:1050px;border:1px solid #333;border-radius:12px;background:#111;}</style></head><body><h1>등급별 보증서 — 확정 디자인(10번+갤러리캡션) 미리보기</h1><p>같은 개체를 4개 등급 색으로 발급했을 때의 실제 화면입니다. 하단 무늬도 등급마다 다릅니다.</p><div class="grid"><div class="slot"><div class="cap">녹박 등급</div><iframe srcdoc="
+<!DOCTYPE html>
+<html lang=&quot;ko&quot;>
+<head>
+  <meta charset=&quot;UTF-8&quot; />
+  <meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; />
+  <title>춘하추동 동 · 디지털 보증서 | ARK PROJECT</title>
+  <meta property=&quot;og:type&quot; content=&quot;website&quot; />
+  <meta property=&quot;og:title&quot; content=&quot;춘하추동 동 · 정품 디지털 보증서&quot; />
+  <meta property=&quot;og:description&quot; content=&quot;ARK PROJECT BY JIYANG · JY-MUX-JY001-26-G0293 · 정품 인증&quot; />
+  <meta property=&quot;og:url&quot; content=&quot;https://x/y&quot; />
+  
+  <link href=&quot;https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700&amp;family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&amp;family=Noto+Serif+KR:wght@300;400;600&amp;display=swap&quot; rel=&quot;stylesheet&quot; />
+  <style>
+    /* ── 기본(그린) 팔레트 ── */
+    :root { --g1:#1F4129; --g2:#122A18; --g3:#0C1F10; --gold:#D2AC55; --gold2:#E9D6A0; --ink:#F6F0DF; --sealA:#E8CE72; --sealB:#95762B; }
+    /* ── 등급별 팔레트: 받는 분의 느낌이 다르게 ── */
+    body.grade-적박 { --g1:#571323; --g2:#360A14; --g3:#22050C; --gold:#E0B36A; --gold2:#F1DDB4; --sealA:#F2D695; --sealB:#A87F35; }
+    body.grade-골드 { --g1:#423312; --g2:#241B08; --g3:#151004; --gold:#E8C468; --gold2:#F4E3B2; --sealA:#F4DE9A; --sealB:#A8842F; }
+    body.grade-로얄 { --g1:#1E1B17; --g2:#100E0B; --g3:#060505; --gold:#D8B25C; --gold2:#EBD8A4; --sealA:#EAD088; --sealB:#A07E2F; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif; background:radial-gradient(circle at 50% 0%, var(--g1) 0%, var(--g2) 48%, var(--g3) 100%); color:var(--ink); min-height:100vh; padding:34px 16px 64px; -webkit-font-smoothing:antialiased; }
+    .card { max-width:500px; margin:0 auto; background:linear-gradient(178deg,var(--g1),var(--g2) 55%,var(--g3)); border:1px solid var(--gold); border-radius:16px; box-shadow:0 26px 60px rgba(0,0,0,0.55), inset 0 0 0 1px rgba(233,214,160,0.10); overflow:hidden; position:relative; padding:44px 34px 30px; }
+    /* 모노그램 워터마크 */
+    .card::before { content:'A'; position:absolute; top:44%; left:50%; transform:translate(-50%,-50%); font-family:'Playfair Display',serif; font-size:400px; color:rgba(210,172,85,0.055); pointer-events:none; line-height:1; }
+    .inner { position:relative; }
+    /* 상단 브랜드 (중앙) */
+    .head { text-align:center; margin-bottom:24px; }
+    .brand { font-family:'Playfair Display',serif; letter-spacing:7px; font-size:16px; color:var(--gold); text-transform:uppercase; }
+    .by { font-family:'Playfair Display',serif; letter-spacing:5px; font-size:10px; color:var(--gold2); opacity:0.85; text-transform:uppercase; margin-top:6px; }
+    .coa { font-family:'Cormorant Garamond',serif; letter-spacing:4px; font-size:12px; color:var(--gold2); opacity:0.9; text-transform:uppercase; margin-top:14px; }
+    /* 사진 */
+    .photo-frame { border:1.5px solid var(--gold); border-radius:10px; padding:7px; background:rgba(0,0,0,0.28); margin-bottom:22px; }
+    .photo-frame svg, .photo-frame img { width:100%; display:block; border-radius:6px; aspect-ratio:4/3; object-fit:cover; }
+    /* ↓ 여기서부터 갤러리 캡션(좌측 정렬) */
+    .variety { font-family:'Cormorant Garamond','Noto Serif KR',serif; font-size:30px; font-weight:600; color:#fff; line-height:1.25; text-align:left; }
+    .plant-id { color:var(--gold); letter-spacing:2px; font-size:13px; margin:7px 0 18px; text-align:left; }
+    .info { margin-bottom:6px; }
+    .row { display:flex; gap:14px; font-size:13.5px; padding:5px 0; }
+    .row .k { min-width:92px; color:var(--gold2); opacity:0.85; }
+    .row .v { color:#fff; }
+    .section-title { font-family:'Playfair Display',serif; color:var(--gold); letter-spacing:2px; font-size:12px; text-transform:uppercase; margin:20px 0 8px; }
+    .tl-item { position:relative; padding:0 0 12px 20px; font-size:13px; }
+    .tl-item::before { content:''; position:absolute; left:2px; top:5px; width:8px; height:8px; border-radius:50%; background:var(--gold); box-shadow:0 0 0 3px rgba(210,172,85,0.2); }
+    .tl-item::after { content:''; position:absolute; left:5.5px; top:14px; bottom:0; width:1px; background:rgba(210,172,85,0.3); }
+    .tl-item:last-child::after { display:none; }
+    .tl-item .who { color:#fff; }
+    .tl-item .when { color:var(--gold2); opacity:0.8; font-size:11.5px; }
+    .message { margin:20px 0 16px; font-size:13px; line-height:1.85; color:var(--gold2); font-style:italic; }
+    .sign-seal { display:flex; align-items:flex-end; justify-content:space-between; gap:14px; margin-top:6px; }
+    .signature { font-family:'Cormorant Garamond',serif; font-size:22px; color:#fff; }
+    .signature small { display:block; font-family:'Malgun Gothic','맑은 고딕',sans-serif; font-size:10px; color:var(--gold2); letter-spacing:2px; margin-top:3px; }
+    .seal { width:82px; height:82px; border-radius:50%; background:radial-gradient(circle at 35% 30%, var(--sealA), var(--gold) 58%, var(--sealB)); color:var(--g3); display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:'Playfair Display',serif; font-size:10px; letter-spacing:1px; border:2px solid var(--gold2); box-shadow:0 6px 16px rgba(0,0,0,0.45); flex-shrink:0; }
+    .badges { display:flex; align-items:center; gap:10px; margin-top:18px; }
+    .status-badge { font-size:11px; letter-spacing:2px; color:var(--g3); background:var(--gold2); padding:4px 14px; border-radius:20px; font-weight:700; }
+    .grade-badge { font-size:10px; letter-spacing:3px; color:var(--gold); border:1px solid var(--gold); padding:4px 12px; border-radius:20px; }
+    /* 등급별 하단 무늬 */
+    .motif { height:10px; margin:24px -34px 14px; opacity:0.85; }
+    .motif.기본, .motif.녹박 { background:repeating-linear-gradient(45deg, var(--gold) 0 2px, transparent 2px 10px); }
+    .motif.적박 { background:repeating-linear-gradient(-45deg, var(--gold) 0 6px, transparent 6px 12px); height:7px; }
+    .motif.골드 { background:linear-gradient(var(--gold), var(--gold)) top/100% 1.5px no-repeat, linear-gradient(var(--gold), var(--gold)) bottom/100% 1.5px no-repeat, repeating-linear-gradient(90deg, var(--gold) 0 8px, transparent 8px 16px) center/100% 3px no-repeat; }
+    .motif.로얄 { background:repeating-linear-gradient(90deg, var(--gold) 0 12px, transparent 12px 16px, var(--gold2) 16px 18px, transparent 18px 30px); height:6px; box-shadow:0 4px 0 -2.5px var(--gold), 0 -4px 0 -2.5px var(--gold); }
+    .footer { text-align:center; color:var(--gold2); opacity:0.6; font-size:10.5px; letter-spacing:1px; line-height:1.8; }
+  </style>
+</head>
+<body class=&quot;grade-녹박&quot;>
+  <div class=&quot;card&quot;>
+    <div class=&quot;inner&quot;>
+      <div class=&quot;head&quot;>
+        <div class=&quot;brand&quot;>Ark Project</div>
+        <div class=&quot;by&quot;>By Jiyang</div>
+        <div class=&quot;coa&quot;>Certificate of Authenticity</div>
+      </div>
+
+      <div class=&quot;photo-frame&quot;>
+        
+        <svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 480 360&quot; preserveAspectRatio=&quot;xMidYMid slice&quot;>
+          <defs>
+            <radialGradient id=&quot;bg&quot; cx=&quot;45%&quot; cy=&quot;38%&quot; r=&quot;75%&quot;>
+              <stop offset=&quot;0%&quot; stop-color=&quot;#3a7d55&quot;/>
+              <stop offset=&quot;55%&quot; stop-color=&quot;#1f5135&quot;/>
+              <stop offset=&quot;100%&quot; stop-color=&quot;#0c2417&quot;/>
+            </radialGradient>
+          </defs>
+          <rect width=&quot;480&quot; height=&quot;360&quot; fill=&quot;url(#bg)&quot;/>
+          <g transform=&quot;translate(240,212)&quot; stroke=&quot;#0c2417&quot; stroke-width=&quot;1.5&quot;>
+            <ellipse cx=&quot;0&quot; cy=&quot;0&quot; rx=&quot;120&quot; ry=&quot;48&quot; fill=&quot;#246b45&quot;/>
+            <path d=&quot;M0 0 L-14 -150 L14 -150 Z&quot; fill=&quot;#bfe8cf&quot;/>
+            <path d=&quot;M0 0 L-70 -120 L-44 -135 Z&quot; fill=&quot;#a9dcbd&quot;/>
+            <path d=&quot;M0 0 L70 -120 L44 -135 Z&quot; fill=&quot;#a9dcbd&quot;/>
+            <path d=&quot;M0 0 L-115 -60 L-92 -86 Z&quot; fill=&quot;#9fd4b3&quot;/>
+            <path d=&quot;M0 0 L115 -60 L92 -86 Z&quot; fill=&quot;#9fd4b3&quot;/>
+            <path d=&quot;M0 0 L-44 -140 L-18 -150 Z&quot; fill=&quot;#d9f3e3&quot;/>
+            <path d=&quot;M0 0 L44 -140 L18 -150 Z&quot; fill=&quot;#d9f3e3&quot;/>
+          </g>
+          <text x=&quot;240&quot; y=&quot;346&quot; fill=&quot;#D2AC55&quot; font-size=&quot;14&quot; text-anchor=&quot;middle&quot; font-family=&quot;serif&quot; letter-spacing=&quot;2&quot;>사진 준비 중</text>
+        </svg>
+        
+      </div>
+
+      <div class=&quot;variety&quot;>춘하추동 동</div>
+      <div class=&quot;plant-id&quot;>JY-MUX-JY001-26-G0293</div>
+
+      <div class=&quot;info&quot;>
+        <div class=&quot;row&quot;><span class=&quot;k&quot;>육종가</span><span class=&quot;v&quot;>지양하월시아</span></div>
+        <div class=&quot;row&quot;><span class=&quot;k&quot;>육종 연도</span><span class=&quot;v&quot;>2018</span></div>
+        <div class=&quot;row&quot;><span class=&quot;k&quot;>교배 정보</span><span class=&quot;v&quot;>거인병</span></div>
+        
+        <div class=&quot;row&quot;><span class=&quot;k&quot;>현재 소유자</span><span class=&quot;v&quot;>주밍준</span></div>
+        <div class=&quot;row&quot;><span class=&quot;k&quot;>발급일</span><span class=&quot;v&quot;>2026-09-02</span></div>
+      </div>
+
+      
+      <div class=&quot;section-title&quot;>Provenance · 소유 이력</div>
+      <div class=&quot;timeline&quot;>
+        
+        <div class=&quot;tl-item&quot;>
+          <div class=&quot;who&quot;>최초 육종 (지양하월시아)</div>
+          <div class=&quot;when&quot;>2018</div>
+        </div>
+        
+        <div class=&quot;tl-item&quot;>
+          <div class=&quot;who&quot;>주밍준님 분양</div>
+          <div class=&quot;when&quot;>2026-09-02</div>
+        </div>
+        
+      </div>
+      
+
+      <div class=&quot;message&quot;>한 점 한 점 정성으로 길러낸 귀한 하월시아입니다. 살아있는 보석을 소장해 주셔서 진심으로 감사드립니다. 오래도록 아름답게 함께하시길 바랍니다.</div>
+
+      <div class=&quot;sign-seal&quot;>
+        <div class=&quot;signature&quot;>지양하월시아<small>JIYANG HAWORTHIA · 대표</small></div>
+        <div class=&quot;seal&quot;><span>JIYANG</span><span>ARK·認證</span></div>
+      </div>
+
+      <div class=&quot;badges&quot;>
+        <span class=&quot;status-badge&quot;>정품 인증</span>
+        <span class=&quot;grade-badge&quot;>GREEN GRADE</span>
+      </div>
+
+      <div class=&quot;motif 녹박&quot;></div>
+
+      <div class=&quot;footer&quot;>
+        본 보증서는 지양하월시아 방주 프로젝트의 디지털 인증서입니다.<br/>
+        무단 증식 및 불법 유통은 협의서에 따라 제한됩니다.
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+"></iframe></div><div class="slot"><div class="cap">적박 등급</div><iframe srcdoc="
+<!DOCTYPE html>
+<html lang=&quot;ko&quot;>
+<head>
+  <meta charset=&quot;UTF-8&quot; />
+  <meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; />
+  <title>춘하추동 동 · 디지털 보증서 | ARK PROJECT</title>
+  <meta property=&quot;og:type&quot; content=&quot;website&quot; />
+  <meta property=&quot;og:title&quot; content=&quot;춘하추동 동 · 정품 디지털 보증서&quot; />
+  <meta property=&quot;og:description&quot; content=&quot;ARK PROJECT BY JIYANG · JY-MUX-JY001-26-G0293 · 정품 인증&quot; />
+  <meta property=&quot;og:url&quot; content=&quot;https://x/y&quot; />
+  
+  <link href=&quot;https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700&amp;family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&amp;family=Noto+Serif+KR:wght@300;400;600&amp;display=swap&quot; rel=&quot;stylesheet&quot; />
+  <style>
+    /* ── 기본(그린) 팔레트 ── */
+    :root { --g1:#1F4129; --g2:#122A18; --g3:#0C1F10; --gold:#D2AC55; --gold2:#E9D6A0; --ink:#F6F0DF; --sealA:#E8CE72; --sealB:#95762B; }
+    /* ── 등급별 팔레트: 받는 분의 느낌이 다르게 ── */
+    body.grade-적박 { --g1:#571323; --g2:#360A14; --g3:#22050C; --gold:#E0B36A; --gold2:#F1DDB4; --sealA:#F2D695; --sealB:#A87F35; }
+    body.grade-골드 { --g1:#423312; --g2:#241B08; --g3:#151004; --gold:#E8C468; --gold2:#F4E3B2; --sealA:#F4DE9A; --sealB:#A8842F; }
+    body.grade-로얄 { --g1:#1E1B17; --g2:#100E0B; --g3:#060505; --gold:#D8B25C; --gold2:#EBD8A4; --sealA:#EAD088; --sealB:#A07E2F; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif; background:radial-gradient(circle at 50% 0%, var(--g1) 0%, var(--g2) 48%, var(--g3) 100%); color:var(--ink); min-height:100vh; padding:34px 16px 64px; -webkit-font-smoothing:antialiased; }
+    .card { max-width:500px; margin:0 auto; background:linear-gradient(178deg,var(--g1),var(--g2) 55%,var(--g3)); border:1px solid var(--gold); border-radius:16px; box-shadow:0 26px 60px rgba(0,0,0,0.55), inset 0 0 0 1px rgba(233,214,160,0.10); overflow:hidden; position:relative; padding:44px 34px 30px; }
+    /* 모노그램 워터마크 */
+    .card::before { content:'A'; position:absolute; top:44%; left:50%; transform:translate(-50%,-50%); font-family:'Playfair Display',serif; font-size:400px; color:rgba(210,172,85,0.055); pointer-events:none; line-height:1; }
+    .inner { position:relative; }
+    /* 상단 브랜드 (중앙) */
+    .head { text-align:center; margin-bottom:24px; }
+    .brand { font-family:'Playfair Display',serif; letter-spacing:7px; font-size:16px; color:var(--gold); text-transform:uppercase; }
+    .by { font-family:'Playfair Display',serif; letter-spacing:5px; font-size:10px; color:var(--gold2); opacity:0.85; text-transform:uppercase; margin-top:6px; }
+    .coa { font-family:'Cormorant Garamond',serif; letter-spacing:4px; font-size:12px; color:var(--gold2); opacity:0.9; text-transform:uppercase; margin-top:14px; }
+    /* 사진 */
+    .photo-frame { border:1.5px solid var(--gold); border-radius:10px; padding:7px; background:rgba(0,0,0,0.28); margin-bottom:22px; }
+    .photo-frame svg, .photo-frame img { width:100%; display:block; border-radius:6px; aspect-ratio:4/3; object-fit:cover; }
+    /* ↓ 여기서부터 갤러리 캡션(좌측 정렬) */
+    .variety { font-family:'Cormorant Garamond','Noto Serif KR',serif; font-size:30px; font-weight:600; color:#fff; line-height:1.25; text-align:left; }
+    .plant-id { color:var(--gold); letter-spacing:2px; font-size:13px; margin:7px 0 18px; text-align:left; }
+    .info { margin-bottom:6px; }
+    .row { display:flex; gap:14px; font-size:13.5px; padding:5px 0; }
+    .row .k { min-width:92px; color:var(--gold2); opacity:0.85; }
+    .row .v { color:#fff; }
+    .section-title { font-family:'Playfair Display',serif; color:var(--gold); letter-spacing:2px; font-size:12px; text-transform:uppercase; margin:20px 0 8px; }
+    .tl-item { position:relative; padding:0 0 12px 20px; font-size:13px; }
+    .tl-item::before { content:''; position:absolute; left:2px; top:5px; width:8px; height:8px; border-radius:50%; background:var(--gold); box-shadow:0 0 0 3px rgba(210,172,85,0.2); }
+    .tl-item::after { content:''; position:absolute; left:5.5px; top:14px; bottom:0; width:1px; background:rgba(210,172,85,0.3); }
+    .tl-item:last-child::after { display:none; }
+    .tl-item .who { color:#fff; }
+    .tl-item .when { color:var(--gold2); opacity:0.8; font-size:11.5px; }
+    .message { margin:20px 0 16px; font-size:13px; line-height:1.85; color:var(--gold2); font-style:italic; }
+    .sign-seal { display:flex; align-items:flex-end; justify-content:space-between; gap:14px; margin-top:6px; }
+    .signature { font-family:'Cormorant Garamond',serif; font-size:22px; color:#fff; }
+    .signature small { display:block; font-family:'Malgun Gothic','맑은 고딕',sans-serif; font-size:10px; color:var(--gold2); letter-spacing:2px; margin-top:3px; }
+    .seal { width:82px; height:82px; border-radius:50%; background:radial-gradient(circle at 35% 30%, var(--sealA), var(--gold) 58%, var(--sealB)); color:var(--g3); display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:'Playfair Display',serif; font-size:10px; letter-spacing:1px; border:2px solid var(--gold2); box-shadow:0 6px 16px rgba(0,0,0,0.45); flex-shrink:0; }
+    .badges { display:flex; align-items:center; gap:10px; margin-top:18px; }
+    .status-badge { font-size:11px; letter-spacing:2px; color:var(--g3); background:var(--gold2); padding:4px 14px; border-radius:20px; font-weight:700; }
+    .grade-badge { font-size:10px; letter-spacing:3px; color:var(--gold); border:1px solid var(--gold); padding:4px 12px; border-radius:20px; }
+    /* 등급별 하단 무늬 */
+    .motif { height:10px; margin:24px -34px 14px; opacity:0.85; }
+    .motif.기본, .motif.녹박 { background:repeating-linear-gradient(45deg, var(--gold) 0 2px, transparent 2px 10px); }
+    .motif.적박 { background:repeating-linear-gradient(-45deg, var(--gold) 0 6px, transparent 6px 12px); height:7px; }
+    .motif.골드 { background:linear-gradient(var(--gold), var(--gold)) top/100% 1.5px no-repeat, linear-gradient(var(--gold), var(--gold)) bottom/100% 1.5px no-repeat, repeating-linear-gradient(90deg, var(--gold) 0 8px, transparent 8px 16px) center/100% 3px no-repeat; }
+    .motif.로얄 { background:repeating-linear-gradient(90deg, var(--gold) 0 12px, transparent 12px 16px, var(--gold2) 16px 18px, transparent 18px 30px); height:6px; box-shadow:0 4px 0 -2.5px var(--gold), 0 -4px 0 -2.5px var(--gold); }
+    .footer { text-align:center; color:var(--gold2); opacity:0.6; font-size:10.5px; letter-spacing:1px; line-height:1.8; }
+  </style>
+</head>
+<body class=&quot;grade-적박&quot;>
+  <div class=&quot;card&quot;>
+    <div class=&quot;inner&quot;>
+      <div class=&quot;head&quot;>
+        <div class=&quot;brand&quot;>Ark Project</div>
+        <div class=&quot;by&quot;>By Jiyang</div>
+        <div class=&quot;coa&quot;>Certificate of Authenticity</div>
+      </div>
+
+      <div class=&quot;photo-frame&quot;>
+        
+        <svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 480 360&quot; preserveAspectRatio=&quot;xMidYMid slice&quot;>
+          <defs>
+            <radialGradient id=&quot;bg&quot; cx=&quot;45%&quot; cy=&quot;38%&quot; r=&quot;75%&quot;>
+              <stop offset=&quot;0%&quot; stop-color=&quot;#3a7d55&quot;/>
+              <stop offset=&quot;55%&quot; stop-color=&quot;#1f5135&quot;/>
+              <stop offset=&quot;100%&quot; stop-color=&quot;#0c2417&quot;/>
+            </radialGradient>
+          </defs>
+          <rect width=&quot;480&quot; height=&quot;360&quot; fill=&quot;url(#bg)&quot;/>
+          <g transform=&quot;translate(240,212)&quot; stroke=&quot;#0c2417&quot; stroke-width=&quot;1.5&quot;>
+            <ellipse cx=&quot;0&quot; cy=&quot;0&quot; rx=&quot;120&quot; ry=&quot;48&quot; fill=&quot;#246b45&quot;/>
+            <path d=&quot;M0 0 L-14 -150 L14 -150 Z&quot; fill=&quot;#bfe8cf&quot;/>
+            <path d=&quot;M0 0 L-70 -120 L-44 -135 Z&quot; fill=&quot;#a9dcbd&quot;/>
+            <path d=&quot;M0 0 L70 -120 L44 -135 Z&quot; fill=&quot;#a9dcbd&quot;/>
+            <path d=&quot;M0 0 L-115 -60 L-92 -86 Z&quot; fill=&quot;#9fd4b3&quot;/>
+            <path d=&quot;M0 0 L115 -60 L92 -86 Z&quot; fill=&quot;#9fd4b3&quot;/>
+            <path d=&quot;M0 0 L-44 -140 L-18 -150 Z&quot; fill=&quot;#d9f3e3&quot;/>
+            <path d=&quot;M0 0 L44 -140 L18 -150 Z&quot; fill=&quot;#d9f3e3&quot;/>
+          </g>
+          <text x=&quot;240&quot; y=&quot;346&quot; fill=&quot;#D2AC55&quot; font-size=&quot;14&quot; text-anchor=&quot;middle&quot; font-family=&quot;serif&quot; letter-spacing=&quot;2&quot;>사진 준비 중</text>
+        </svg>
+        
+      </div>
+
+      <div class=&quot;variety&quot;>춘하추동 동</div>
+      <div class=&quot;plant-id&quot;>JY-MUX-JY001-26-G0293</div>
+
+      <div class=&quot;info&quot;>
+        <div class=&quot;row&quot;><span class=&quot;k&quot;>육종가</span><span class=&quot;v&quot;>지양하월시아</span></div>
+        <div class=&quot;row&quot;><span class=&quot;k&quot;>육종 연도</span><span class=&quot;v&quot;>2018</span></div>
+        <div class=&quot;row&quot;><span class=&quot;k&quot;>교배 정보</span><span class=&quot;v&quot;>거인병</span></div>
+        
+        <div class=&quot;row&quot;><span class=&quot;k&quot;>현재 소유자</span><span class=&quot;v&quot;>주밍준</span></div>
+        <div class=&quot;row&quot;><span class=&quot;k&quot;>발급일</span><span class=&quot;v&quot;>2026-09-02</span></div>
+      </div>
+
+      
+      <div class=&quot;section-title&quot;>Provenance · 소유 이력</div>
+      <div class=&quot;timeline&quot;>
+        
+        <div class=&quot;tl-item&quot;>
+          <div class=&quot;who&quot;>최초 육종 (지양하월시아)</div>
+          <div class=&quot;when&quot;>2018</div>
+        </div>
+        
+        <div class=&quot;tl-item&quot;>
+          <div class=&quot;who&quot;>주밍준님 분양</div>
+          <div class=&quot;when&quot;>2026-09-02</div>
+        </div>
+        
+      </div>
+      
+
+      <div class=&quot;message&quot;>한 점 한 점 정성으로 길러낸 귀한 하월시아입니다. 살아있는 보석을 소장해 주셔서 진심으로 감사드립니다. 오래도록 아름답게 함께하시길 바랍니다.</div>
+
+      <div class=&quot;sign-seal&quot;>
+        <div class=&quot;signature&quot;>지양하월시아<small>JIYANG HAWORTHIA · 대표</small></div>
+        <div class=&quot;seal&quot;><span>JIYANG</span><span>ARK·認證</span></div>
+      </div>
+
+      <div class=&quot;badges&quot;>
+        <span class=&quot;status-badge&quot;>정품 인증</span>
+        <span class=&quot;grade-badge&quot;>CRIMSON GRADE</span>
+      </div>
+
+      <div class=&quot;motif 적박&quot;></div>
+
+      <div class=&quot;footer&quot;>
+        본 보증서는 지양하월시아 방주 프로젝트의 디지털 인증서입니다.<br/>
+        무단 증식 및 불법 유통은 협의서에 따라 제한됩니다.
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+"></iframe></div><div class="slot"><div class="cap">골드 등급</div><iframe srcdoc="
+<!DOCTYPE html>
+<html lang=&quot;ko&quot;>
+<head>
+  <meta charset=&quot;UTF-8&quot; />
+  <meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; />
+  <title>춘하추동 동 · 디지털 보증서 | ARK PROJECT</title>
+  <meta property=&quot;og:type&quot; content=&quot;website&quot; />
+  <meta property=&quot;og:title&quot; content=&quot;춘하추동 동 · 정품 디지털 보증서&quot; />
+  <meta property=&quot;og:description&quot; content=&quot;ARK PROJECT BY JIYANG · JY-MUX-JY001-26-G0293 · 정품 인증&quot; />
+  <meta property=&quot;og:url&quot; content=&quot;https://x/y&quot; />
+  
+  <link href=&quot;https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700&amp;family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&amp;family=Noto+Serif+KR:wght@300;400;600&amp;display=swap&quot; rel=&quot;stylesheet&quot; />
+  <style>
+    /* ── 기본(그린) 팔레트 ── */
+    :root { --g1:#1F4129; --g2:#122A18; --g3:#0C1F10; --gold:#D2AC55; --gold2:#E9D6A0; --ink:#F6F0DF; --sealA:#E8CE72; --sealB:#95762B; }
+    /* ── 등급별 팔레트: 받는 분의 느낌이 다르게 ── */
+    body.grade-적박 { --g1:#571323; --g2:#360A14; --g3:#22050C; --gold:#E0B36A; --gold2:#F1DDB4; --sealA:#F2D695; --sealB:#A87F35; }
+    body.grade-골드 { --g1:#423312; --g2:#241B08; --g3:#151004; --gold:#E8C468; --gold2:#F4E3B2; --sealA:#F4DE9A; --sealB:#A8842F; }
+    body.grade-로얄 { --g1:#1E1B17; --g2:#100E0B; --g3:#060505; --gold:#D8B25C; --gold2:#EBD8A4; --sealA:#EAD088; --sealB:#A07E2F; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif; background:radial-gradient(circle at 50% 0%, var(--g1) 0%, var(--g2) 48%, var(--g3) 100%); color:var(--ink); min-height:100vh; padding:34px 16px 64px; -webkit-font-smoothing:antialiased; }
+    .card { max-width:500px; margin:0 auto; background:linear-gradient(178deg,var(--g1),var(--g2) 55%,var(--g3)); border:1px solid var(--gold); border-radius:16px; box-shadow:0 26px 60px rgba(0,0,0,0.55), inset 0 0 0 1px rgba(233,214,160,0.10); overflow:hidden; position:relative; padding:44px 34px 30px; }
+    /* 모노그램 워터마크 */
+    .card::before { content:'A'; position:absolute; top:44%; left:50%; transform:translate(-50%,-50%); font-family:'Playfair Display',serif; font-size:400px; color:rgba(210,172,85,0.055); pointer-events:none; line-height:1; }
+    .inner { position:relative; }
+    /* 상단 브랜드 (중앙) */
+    .head { text-align:center; margin-bottom:24px; }
+    .brand { font-family:'Playfair Display',serif; letter-spacing:7px; font-size:16px; color:var(--gold); text-transform:uppercase; }
+    .by { font-family:'Playfair Display',serif; letter-spacing:5px; font-size:10px; color:var(--gold2); opacity:0.85; text-transform:uppercase; margin-top:6px; }
+    .coa { font-family:'Cormorant Garamond',serif; letter-spacing:4px; font-size:12px; color:var(--gold2); opacity:0.9; text-transform:uppercase; margin-top:14px; }
+    /* 사진 */
+    .photo-frame { border:1.5px solid var(--gold); border-radius:10px; padding:7px; background:rgba(0,0,0,0.28); margin-bottom:22px; }
+    .photo-frame svg, .photo-frame img { width:100%; display:block; border-radius:6px; aspect-ratio:4/3; object-fit:cover; }
+    /* ↓ 여기서부터 갤러리 캡션(좌측 정렬) */
+    .variety { font-family:'Cormorant Garamond','Noto Serif KR',serif; font-size:30px; font-weight:600; color:#fff; line-height:1.25; text-align:left; }
+    .plant-id { color:var(--gold); letter-spacing:2px; font-size:13px; margin:7px 0 18px; text-align:left; }
+    .info { margin-bottom:6px; }
+    .row { display:flex; gap:14px; font-size:13.5px; padding:5px 0; }
+    .row .k { min-width:92px; color:var(--gold2); opacity:0.85; }
+    .row .v { color:#fff; }
+    .section-title { font-family:'Playfair Display',serif; color:var(--gold); letter-spacing:2px; font-size:12px; text-transform:uppercase; margin:20px 0 8px; }
+    .tl-item { position:relative; padding:0 0 12px 20px; font-size:13px; }
+    .tl-item::before { content:''; position:absolute; left:2px; top:5px; width:8px; height:8px; border-radius:50%; background:var(--gold); box-shadow:0 0 0 3px rgba(210,172,85,0.2); }
+    .tl-item::after { content:''; position:absolute; left:5.5px; top:14px; bottom:0; width:1px; background:rgba(210,172,85,0.3); }
+    .tl-item:last-child::after { display:none; }
+    .tl-item .who { color:#fff; }
+    .tl-item .when { color:var(--gold2); opacity:0.8; font-size:11.5px; }
+    .message { margin:20px 0 16px; font-size:13px; line-height:1.85; color:var(--gold2); font-style:italic; }
+    .sign-seal { display:flex; align-items:flex-end; justify-content:space-between; gap:14px; margin-top:6px; }
+    .signature { font-family:'Cormorant Garamond',serif; font-size:22px; color:#fff; }
+    .signature small { display:block; font-family:'Malgun Gothic','맑은 고딕',sans-serif; font-size:10px; color:var(--gold2); letter-spacing:2px; margin-top:3px; }
+    .seal { width:82px; height:82px; border-radius:50%; background:radial-gradient(circle at 35% 30%, var(--sealA), var(--gold) 58%, var(--sealB)); color:var(--g3); display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:'Playfair Display',serif; font-size:10px; letter-spacing:1px; border:2px solid var(--gold2); box-shadow:0 6px 16px rgba(0,0,0,0.45); flex-shrink:0; }
+    .badges { display:flex; align-items:center; gap:10px; margin-top:18px; }
+    .status-badge { font-size:11px; letter-spacing:2px; color:var(--g3); background:var(--gold2); padding:4px 14px; border-radius:20px; font-weight:700; }
+    .grade-badge { font-size:10px; letter-spacing:3px; color:var(--gold); border:1px solid var(--gold); padding:4px 12px; border-radius:20px; }
+    /* 등급별 하단 무늬 */
+    .motif { height:10px; margin:24px -34px 14px; opacity:0.85; }
+    .motif.기본, .motif.녹박 { background:repeating-linear-gradient(45deg, var(--gold) 0 2px, transparent 2px 10px); }
+    .motif.적박 { background:repeating-linear-gradient(-45deg, var(--gold) 0 6px, transparent 6px 12px); height:7px; }
+    .motif.골드 { background:linear-gradient(var(--gold), var(--gold)) top/100% 1.5px no-repeat, linear-gradient(var(--gold), var(--gold)) bottom/100% 1.5px no-repeat, repeating-linear-gradient(90deg, var(--gold) 0 8px, transparent 8px 16px) center/100% 3px no-repeat; }
+    .motif.로얄 { background:repeating-linear-gradient(90deg, var(--gold) 0 12px, transparent 12px 16px, var(--gold2) 16px 18px, transparent 18px 30px); height:6px; box-shadow:0 4px 0 -2.5px var(--gold), 0 -4px 0 -2.5px var(--gold); }
+    .footer { text-align:center; color:var(--gold2); opacity:0.6; font-size:10.5px; letter-spacing:1px; line-height:1.8; }
+  </style>
+</head>
+<body class=&quot;grade-골드&quot;>
+  <div class=&quot;card&quot;>
+    <div class=&quot;inner&quot;>
+      <div class=&quot;head&quot;>
+        <div class=&quot;brand&quot;>Ark Project</div>
+        <div class=&quot;by&quot;>By Jiyang</div>
+        <div class=&quot;coa&quot;>Certificate of Authenticity</div>
+      </div>
+
+      <div class=&quot;photo-frame&quot;>
+        
+        <svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 480 360&quot; preserveAspectRatio=&quot;xMidYMid slice&quot;>
+          <defs>
+            <radialGradient id=&quot;bg&quot; cx=&quot;45%&quot; cy=&quot;38%&quot; r=&quot;75%&quot;>
+              <stop offset=&quot;0%&quot; stop-color=&quot;#3a7d55&quot;/>
+              <stop offset=&quot;55%&quot; stop-color=&quot;#1f5135&quot;/>
+              <stop offset=&quot;100%&quot; stop-color=&quot;#0c2417&quot;/>
+            </radialGradient>
+          </defs>
+          <rect width=&quot;480&quot; height=&quot;360&quot; fill=&quot;url(#bg)&quot;/>
+          <g transform=&quot;translate(240,212)&quot; stroke=&quot;#0c2417&quot; stroke-width=&quot;1.5&quot;>
+            <ellipse cx=&quot;0&quot; cy=&quot;0&quot; rx=&quot;120&quot; ry=&quot;48&quot; fill=&quot;#246b45&quot;/>
+            <path d=&quot;M0 0 L-14 -150 L14 -150 Z&quot; fill=&quot;#bfe8cf&quot;/>
+            <path d=&quot;M0 0 L-70 -120 L-44 -135 Z&quot; fill=&quot;#a9dcbd&quot;/>
+            <path d=&quot;M0 0 L70 -120 L44 -135 Z&quot; fill=&quot;#a9dcbd&quot;/>
+            <path d=&quot;M0 0 L-115 -60 L-92 -86 Z&quot; fill=&quot;#9fd4b3&quot;/>
+            <path d=&quot;M0 0 L115 -60 L92 -86 Z&quot; fill=&quot;#9fd4b3&quot;/>
+            <path d=&quot;M0 0 L-44 -140 L-18 -150 Z&quot; fill=&quot;#d9f3e3&quot;/>
+            <path d=&quot;M0 0 L44 -140 L18 -150 Z&quot; fill=&quot;#d9f3e3&quot;/>
+          </g>
+          <text x=&quot;240&quot; y=&quot;346&quot; fill=&quot;#D2AC55&quot; font-size=&quot;14&quot; text-anchor=&quot;middle&quot; font-family=&quot;serif&quot; letter-spacing=&quot;2&quot;>사진 준비 중</text>
+        </svg>
+        
+      </div>
+
+      <div class=&quot;variety&quot;>춘하추동 동</div>
+      <div class=&quot;plant-id&quot;>JY-MUX-JY001-26-G0293</div>
+
+      <div class=&quot;info&quot;>
+        <div class=&quot;row&quot;><span class=&quot;k&quot;>육종가</span><span class=&quot;v&quot;>지양하월시아</span></div>
+        <div class=&quot;row&quot;><span class=&quot;k&quot;>육종 연도</span><span class=&quot;v&quot;>2018</span></div>
+        <div class=&quot;row&quot;><span class=&quot;k&quot;>교배 정보</span><span class=&quot;v&quot;>거인병</span></div>
+        
+        <div class=&quot;row&quot;><span class=&quot;k&quot;>현재 소유자</span><span class=&quot;v&quot;>주밍준</span></div>
+        <div class=&quot;row&quot;><span class=&quot;k&quot;>발급일</span><span class=&quot;v&quot;>2026-09-02</span></div>
+      </div>
+
+      
+      <div class=&quot;section-title&quot;>Provenance · 소유 이력</div>
+      <div class=&quot;timeline&quot;>
+        
+        <div class=&quot;tl-item&quot;>
+          <div class=&quot;who&quot;>최초 육종 (지양하월시아)</div>
+          <div class=&quot;when&quot;>2018</div>
+        </div>
+        
+        <div class=&quot;tl-item&quot;>
+          <div class=&quot;who&quot;>주밍준님 분양</div>
+          <div class=&quot;when&quot;>2026-09-02</div>
+        </div>
+        
+      </div>
+      
+
+      <div class=&quot;message&quot;>한 점 한 점 정성으로 길러낸 귀한 하월시아입니다. 살아있는 보석을 소장해 주셔서 진심으로 감사드립니다. 오래도록 아름답게 함께하시길 바랍니다.</div>
+
+      <div class=&quot;sign-seal&quot;>
+        <div class=&quot;signature&quot;>지양하월시아<small>JIYANG HAWORTHIA · 대표</small></div>
+        <div class=&quot;seal&quot;><span>JIYANG</span><span>ARK·認證</span></div>
+      </div>
+
+      <div class=&quot;badges&quot;>
+        <span class=&quot;status-badge&quot;>정품 인증</span>
+        <span class=&quot;grade-badge&quot;>GOLD GRADE</span>
+      </div>
+
+      <div class=&quot;motif 골드&quot;></div>
+
+      <div class=&quot;footer&quot;>
+        본 보증서는 지양하월시아 방주 프로젝트의 디지털 인증서입니다.<br/>
+        무단 증식 및 불법 유통은 협의서에 따라 제한됩니다.
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+"></iframe></div><div class="slot"><div class="cap">로얄 등급</div><iframe srcdoc="
+<!DOCTYPE html>
+<html lang=&quot;ko&quot;>
+<head>
+  <meta charset=&quot;UTF-8&quot; />
+  <meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; />
+  <title>춘하추동 동 · 디지털 보증서 | ARK PROJECT</title>
+  <meta property=&quot;og:type&quot; content=&quot;website&quot; />
+  <meta property=&quot;og:title&quot; content=&quot;춘하추동 동 · 정품 디지털 보증서&quot; />
+  <meta property=&quot;og:description&quot; content=&quot;ARK PROJECT BY JIYANG · JY-MUX-JY001-26-G0293 · 정품 인증&quot; />
+  <meta property=&quot;og:url&quot; content=&quot;https://x/y&quot; />
+  
+  <link href=&quot;https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700&amp;family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&amp;family=Noto+Serif+KR:wght@300;400;600&amp;display=swap&quot; rel=&quot;stylesheet&quot; />
+  <style>
+    /* ── 기본(그린) 팔레트 ── */
+    :root { --g1:#1F4129; --g2:#122A18; --g3:#0C1F10; --gold:#D2AC55; --gold2:#E9D6A0; --ink:#F6F0DF; --sealA:#E8CE72; --sealB:#95762B; }
+    /* ── 등급별 팔레트: 받는 분의 느낌이 다르게 ── */
+    body.grade-적박 { --g1:#571323; --g2:#360A14; --g3:#22050C; --gold:#E0B36A; --gold2:#F1DDB4; --sealA:#F2D695; --sealB:#A87F35; }
+    body.grade-골드 { --g1:#423312; --g2:#241B08; --g3:#151004; --gold:#E8C468; --gold2:#F4E3B2; --sealA:#F4DE9A; --sealB:#A8842F; }
+    body.grade-로얄 { --g1:#1E1B17; --g2:#100E0B; --g3:#060505; --gold:#D8B25C; --gold2:#EBD8A4; --sealA:#EAD088; --sealB:#A07E2F; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif; background:radial-gradient(circle at 50% 0%, var(--g1) 0%, var(--g2) 48%, var(--g3) 100%); color:var(--ink); min-height:100vh; padding:34px 16px 64px; -webkit-font-smoothing:antialiased; }
+    .card { max-width:500px; margin:0 auto; background:linear-gradient(178deg,var(--g1),var(--g2) 55%,var(--g3)); border:1px solid var(--gold); border-radius:16px; box-shadow:0 26px 60px rgba(0,0,0,0.55), inset 0 0 0 1px rgba(233,214,160,0.10); overflow:hidden; position:relative; padding:44px 34px 30px; }
+    /* 모노그램 워터마크 */
+    .card::before { content:'A'; position:absolute; top:44%; left:50%; transform:translate(-50%,-50%); font-family:'Playfair Display',serif; font-size:400px; color:rgba(210,172,85,0.055); pointer-events:none; line-height:1; }
+    .inner { position:relative; }
+    /* 상단 브랜드 (중앙) */
+    .head { text-align:center; margin-bottom:24px; }
+    .brand { font-family:'Playfair Display',serif; letter-spacing:7px; font-size:16px; color:var(--gold); text-transform:uppercase; }
+    .by { font-family:'Playfair Display',serif; letter-spacing:5px; font-size:10px; color:var(--gold2); opacity:0.85; text-transform:uppercase; margin-top:6px; }
+    .coa { font-family:'Cormorant Garamond',serif; letter-spacing:4px; font-size:12px; color:var(--gold2); opacity:0.9; text-transform:uppercase; margin-top:14px; }
+    /* 사진 */
+    .photo-frame { border:1.5px solid var(--gold); border-radius:10px; padding:7px; background:rgba(0,0,0,0.28); margin-bottom:22px; }
+    .photo-frame svg, .photo-frame img { width:100%; display:block; border-radius:6px; aspect-ratio:4/3; object-fit:cover; }
+    /* ↓ 여기서부터 갤러리 캡션(좌측 정렬) */
+    .variety { font-family:'Cormorant Garamond','Noto Serif KR',serif; font-size:30px; font-weight:600; color:#fff; line-height:1.25; text-align:left; }
+    .plant-id { color:var(--gold); letter-spacing:2px; font-size:13px; margin:7px 0 18px; text-align:left; }
+    .info { margin-bottom:6px; }
+    .row { display:flex; gap:14px; font-size:13.5px; padding:5px 0; }
+    .row .k { min-width:92px; color:var(--gold2); opacity:0.85; }
+    .row .v { color:#fff; }
+    .section-title { font-family:'Playfair Display',serif; color:var(--gold); letter-spacing:2px; font-size:12px; text-transform:uppercase; margin:20px 0 8px; }
+    .tl-item { position:relative; padding:0 0 12px 20px; font-size:13px; }
+    .tl-item::before { content:''; position:absolute; left:2px; top:5px; width:8px; height:8px; border-radius:50%; background:var(--gold); box-shadow:0 0 0 3px rgba(210,172,85,0.2); }
+    .tl-item::after { content:''; position:absolute; left:5.5px; top:14px; bottom:0; width:1px; background:rgba(210,172,85,0.3); }
+    .tl-item:last-child::after { display:none; }
+    .tl-item .who { color:#fff; }
+    .tl-item .when { color:var(--gold2); opacity:0.8; font-size:11.5px; }
+    .message { margin:20px 0 16px; font-size:13px; line-height:1.85; color:var(--gold2); font-style:italic; }
+    .sign-seal { display:flex; align-items:flex-end; justify-content:space-between; gap:14px; margin-top:6px; }
+    .signature { font-family:'Cormorant Garamond',serif; font-size:22px; color:#fff; }
+    .signature small { display:block; font-family:'Malgun Gothic','맑은 고딕',sans-serif; font-size:10px; color:var(--gold2); letter-spacing:2px; margin-top:3px; }
+    .seal { width:82px; height:82px; border-radius:50%; background:radial-gradient(circle at 35% 30%, var(--sealA), var(--gold) 58%, var(--sealB)); color:var(--g3); display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:'Playfair Display',serif; font-size:10px; letter-spacing:1px; border:2px solid var(--gold2); box-shadow:0 6px 16px rgba(0,0,0,0.45); flex-shrink:0; }
+    .badges { display:flex; align-items:center; gap:10px; margin-top:18px; }
+    .status-badge { font-size:11px; letter-spacing:2px; color:var(--g3); background:var(--gold2); padding:4px 14px; border-radius:20px; font-weight:700; }
+    .grade-badge { font-size:10px; letter-spacing:3px; color:var(--gold); border:1px solid var(--gold); padding:4px 12px; border-radius:20px; }
+    /* 등급별 하단 무늬 */
+    .motif { height:10px; margin:24px -34px 14px; opacity:0.85; }
+    .motif.기본, .motif.녹박 { background:repeating-linear-gradient(45deg, var(--gold) 0 2px, transparent 2px 10px); }
+    .motif.적박 { background:repeating-linear-gradient(-45deg, var(--gold) 0 6px, transparent 6px 12px); height:7px; }
+    .motif.골드 { background:linear-gradient(var(--gold), var(--gold)) top/100% 1.5px no-repeat, linear-gradient(var(--gold), var(--gold)) bottom/100% 1.5px no-repeat, repeating-linear-gradient(90deg, var(--gold) 0 8px, transparent 8px 16px) center/100% 3px no-repeat; }
+    .motif.로얄 { background:repeating-linear-gradient(90deg, var(--gold) 0 12px, transparent 12px 16px, var(--gold2) 16px 18px, transparent 18px 30px); height:6px; box-shadow:0 4px 0 -2.5px var(--gold), 0 -4px 0 -2.5px var(--gold); }
+    .footer { text-align:center; color:var(--gold2); opacity:0.6; font-size:10.5px; letter-spacing:1px; line-height:1.8; }
+  </style>
+</head>
+<body class=&quot;grade-로얄&quot;>
+  <div class=&quot;card&quot;>
+    <div class=&quot;inner&quot;>
+      <div class=&quot;head&quot;>
+        <div class=&quot;brand&quot;>Ark Project</div>
+        <div class=&quot;by&quot;>By Jiyang</div>
+        <div class=&quot;coa&quot;>Certificate of Authenticity</div>
+      </div>
+
+      <div class=&quot;photo-frame&quot;>
+        
+        <svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 480 360&quot; preserveAspectRatio=&quot;xMidYMid slice&quot;>
+          <defs>
+            <radialGradient id=&quot;bg&quot; cx=&quot;45%&quot; cy=&quot;38%&quot; r=&quot;75%&quot;>
+              <stop offset=&quot;0%&quot; stop-color=&quot;#3a7d55&quot;/>
+              <stop offset=&quot;55%&quot; stop-color=&quot;#1f5135&quot;/>
+              <stop offset=&quot;100%&quot; stop-color=&quot;#0c2417&quot;/>
+            </radialGradient>
+          </defs>
+          <rect width=&quot;480&quot; height=&quot;360&quot; fill=&quot;url(#bg)&quot;/>
+          <g transform=&quot;translate(240,212)&quot; stroke=&quot;#0c2417&quot; stroke-width=&quot;1.5&quot;>
+            <ellipse cx=&quot;0&quot; cy=&quot;0&quot; rx=&quot;120&quot; ry=&quot;48&quot; fill=&quot;#246b45&quot;/>
+            <path d=&quot;M0 0 L-14 -150 L14 -150 Z&quot; fill=&quot;#bfe8cf&quot;/>
+            <path d=&quot;M0 0 L-70 -120 L-44 -135 Z&quot; fill=&quot;#a9dcbd&quot;/>
+            <path d=&quot;M0 0 L70 -120 L44 -135 Z&quot; fill=&quot;#a9dcbd&quot;/>
+            <path d=&quot;M0 0 L-115 -60 L-92 -86 Z&quot; fill=&quot;#9fd4b3&quot;/>
+            <path d=&quot;M0 0 L115 -60 L92 -86 Z&quot; fill=&quot;#9fd4b3&quot;/>
+            <path d=&quot;M0 0 L-44 -140 L-18 -150 Z&quot; fill=&quot;#d9f3e3&quot;/>
+            <path d=&quot;M0 0 L44 -140 L18 -150 Z&quot; fill=&quot;#d9f3e3&quot;/>
+          </g>
+          <text x=&quot;240&quot; y=&quot;346&quot; fill=&quot;#D2AC55&quot; font-size=&quot;14&quot; text-anchor=&quot;middle&quot; font-family=&quot;serif&quot; letter-spacing=&quot;2&quot;>사진 준비 중</text>
+        </svg>
+        
+      </div>
+
+      <div class=&quot;variety&quot;>춘하추동 동</div>
+      <div class=&quot;plant-id&quot;>JY-MUX-JY001-26-G0293</div>
+
+      <div class=&quot;info&quot;>
+        <div class=&quot;row&quot;><span class=&quot;k&quot;>육종가</span><span class=&quot;v&quot;>지양하월시아</span></div>
+        <div class=&quot;row&quot;><span class=&quot;k&quot;>육종 연도</span><span class=&quot;v&quot;>2018</span></div>
+        <div class=&quot;row&quot;><span class=&quot;k&quot;>교배 정보</span><span class=&quot;v&quot;>거인병</span></div>
+        
+        <div class=&quot;row&quot;><span class=&quot;k&quot;>현재 소유자</span><span class=&quot;v&quot;>주밍준</span></div>
+        <div class=&quot;row&quot;><span class=&quot;k&quot;>발급일</span><span class=&quot;v&quot;>2026-09-02</span></div>
+      </div>
+
+      
+      <div class=&quot;section-title&quot;>Provenance · 소유 이력</div>
+      <div class=&quot;timeline&quot;>
+        
+        <div class=&quot;tl-item&quot;>
+          <div class=&quot;who&quot;>최초 육종 (지양하월시아)</div>
+          <div class=&quot;when&quot;>2018</div>
+        </div>
+        
+        <div class=&quot;tl-item&quot;>
+          <div class=&quot;who&quot;>주밍준님 분양</div>
+          <div class=&quot;when&quot;>2026-09-02</div>
+        </div>
+        
+      </div>
+      
+
+      <div class=&quot;message&quot;>한 점 한 점 정성으로 길러낸 귀한 하월시아입니다. 살아있는 보석을 소장해 주셔서 진심으로 감사드립니다. 오래도록 아름답게 함께하시길 바랍니다.</div>
+
+      <div class=&quot;sign-seal&quot;>
+        <div class=&quot;signature&quot;>지양하월시아<small>JIYANG HAWORTHIA · 대표</small></div>
+        <div class=&quot;seal&quot;><span>JIYANG</span><span>ARK·認證</span></div>
+      </div>
+
+      <div class=&quot;badges&quot;>
+        <span class=&quot;status-badge&quot;>정품 인증</span>
+        <span class=&quot;grade-badge&quot;>ROYAL GRADE</span>
+      </div>
+
+      <div class=&quot;motif 로얄&quot;></div>
+
+      <div class=&quot;footer&quot;>
+        본 보증서는 지양하월시아 방주 프로젝트의 디지털 인증서입니다.<br/>
+        무단 증식 및 불법 유통은 협의서에 따라 제한됩니다.
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+"></iframe></div></div></body></html>

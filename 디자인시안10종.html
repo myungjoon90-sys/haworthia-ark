@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>방주 보증서 디자인 시안 10종</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Noto+Serif+KR:wght@400;600&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<style>
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif; background:#111; color:#eee; padding:30px 16px 80px; }
+h1 { text-align:center; font-size:22px; font-weight:500; margin-bottom:6px; }
+.sub { text-align:center; font-size:13px; color:#aaa; margin-bottom:34px; }
+.grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(330px, 1fr)); gap:34px; max-width:1200px; margin:0 auto; }
+.slot { }
+.label { display:flex; align-items:baseline; gap:10px; margin-bottom:10px; }
+.label .num { font-size:26px; font-weight:700; color:#fff; }
+.label .name { font-size:16px; font-weight:600; }
+.label .desc { font-size:12px; color:#999; }
+/* ===== 공통 보증서 구조 ===== */
+.cert { border-radius:14px; overflow:hidden; padding:26px 22px 24px; position:relative; border:1px solid; }
+.cert .brand { text-align:center; font-family:'Playfair Display',serif; letter-spacing:3px; font-size:11px; text-transform:uppercase; }
+.cert .coa { text-align:center; font-family:'Playfair Display',serif; letter-spacing:4px; font-size:12px; margin-top:6px; padding-bottom:14px; margin-bottom:16px; border-bottom:1px solid; }
+.cert .photo { height:120px; border-radius:8px; margin-bottom:16px; display:flex; align-items:center; justify-content:center; font-size:11px; border:1px solid; }
+.cert .variety { text-align:center; font-family:'Cormorant Garamond','Noto Serif KR',serif; font-size:24px; font-weight:600; }
+.cert .pid { text-align:center; letter-spacing:2px; font-size:11px; margin:6px 0 14px; }
+.cert .row { display:flex; justify-content:space-between; font-size:11.5px; padding:7px 2px; border-bottom:1px dashed; }
+.cert .row:last-of-type { border-bottom:none; }
+.cert .seal { width:54px; height:54px; border-radius:50%; margin:16px auto 4px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:'Playfair Display',serif; font-size:8px; letter-spacing:1px; border:2px solid; }
+.cert .foot { text-align:center; font-size:9px; opacity:0.65; margin-top:10px; letter-spacing:1px; }
+/* 1. 로얄 그린 리파인 */
+.t1 .cert { background:linear-gradient(175deg,#1E4530,#0C2415); border-color:#C9A44C; color:#F4EDD8; box-shadow:inset 0 0 0 4px rgba(201,164,76,.15), 0 18px 40px rgba(0,0,0,.5); }
+.t1 .brand,.t1 .pid { color:#D9B961; } .t1 .coa { color:#EBD9A6; border-color:rgba(217,185,97,.35); }
+.t1 .photo { background:#0A1D10; border-color:#C9A44C; color:#D9B961; }
+.t1 .row { border-color:rgba(217,185,97,.25); } .t1 .row b{ color:#EBD9A6; font-weight:400; }
+.t1 .seal { background:radial-gradient(circle at 35% 30%,#E8CE72,#C9A44C 60%,#96762A); color:#12240F; border-color:#F0E0A6; }
+/* 2. 보르도 루주 */
+.t2 .cert { background:linear-gradient(170deg,#5A0F1D,#320710); border-color:#E0B36A; color:#F7EAD9; box-shadow:0 18px 40px rgba(0,0,0,.5); }
+.t2 .brand,.t2 .pid { color:#E8C286; } .t2 .coa { color:#F1DDB4; border-color:rgba(232,194,134,.4); }
+.t2 .photo { background:#26050C; border-color:#E0B36A; color:#E8C286; }
+.t2 .row { border-color:rgba(232,194,134,.3); } .t2 .row b{ color:#F1DDB4; font-weight:400; }
+.t2 .seal { background:radial-gradient(circle at 35% 30%,#F2D695,#DFB264 60%,#A87F35); color:#3A0912; border-color:#F6E6BE; }
+/* 3. 아이보리 골드 */
+.t3 .cert { background:linear-gradient(180deg,#FBF6E9,#F3EAD4); border-color:#C6A85C; color:#4A3B22; box-shadow:inset 0 0 0 5px #fff, inset 0 0 0 6px #D9C48A, 0 14px 34px rgba(0,0,0,.35); }
+.t3 .brand,.t3 .pid { color:#A88734; } .t3 .coa { color:#8A6E2B; border-color:#D9C48A; }
+.t3 .photo { background:#EFE5C9; border-color:#C6A85C; color:#A88734; }
+.t3 .row { border-color:#D9C48A; } .t3 .row b{ color:#3C2F18; font-weight:500; }
+.t3 .seal { background:radial-gradient(circle at 35% 30%,#E9D28C,#C6A85C 60%,#977B32); color:#3F3115; border-color:#B69747; }
+/* 4. 로빈 블루 */
+.t4 .cert { background:linear-gradient(180deg,#8AD3CB,#5FB8AF); border-color:#fff; color:#0E3B36; box-shadow:inset 0 0 0 5px rgba(255,255,255,.65), 0 14px 34px rgba(0,0,0,.35); }
+.t4 .brand,.t4 .pid { color:#0E3B36; } .t4 .coa { color:#12443E; border-color:rgba(255,255,255,.8); }
+.t4 .photo { background:#CFEBE8; border-color:#fff; color:#2B6B64; }
+.t4 .row { border-color:rgba(255,255,255,.75); } .t4 .row b{ font-weight:600; }
+.t4 .seal { background:#fff; color:#2B6B64; border-color:#D8F0ED; }
+/* 5. 미드나잇 블랙 */
+.t5 .cert { background:linear-gradient(180deg,#171512,#060505); border-color:#D8B25C; color:#EFE6D2; box-shadow:0 18px 44px rgba(0,0,0,.7); }
+.t5 .brand,.t5 .pid { color:#D8B25C; } .t5 .coa { color:#E7CC8F; border-color:rgba(216,178,92,.4); }
+.t5 .photo { background:#000; border-color:#D8B25C; color:#D8B25C; }
+.t5 .row { border-color:rgba(216,178,92,.28); } .t5 .row b{ color:#E7CC8F; font-weight:400; }
+.t5 .seal { background:radial-gradient(circle at 35% 30%,#EAD088,#D8B25C 60%,#A07E2F); color:#171310; border-color:#F1E2AE; }
+/* 6. 로얄 네이비 */
+.t6 .cert { background:linear-gradient(175deg,#14264B,#080F22); border-color:#D9C08A; color:#EFEADB; box-shadow:0 18px 40px rgba(0,0,0,.55); }
+.t6 .brand,.t6 .pid { color:#D9C08A; } .t6 .coa { color:#EADFB9; border-color:rgba(217,192,138,.4); }
+.t6 .photo { background:#0A142B; border-color:#D9C08A; color:#D9C08A; }
+.t6 .row { border-color:rgba(217,192,138,.3); } .t6 .row b{ color:#EADFB9; font-weight:400; }
+.t6 .seal { background:radial-gradient(circle at 35% 30%,#EFDFA8,#D9C08A 60%,#A98F51); color:#111D38; border-color:#F3E8C4; }
+/* 7. 미니멀 화이트 */
+.t7 .cert { background:#FDFDFB; border-color:#E5DECB; color:#33302A; box-shadow:0 12px 30px rgba(0,0,0,.3); }
+.t7 .brand,.t7 .pid { color:#A08D55; letter-spacing:4px; } .t7 .coa { border-color:#EAE3D0; color:#7A6E45; }
+.t7 .photo { background:#F4F1E9; border-color:#E5DECB; color:#A08D55; }
+.t7 .row { border-color:#EDE8DA; } .t7 .row b{ font-weight:500; }
+.t7 .seal { background:#fff; color:#A08D55; border-color:#CDBd85; border-color:#CDBD85; }
+/* 8. 벨벳 버건디 */
+.t8 .cert { background:radial-gradient(circle at 50% 12%,#6E1E33,#3B0D1B 70%); border-color:#E6C8A0; color:#F6E9DC; box-shadow:inset 0 0 60px rgba(0,0,0,.5), 0 18px 40px rgba(0,0,0,.55); }
+.t8 .brand,.t8 .pid { color:#E6C8A0; } .t8 .coa { color:#F0DCC0; border-color:rgba(230,200,160,.4); }
+.t8 .photo { background:#2A0813; border-color:#E6C8A0; color:#E6C8A0; }
+.t8 .row { border-color:rgba(230,200,160,.3); } .t8 .row b{ color:#F0DCC0; font-weight:400; }
+.t8 .seal { background:radial-gradient(circle at 35% 30%,#F2DDB4,#E1BE8B 60%,#AA8451); color:#40101F; border-color:#F6E8CD; }
+/* 9. 아르데코 에메랄드 */
+.t9 .cert { background:linear-gradient(180deg,#0F3A32,#06201B); border-color:#CBA85B; color:#EFEAD8;
+  box-shadow:inset 0 0 0 3px #06201B, inset 0 0 0 4px #CBA85B, inset 0 0 0 10px #06201B, inset 0 0 0 11px rgba(203,168,91,.5), 0 18px 40px rgba(0,0,0,.55); padding:32px 26px 28px; }
+.t9 .brand,.t9 .pid { color:#DBBC6F; letter-spacing:5px; } .t9 .coa { color:#EAD79F; border-color:rgba(219,188,111,.45); }
+.t9 .photo { background:#052A22; border-color:#CBA85B; color:#DBBC6F; clip-path:polygon(6% 0,94% 0,100% 12%,100% 88%,94% 100%,6% 100%,0 88%,0 12%); border-radius:0; }
+.t9 .row { border-color:rgba(219,188,111,.3); } .t9 .row b{ color:#EAD79F; font-weight:400; }
+.t9 .seal { background:radial-gradient(circle at 35% 30%,#E9D186,#CBA85B 60%,#997C33); color:#0A2620; border-color:#EFE0AC; border-radius:0; clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%); width:58px; height:58px; }
+/* 10. 샴페인 인그레이빙 */
+.t10 .cert { background:linear-gradient(180deg,#F3EADB,#E8DBC4); border-color:#B9A278; color:#4E4230; box-shadow:0 14px 34px rgba(0,0,0,.35); }
+.t10 .brand { color:#8A744A; letter-spacing:6px; } .t10 .pid { color:#8A744A; letter-spacing:3px; }
+.t10 .coa { color:#6E5B37; border-color:#CBB998; font-style:italic; font-family:'Cormorant Garamond',serif; letter-spacing:2px; font-size:14px; }
+.t10 .photo { background:#EDE2CD; border-color:#B9A278; color:#8A744A; border-radius:50% / 38%; }
+.t10 .variety { font-style:italic; }
+.t10 .row { border-color:#D6C7A8; } .t10 .row b{ font-weight:500; }
+.t10 .seal { background:transparent; color:#8A744A; border-color:#B9A278; border-style:double; border-width:4px; }
+</style>
+</head>
+<body>
+<h1>방주 프로젝트 · 보증서 디자인 시안 10종</h1>
+<div class="sub">같은 개체 정보(춘하추동 동 · JY-MUX-JY001-26-G0293)를 10가지 방향으로 입혔습니다. 마음에 드는 번호를 알려주세요. (2개 조합도 가능)</div>
+<div class="grid" id="grid"></div>
+<script>
+const themes = [
+ [1,'로얄 그린 리파인','지금 색을 유지하되 금테 이중 프레임·명암으로 깊이를 더한 정통파'],
+ [2,'보르도 루주','까르띠에 레드박스 감성 — 진한 와인빛 + 샴페인 골드'],
+ [3,'아이보리 골드','반클리프 감성 — 크림 종이질감에 금테 이중선, 밝고 우아함'],
+ [4,'로빈 블루','티파니 감성 — 청록 바탕에 화이트 프레임, 산뜻한 고급감'],
+ [5,'미드나잇 블랙','블랙 온 블랙 + 골드 포일 — 가장 무게감 있는 하이엔드'],
+ [6,'로얄 네이비','짙은 남색 + 샴페인 골드 — 신뢰감·보증서다운 정중함'],
+ [7,'미니멀 화이트','현대 명품 감성 — 여백과 가는 금선만으로 정제된 세련미'],
+ [8,'벨벳 버건디','벨벳 스포트라이트 질감 + 엠보스 씰 — 클래식 주얼리 케이스'],
+ [9,'아르데코 에메랄드','기하학 이중 프레임·팔각 사진창 — 1920s 아르데코 럭셔리'],
+ [10,'샴페인 인그레이빙','청첩장·각인 증서 스타일 — 이탤릭 세리프, 타원 사진창'],
+];
+const grid = document.getElementById('grid');
+themes.forEach(([n, name, desc]) => {
+  const d = document.createElement('div');
+  d.className = 'slot t' + n;
+  d.innerHTML = `
+  <div class="label"><span class="num">${n}</span><span class="name">${name}</span></div>
+  <div class="label" style="margin-top:-6px"><span class="desc">${desc}</span></div>
+  <div class="cert">
+    <div class="brand">Ark Project · by Jiyang</div>
+    <div class="coa">CERTIFICATE OF AUTHENTICITY</div>
+    <div class="photo">개체 사진</div>
+    <div class="variety">춘하추동 동</div>
+    <div class="pid">JY-MUX-JY001-26-G0293</div>
+    <div class="row"><span>육종가</span><b>지양하월시아</b></div>
+    <div class="row"><span>육종 연도</span><b>2018</b></div>
+    <div class="row"><span>현재 소유자</span><b>주밍준</b></div>
+    <div class="seal"><span>JIYANG</span><span>ARK·認證</span></div>
+    <div class="foot">JIYANG HAWORTHIA · 방주 프로젝트 공식 인증</div>
+  </div>`;
+  grid.appendChild(d);
+});
+</script>
+</body>
+</html>

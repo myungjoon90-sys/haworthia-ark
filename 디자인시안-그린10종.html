@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>로얄 그린 · 레이아웃 시안 10종</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,500&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&family=Noto+Serif+KR:wght@300;400;600&display=swap" rel="stylesheet"/>
+<style>
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif; background:#0B0F0C; color:#eee; padding:30px 16px 80px; }
+h1 { text-align:center; font-size:22px; font-weight:500; margin-bottom:6px; }
+.sub { text-align:center; font-size:13px; color:#aaa; margin-bottom:36px; line-height:1.7; }
+.grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(390px, 1fr)); gap:44px; max-width:1300px; margin:0 auto; }
+.label { margin-bottom:12px; }
+.label .num { font-size:26px; font-weight:700; color:#fff; margin-right:10px; }
+.label .name { font-size:16px; font-weight:600; }
+.label .desc { display:block; font-size:12px; color:#999; margin-top:4px; line-height:1.6; }
+
+/* ===== 공통: 로얄 그린 팔레트 ===== */
+.cert { --g1:#1F4129; --g2:#122A18; --g3:#0C1F10; --gold:#D2AC55; --gold2:#E9D6A0; --ink:#F6F0DF;
+  display:flex; flex-direction:column; border-radius:16px; overflow:hidden; position:relative;
+  background:linear-gradient(178deg,var(--g1),var(--g2) 55%,var(--g3)); border:1px solid var(--gold);
+  color:var(--ink); box-shadow:0 22px 50px rgba(0,0,0,.55); }
+.c-head { text-align:center; }
+.c-brand { font-family:'Playfair Display',serif; letter-spacing:5px; font-size:14px; color:var(--gold); text-transform:uppercase; }
+.c-by { font-family:'Playfair Display',serif; letter-spacing:4px; font-size:10px; color:var(--gold2); opacity:.85; text-transform:uppercase; margin-top:5px; }
+.c-coa { font-family:'Cormorant Garamond',serif; letter-spacing:3px; font-size:12px; color:var(--gold2); opacity:.9; text-transform:uppercase; margin-top:12px; }
+.c-photo { background:#081509; border:1.5px solid var(--gold); display:flex; align-items:center; justify-content:center; color:var(--gold); font-size:12px; letter-spacing:2px; }
+.c-variety { text-align:center; font-family:'Cormorant Garamond','Noto Serif KR',serif; font-weight:600; color:#fff; line-height:1.25; }
+.c-pid { text-align:center; letter-spacing:3px; color:var(--gold); font-size:12px; }
+.c-info { }
+.c-row { display:flex; justify-content:space-between; gap:12px; font-size:13px; padding:10px 2px; border-bottom:1px dashed rgba(210,172,85,.25); }
+.c-row:last-child { border-bottom:none; }
+.c-row .k { color:var(--gold2); opacity:.85; }
+.c-row .v { color:#fff; text-align:right; }
+.c-msg { font-size:12.5px; line-height:1.8; color:var(--gold2); font-style:italic; }
+.c-sign { text-align:right; font-family:'Cormorant Garamond',serif; font-size:20px; color:#fff; }
+.c-sign small { display:block; font-family:inherit; font-style:normal; font-size:10px; letter-spacing:2px; color:var(--gold2); font-family:'Malgun Gothic',sans-serif; }
+.c-seal { width:74px; height:74px; border-radius:50%; align-self:center;
+  background:radial-gradient(circle at 35% 30%,#E8CE72,var(--gold) 58%,#95762B); color:#12240F;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  font-family:'Playfair Display',serif; font-size:9px; letter-spacing:1px; border:2px solid #F0E0A6; box-shadow:0 6px 14px rgba(0,0,0,.4); }
+.c-badge { align-self:center; font-size:10px; letter-spacing:2px; color:#12240F; background:var(--gold2); padding:4px 14px; border-radius:20px; font-weight:700; }
+.c-foot { text-align:center; font-size:9.5px; letter-spacing:1px; color:var(--gold2); opacity:.55; line-height:1.7; }
+
+/* ── 1. 클래식 정제 ── */
+.v1 .cert { padding:34px 28px 30px; gap:18px; }
+.v1 .c-head { border-bottom:1px solid rgba(210,172,85,.3); padding-bottom:18px; }
+.v1 .c-photo { height:190px; border-radius:10px; padding:6px; }
+.v1 .c-variety { font-size:27px; }
+
+/* ── 2. 에어리 (넓은 여백) ── */
+.v2 .cert { padding:52px 42px 44px; gap:28px; }
+.v2 .c-brand { letter-spacing:8px; font-size:12px; }
+.v2 .c-by { letter-spacing:6px; }
+.v2 .c-coa { margin-top:18px; font-size:11px; letter-spacing:5px; }
+.v2 .c-photo { height:170px; border-radius:6px; border-width:1px; }
+.v2 .c-variety { font-size:25px; font-weight:500; }
+.v2 .c-row { padding:13px 2px; font-size:12.5px; border-color:rgba(210,172,85,.15); }
+.v2 .c-seal { width:64px; height:64px; }
+
+/* ── 3. 포토 히어로 (사진이 맨 위) ── */
+.v3 .cert { padding:0 0 30px; gap:16px; }
+.v3 .c-photo { order:-1; height:230px; border:none; border-bottom:1.5px solid var(--gold); border-radius:0; }
+.v3 .c-head { padding:6px 28px 0; }
+.v3 .c-variety, .v3 .c-pid { padding:0 28px; }
+.v3 .c-info, .v3 .c-msg, .v3 .c-sign, .v3 .c-foot { margin:0 30px; }
+.v3 .c-variety { font-size:26px; }
+
+/* ── 4. 아치 창 ── */
+.v4 .cert { padding:38px 30px 32px; gap:18px; }
+.v4 .c-photo { height:230px; width:78%; align-self:center; border-radius:150px 150px 12px 12px; padding:7px; }
+.v4 .c-variety { font-size:26px; }
+.v4 .c-coa { display:none; }
+.v4 .c-badge { margin-top:-6px; }
+
+/* ── 5. 그리드 라벨 ── */
+.v5 .cert { padding:34px 28px 30px; gap:18px; }
+.v5 .c-photo { height:180px; border-radius:8px; }
+.v5 .c-info { display:grid; grid-template-columns:1fr 1fr; gap:0 22px; }
+.v5 .c-row { flex-direction:column; gap:3px; border-bottom:1px solid rgba(210,172,85,.18); padding:9px 0; }
+.v5 .c-row .k { font-size:10px; letter-spacing:2px; text-transform:uppercase; }
+.v5 .c-row .v { text-align:left; font-size:13.5px; }
+.v5 .c-variety { font-size:26px; }
+
+/* ── 6. 딥 프레임 (삼중 금테) ── */
+.v6 .cert { padding:44px 36px 36px; gap:16px;
+  box-shadow:inset 0 0 0 6px var(--g3), inset 0 0 0 7px var(--gold), inset 0 0 0 14px var(--g3), inset 0 0 0 15px rgba(210,172,85,.45), 0 22px 50px rgba(0,0,0,.55); }
+.v6 .c-photo { height:175px; border-radius:4px; }
+.v6 .c-variety { font-size:25px; }
+.v6 .c-brand { font-size:13px; }
+
+/* ── 7. 갤러리 캡션 (좌측 정렬) ── */
+.v7 .cert { padding:38px 34px 32px; gap:16px; }
+.v7 .c-head, .v7 .c-variety, .v7 .c-pid { text-align:left; }
+.v7 .c-photo { height:200px; border-radius:2px; border-width:1px; }
+.v7 .c-variety { font-size:28px; }
+.v7 .c-pid { letter-spacing:2px; }
+.v7 .c-coa { margin-top:8px; }
+.v7 .c-row { border-bottom:none; padding:5px 0; }
+.v7 .c-row .k { min-width:84px; text-align:left; }
+.v7 .c-row .v { text-align:left; margin-right:auto; }
+.v7 .c-seal { align-self:flex-end; }
+.v7 .c-badge { align-self:flex-start; }
+
+/* ── 8. 골드 밴드 ── */
+.v8 .cert { padding:0 0 30px; gap:16px; }
+.v8 .c-head { order:-2; background:linear-gradient(180deg,#E6CB78,#C9A24A); padding:20px 10px 16px; }
+.v8 .c-brand { color:#14260F; }
+.v8 .c-by { color:#3A3010; opacity:.9; }
+.v8 .c-coa { color:#3A3010; opacity:.85; }
+.v8 .c-photo { order:-1; height:200px; margin:22px 30px 0; border-radius:8px; }
+.v8 .c-variety, .v8 .c-pid { padding:0 28px; }
+.v8 .c-variety { font-size:26px; }
+.v8 .c-info, .v8 .c-msg, .v8 .c-sign, .v8 .c-foot { margin:0 30px; }
+
+/* ── 9. 스포트라이트 (원형 사진) ── */
+.v9 .cert { padding:40px 30px 32px; gap:16px; background:radial-gradient(circle at 50% 18%, #2A5638 0%, var(--g2) 48%, var(--g3) 100%); }
+.v9 .c-photo { width:210px; height:210px; border-radius:50%; align-self:center; padding:8px; box-shadow:0 0 0 1px rgba(233,214,160,.35), 0 14px 30px rgba(0,0,0,.5); }
+.v9 .c-variety { font-size:26px; }
+.v9 .c-seal { position:absolute; top:26px; right:26px; width:58px; height:58px; }
+.v9 .c-coa { display:none; }
+
+/* ── 10. 모노그램 워터마크 ── */
+.v10 .cert { padding:44px 34px 34px; gap:18px; }
+.v10 .cert::before { content:'A'; position:absolute; top:46%; left:50%; transform:translate(-50%,-50%); font-family:'Playfair Display',serif; font-size:340px; color:rgba(210,172,85,.06); pointer-events:none; }
+.v10 .c-photo { height:180px; border-radius:10px; }
+.v10 .c-variety { font-size:26px; }
+.v10 .c-brand { letter-spacing:7px; }
+.v10 .c-row { border-color:rgba(210,172,85,.18); }
+</style>
+</head>
+<body>
+<h1>로얄 그린 · 레이아웃 시안 10종</h1>
+<div class="sub">색은 1번(그린+골드)으로 고정하고, 여백·배치·스타일만 다르게 풀었습니다.<br/>브랜드 표기는 요청하신 대로 「ARK PROJECT / BY JIYANG」 두 줄입니다. 번호로 골라주세요.</div>
+<div class="grid" id="grid"></div>
+<script>
+const themes = [
+ [1,'클래식 정제','지금 구성 그대로, 비례와 선만 다듬은 기본형'],
+ [2,'에어리','여백을 크게 넓히고 글자 간격을 살린 호흡 있는 레이아웃 — 고급 인쇄물 느낌'],
+ [3,'포토 히어로','사진이 맨 위에 꽉 차게 — 개체가 주인공이 되는 구성'],
+ [4,'아치 창','사진을 아치(성당 창) 모양으로 — 클래식 유럽 증서 감성'],
+ [5,'그리드 라벨','정보를 2열 그리드로 — 항목명은 작은 대문자 라벨, 읽기 정돈형'],
+ [6,'딥 프레임','삼중 금테 액자 안에 담긴 구성 — 가장 "증서"다운 무게감'],
+ [7,'갤러리 캡션','왼쪽 정렬 타이포 중심 — 미술관 작품 캡션처럼 모던하게'],
+ [8,'골드 밴드','상단을 골드 띠로 — 브랜드가 금박 헤더에 각인된 느낌'],
+ [9,'스포트라이트','원형 사진 + 조명 그라데이션, 인장은 우상단 — 주얼리 연출'],
+ [10,'모노그램','배경에 큰 A 워터마크를 은은하게 — 명품 하우스 문양 감성'],
+];
+const grid = document.getElementById('grid');
+themes.forEach(([n, name, desc]) => {
+  const d = document.createElement('div');
+  d.className = 'slot v' + n;
+  d.innerHTML = `
+  <div class="label"><span class="num">${n}</span><span class="name">${name}</span><span class="desc">${desc}</span></div>
+  <div class="cert">
+    <div class="c-head">
+      <div class="c-brand">Ark Project</div>
+      <div class="c-by">By Jiyang</div>
+      <div class="c-coa">Certificate of Authenticity</div>
+    </div>
+    <div class="c-photo">개체 사진</div>
+    <div class="c-variety">춘하추동 동</div>
+    <div class="c-pid">JY-MUX-JY001-26-G0293</div>
+    <div class="c-info">
+      <div class="c-row"><span class="k">육종가</span><span class="v">지양하월시아</span></div>
+      <div class="c-row"><span class="k">육종 연도</span><span class="v">2018</span></div>
+      <div class="c-row"><span class="k">교배 정보</span><span class="v">거인병</span></div>
+      <div class="c-row"><span class="k">현재 소유자</span><span class="v">주밍준</span></div>
+    </div>
+    <div class="c-msg">한 점 한 점 정성으로 길러낸 귀한 하월시아입니다. 살아있는 보석을 소장해 주셔서 진심으로 감사드립니다.</div>
+    <div class="c-sign">지양하월시아<small>JIYANG HAWORTHIA · 대표</small></div>
+    <div class="c-seal"><span>JIYANG</span><span>ARK·認證</span></div>
+    <div class="c-badge">정품 인증</div>
+    <div class="c-foot">본 보증서는 지양하월시아 방주 프로젝트의 디지털 인증서입니다.<br/>무단 증식 및 불법 유통은 협의서에 따라 제한됩니다.</div>
+  </div>`;
+  grid.appendChild(d);
+});
+</script>
+</body>
+</html>
