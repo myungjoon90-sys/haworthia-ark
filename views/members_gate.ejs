@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>회원 명부 입장 | ARK PROJECT BY JIYANG</title>
+  <meta property="og:title" content="방주 회원 명부 · 회원 전용" />
+  <meta property="og:description" content="방주 회원만 열람할 수 있는 명부입니다." />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,500&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Noto+Serif+KR:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root { --g1:#1F4129; --g2:#122A18; --gold:#D2AC55; --gold2:#E9D6A0; --line:rgba(210,172,85,0.3); }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Noto Serif KR','Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',serif; background:radial-gradient(circle at 50% -10%, var(--g1) 0%, var(--g2) 50%, #050a06 100%); color:#F6F0DF; min-height:100vh; padding:72px 18px 80px; -webkit-font-smoothing:antialiased; }
+    .wrap { max-width:400px; margin:0 auto; text-align:center; }
+    .crest { width:52px; height:52px; margin:0 auto 16px; border:1.5px solid var(--gold); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--gold); font-size:24px; }
+    .brand { font-family:'Playfair Display',serif; letter-spacing:7px; font-size:18px; color:var(--gold); text-transform:uppercase; }
+    h1 { font-family:'Noto Serif KR','Malgun Gothic',serif; font-size:20px; font-weight:600; color:#fff; margin-top:16px; letter-spacing:3px; }
+    .lead { font-family:'Cormorant Garamond','Noto Serif KR','Malgun Gothic',serif; font-style:italic; font-size:14.5px; color:var(--gold2); margin-top:14px; opacity:0.85; line-height:1.9; }
+    .panel { margin-top:34px; background:rgba(0,0,0,0.35); border:1px solid var(--line); border-radius:14px; padding:26px 22px; text-align:left; position:relative; }
+    .panel::before, .panel::after { content:''; position:absolute; width:13px; height:13px; border-color:var(--gold); border-style:solid; opacity:0.85; }
+    .panel::before { top:7px; left:7px; border-width:1px 0 0 1px; }
+    .panel::after { bottom:7px; right:7px; border-width:0 1px 1px 0; }
+    label { display:block; font-size:12px; color:var(--gold2); letter-spacing:1px; margin:14px 0 7px; }
+    input { width:100%; padding:13px 14px; border-radius:10px; border:1px solid var(--line); background:rgba(0,0,0,0.35); color:#F6F0DF; font-size:15px; font-family:inherit; }
+    input:focus { outline:none; border-color:var(--gold); }
+    button { width:100%; margin-top:22px; padding:15px; border:none; border-radius:10px; background:linear-gradient(180deg,#E6C75A,#D2AC55); color:#10220f; font-size:15px; font-weight:700; letter-spacing:1px; cursor:pointer; font-family:inherit; }
+    .err { margin-top:16px; padding:13px 15px; border-radius:10px; font-size:12.5px; background:rgba(180,50,50,0.18); border:1px solid rgba(220,100,100,0.5); color:#ffd9d9; text-align:left; line-height:1.7; }
+    .hint { margin-top:20px; font-size:11px; color:var(--gold2); opacity:0.6; line-height:1.9; }
+    .backlink { margin-top:24px; font-size:12px; }
+    .backlink a { color:var(--gold2); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="crest">&#10086;</div>
+    <div class="brand">Members Only</div>
+    <h1>회원 명부 입장</h1>
+    <div class="lead">"명부는 방주에 오른 분들께만 열립니다."</div>
+
+    <% if (error) { %><div class="err">⚠️ <%= error %></div><% } %>
+
+    <form class="panel" method="post" action="/members/enter">
+      <label>가입하신 휴대폰 번호</label>
+      <input type="tel" name="phone" placeholder="예: 01012345678" autocomplete="tel" />
+      <label>입장 암호</label>
+      <input type="password" name="code" placeholder="환영 문자로 안내드린 암호" />
+      <button type="submit">명부 열람하기</button>
+    </form>
+
+    <div class="hint">
+      입장 암호는 멤버십 승인 환영 문자로 안내드립니다.<br/>
+      잊으셨다면 지양하월시아로 문의해 주세요.
+    </div>
+    <div class="backlink"><a href="/about">← 방주 프로젝트 소개</a> &nbsp;·&nbsp; <a href="/join">멤버십 가입 신청 →</a></div>
+  </div>
+</body>
+</html>

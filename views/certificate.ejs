@@ -49,7 +49,7 @@
     body.grade-골드 { --g1:#423312; --g2:#241B08; --g3:#151004; --gold:#E8C468; --gold2:#F4E3B2; --sealA:#F4DE9A; --sealB:#A8842F; }
     body.grade-로얄 { --g1:#1E1B17; --g2:#100E0B; --g3:#060505; --gold:#D8B25C; --gold2:#EBD8A4; --sealA:#EAD088; --sealB:#A07E2F; }
     * { box-sizing:border-box; margin:0; padding:0; }
-    body { font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif; background:radial-gradient(circle at 50% 0%, var(--g1) 0%, var(--g2) 48%, var(--g3) 100%); color:var(--ink); min-height:100vh; padding:34px 16px 64px; -webkit-font-smoothing:antialiased; }
+    body { font-family:'Noto Serif KR','Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',serif; background:radial-gradient(circle at 50% 0%, var(--g1) 0%, var(--g2) 48%, var(--g3) 100%); color:var(--ink); min-height:100vh; padding:34px 16px 64px; -webkit-font-smoothing:antialiased; }
     .card { max-width:500px; margin:0 auto; background:linear-gradient(178deg,var(--g1),var(--g2) 55%,var(--g3)); border:1px solid var(--gold); border-radius:16px; box-shadow:0 26px 60px rgba(0,0,0,0.55), inset 0 0 0 1px rgba(233,214,160,0.10); overflow:hidden; position:relative; padding:44px 34px 30px; }
     /* 모노그램 워터마크 */
     .card::before { content:'A'; position:absolute; top:44%; left:50%; transform:translate(-50%,-50%); font-family:'Playfair Display',serif; font-size:400px; color:rgba(210,172,85,0.055); pointer-events:none; line-height:1; }
@@ -79,7 +79,7 @@
     .message { margin:20px 0 16px; font-size:13px; line-height:1.85; color:var(--gold2); font-style:italic; }
     .sign-seal { display:flex; align-items:flex-end; justify-content:space-between; gap:14px; margin-top:6px; }
     .signature { font-family:'Cormorant Garamond',serif; font-size:22px; color:#fff; }
-    .signature small { display:block; font-family:'Malgun Gothic','맑은 고딕',sans-serif; font-size:10px; color:var(--gold2); letter-spacing:2px; margin-top:3px; }
+    .signature small { display:block; font-family:'Noto Serif KR','Malgun Gothic','맑은 고딕',serif; font-size:10px; color:var(--gold2); letter-spacing:2px; margin-top:3px; }
     .seal { width:82px; height:82px; border-radius:50%; background:radial-gradient(circle at 35% 30%, var(--sealA), var(--gold) 58%, var(--sealB)); color:var(--g3); display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:'Playfair Display',serif; font-size:10px; letter-spacing:1px; border:2px solid var(--gold2); box-shadow:0 6px 16px rgba(0,0,0,0.45); flex-shrink:0; }
     .badges { display:flex; align-items:center; gap:10px; margin-top:18px; }
     .status-badge { font-size:11px; letter-spacing:2px; color:var(--g3); background:var(--gold2); padding:4px 14px; border-radius:20px; font-weight:700; }

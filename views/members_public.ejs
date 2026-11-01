@@ -11,7 +11,7 @@
   <style>
     :root { --g1:#1F4129; --g2:#122A18; --gold:#D2AC55; --gold2:#E9D6A0; --line:rgba(210,172,85,0.3); }
     * { box-sizing:border-box; margin:0; padding:0; }
-    body { font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif; background:radial-gradient(circle at 50% -10%, var(--g1) 0%, var(--g2) 50%, #050a06 100%); color:#F6F0DF; min-height:100vh; padding:52px 18px 80px; -webkit-font-smoothing:antialiased; }
+    body { font-family:'Noto Serif KR','Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',serif; background:radial-gradient(circle at 50% -10%, var(--g1) 0%, var(--g2) 50%, #050a06 100%); color:#F6F0DF; min-height:100vh; padding:52px 18px 80px; -webkit-font-smoothing:antialiased; }
     .wrap { max-width:620px; margin:0 auto; }
     .hero { text-align:center; margin-bottom:46px; }
     .crest { width:48px; height:48px; margin:0 auto 14px; border:1.5px solid var(--gold); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--gold); font-size:22px; }
@@ -34,7 +34,7 @@
     .row .dots { flex:1; border-bottom:1px dotted rgba(210,172,85,0.35); transform:translateY(-4px); }
     .row .yr { font-family:'Playfair Display',serif; font-size:12px; color:var(--gold); letter-spacing:2px; white-space:nowrap; }
 
-    .empty { text-align:center; font-size:13px; color:var(--gold2); opacity:0.75; padding:40px 0; line-height:2; font-family:'Cormorant Garamond','Malgun Gothic',serif; font-style:italic; font-size:15px; }
+    .empty { text-align:center; font-size:13px; color:var(--gold2); opacity:0.75; padding:40px 0; line-height:2; font-family:'Cormorant Garamond','Noto Serif KR','Malgun Gothic',serif; font-style:italic; font-size:15px; }
     .note { text-align:center; font-size:10.5px; color:var(--gold2); opacity:0.55; margin-top:40px; line-height:1.9; letter-spacing:0.5px; }
     .cta { text-align:center; margin-top:26px; }
     .cta a { display:inline-block; border:1px solid var(--gold); color:var(--gold2); border-radius:22px; padding:11px 26px; font-size:13px; text-decoration:none; letter-spacing:1px; }
@@ -51,7 +51,7 @@
       <h1>방주 회원 명부</h1>
       <div class="tagline">"방주에 오른 이들의 이름이 여기에 남습니다."</div>
       <% if (members.length) { %><div class="count">현재 회원 <%= members.length %>인</div><% } %>
-      <div style="margin-top:14px; font-family:'Cormorant Garamond','Malgun Gothic',serif; font-style:italic; font-size:14px; color:var(--gold2); opacity:0.75; letter-spacing:1px;">
+      <div style="margin-top:14px; font-family:'Cormorant Garamond','Noto Serif KR','Malgun Gothic',serif; font-style:italic; font-size:14px; color:var(--gold2); opacity:0.75; letter-spacing:1px;">
         정원 <%= (typeof seat !== 'undefined' && seat) ? seat.totalCap : 50 %>석 한정 — 추가 정원은 없습니다.
       </div>
     </div>

@@ -11,8 +11,8 @@
   <style>
     :root { --g1:#1F4129; --g2:#122A18; --g3:#0C1F10; --gold:#D2AC55; --gold2:#E9D6A0; --line:rgba(210,172,85,0.3); }
     * { box-sizing:border-box; margin:0; padding:0; }
-    body { font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif; background:radial-gradient(circle at 50% -10%, var(--g1) 0%, var(--g2) 50%, #050a06 100%); color:#F6F0DF; min-height:100vh; padding:52px 18px 80px; -webkit-font-smoothing:antialiased; }
-    .wrap { max-width:1020px; margin:0 auto; }
+    body { font-family:'Noto Serif KR','Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',serif; background:radial-gradient(circle at 50% -10%, var(--g1) 0%, var(--g2) 50%, #050a06 100%); color:#F6F0DF; min-height:100vh; padding:52px 18px 80px; -webkit-font-smoothing:antialiased; }
+    .wrap { max-width:820px; margin:0 auto; }
     .hero { text-align:center; margin-bottom:50px; }
     .crest { width:48px; height:48px; margin:0 auto 14px; border:1.5px solid var(--gold); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--gold); font-size:22px; }
     .brand { font-family:'Playfair Display',serif; letter-spacing:8px; font-size:22px; color:var(--gold); text-transform:uppercase; }
@@ -26,17 +26,17 @@
     .maker-name { font-family:'Noto Serif KR','Malgun Gothic',serif; font-size:20px; font-weight:600; color:#fff; letter-spacing:2px; }
     .maker-count { font-size:11px; color:var(--gold); letter-spacing:1px; }
 
-    .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(235px,1fr)); gap:26px; }
+    .grid { display:grid; grid-template-columns:repeat(2,1fr); gap:30px; }
     .card { background:rgba(0,0,0,0.35); border:1px solid var(--line); border-radius:4px; padding:24px 18px 22px; text-align:center; position:relative; cursor:pointer; transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
     .card:hover { transform:translateY(-4px); border-color:rgba(210,172,85,0.65); box-shadow:0 16px 46px rgba(0,0,0,0.5); }
     .card::before, .card::after { content:''; position:absolute; width:13px; height:13px; border-color:var(--gold); border-style:solid; opacity:0.85; }
     .card::before { top:7px; left:7px; border-width:1px 0 0 1px; }
     .card::after { bottom:7px; right:7px; border-width:0 1px 1px 0; }
-    .ph { aspect-ratio:1/1; border-radius:50%; overflow:hidden; width:74%; margin:4px auto 0; box-shadow:0 0 0 1px rgba(210,172,85,0.5), 0 0 46px rgba(210,172,85,0.16), 0 16px 36px rgba(0,0,0,0.55); background:#06130a; }
+    .ph { aspect-ratio:1/1; border-radius:50%; overflow:hidden; width:84%; margin:8px auto 0; box-shadow:0 0 0 1px rgba(210,172,85,0.5), 0 0 60px rgba(210,172,85,0.18), 0 20px 44px rgba(0,0,0,0.55); background:#06130a; }
     .ph img, .ph svg { width:100%; height:100%; object-fit:cover; display:block; }
-    .nm { margin-top:18px; color:#F3E8CC; font-size:15.5px; letter-spacing:2px; font-weight:700; font-family:'Noto Serif KR','Malgun Gothic',serif; }
-    .en { font-family:'Playfair Display',serif; font-style:italic; color:var(--gold); font-size:11px; margin-top:5px; letter-spacing:1px; min-height:14px; }
-    .ped { margin-top:10px; color:#cfc5a8; font-size:10.5px; line-height:1.7; opacity:0.85; min-height:16px; }
+    .nm { margin-top:20px; color:#F3E8CC; font-size:18px; letter-spacing:2px; font-weight:700; font-family:'Noto Serif KR','Malgun Gothic',serif; }
+    .en { font-family:'Playfair Display',serif; font-style:italic; color:var(--gold); font-size:12.5px; margin-top:5px; letter-spacing:1px; min-height:14px; }
+    .ped { margin-top:11px; color:#cfc5a8; font-size:12px; line-height:1.7; opacity:0.85; min-height:16px; }
     .tier { display:inline-block; margin-top:12px; font-size:8.5px; letter-spacing:3px; border:1px solid rgba(216,178,92,0.55); border-radius:12px; padding:4px 12px; color:#EAD088; }
     .tier.t-black { background:#000; border-color:#D8B25C; color:#EAD088; }
     .tier.t-royal { color:#EBD8A4; }

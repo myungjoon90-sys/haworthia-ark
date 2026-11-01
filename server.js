@@ -525,8 +525,11 @@ app.get('/list', async (req, res) => {
   }
 });
 
-// 공개 회원 명부 (성함록 — 닉네임 + 가입 기수, 먼저 들어온 순)
+// 공개 회원 명부 (성함록) — 회원 전용: 휴대폰 번호 + 입장 암호 확인 후 열람
 app.get('/members', async (req, res) => {
+  if (!(req.session && req.session.memberNo)) {
+    return res.render('members_gate', { error: null });
+  }
   try {
     const members = await sheets.getPublicMembers();
     const seat = await sheets.getMembershipStatus().catch(() => null);
@@ -534,6 +537,23 @@ app.get('/members', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.render('members_public', { members: [], seat: null, error: err.message });
+  }
+});
+
+app.post('/members/enter', async (req, res) => {
+  try {
+    const phone = (req.body.phone || '').trim();
+    const code = (req.body.code || '').trim();
+    if (!phone || !code) throw new Error('휴대폰 번호와 입장 암호를 모두 입력해 주세요.');
+    const gate = await sheets.getGateCode();
+    if (code !== gate) throw new Error('입장 암호가 올바르지 않습니다.');
+    const member = await sheets.findApprovedByPhone(phone);
+    if (!member) throw new Error('승인된 회원 명단에서 이 번호를 찾을 수 없습니다. 가입하신 번호로 입력해 주세요.');
+    req.session.memberNo = member.회원번호;
+    req.session.memberName = member.성함;
+    res.redirect('/members');
+  } catch (err) {
+    res.render('members_gate', { error: err.message });
   }
 });
 
@@ -704,6 +724,7 @@ async function processWelcomes() {
   try {
     const list = await sheets.getPendingWelcomes();
     if (!list.length) return;
+    const gate = await sheets.getGateCode().catch(() => '');
     for (const m of list) {
       try {
         await sheets.markWelcomeSent(m.sheetRow, '발송중');
@@ -715,6 +736,7 @@ async function processWelcomes() {
           `50석의 방주에 오르신 것을 진심으로 환영합니다.\n\n` +
           `회원번호 ${m.회원번호}` +
           (cardUrl ? `\n\n▼ 멤버십 카드 확인\n${cardUrl}` : '') +
+          (BASE_URL && gate ? `\n\n▼ 회원 명부 (회원 전용)\n${BASE_URL}/members\n입장 암호: ${gate}\n(가입하신 휴대폰 번호로 입장하실 수 있습니다)` : '') +
           `\n\n블랙 라인 분양과 회원 소식을 가장 먼저 안내드리겠습니다.\n지양하월시아 드림`;
         await messaging.sendText({ to: m.연락처, subject: '방주 멤버십 승인', text });
         const now = new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 16).replace('T', ' ');
