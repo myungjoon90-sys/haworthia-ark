@@ -53,7 +53,14 @@
 
     <% if (error) { %><div class="alert error">⚠️ <%= error %></div><% } %>
 
-    <% if (done) { %>
+    <% if (done === 'wait') { %>
+    <div class="alert ok">
+      ⚓ <b>대기 명단에 등록되었습니다.</b><br/>
+      현재 기수의 정원이 모두 찼습니다. 방주의 자리는 탈퇴·제명으로만 생기며,
+      자리가 나면 등록 순서에 따라 다음 기수 심사 대상으로 모시고 개별 연락드리겠습니다. 감사합니다.
+    </div>
+    <div class="backlink"><a href="/about">← 방주 프로젝트 소개로 돌아가기</a></div>
+    <% } else if (done) { %>
     <div class="alert ok">
       ✅ <b>가입 신청이 접수되었습니다.</b><br/>
       서명과 함께 신청 내용이 안전하게 기록되었으며, 관리자 확인(요건 검토) 후
@@ -62,6 +69,21 @@
     <div class="backlink"><a href="/about">← 방주 프로젝트 소개로 돌아가기</a></div>
     <% } else { %>
 
+    <% if (typeof seat !== 'undefined' && seat) { %>
+      <% if (seat.waitlist) { %>
+      <div class="alert" style="background:rgba(0,0,0,0.3); border:1px solid rgba(216,178,92,0.6); color:#EAD088; border-radius:12px; padding:14px 16px; font-size:13px; line-height:1.9; margin-bottom:16px;">
+        ⚓ <b><%= seat.full ? '방주 정원(' + seat.totalCap + '석)이 모두 찼습니다.' : '이번 기수(' + seat.cohortLabel + ') 정원이 마감되었습니다.' %></b><br/>
+        지금 신청하시면 <b>대기 명단</b>에 등록되며, 자리가 나는 대로 등록 순서에 따라 다음 기수 심사에 모십니다.
+      </div>
+      <% } else { %>
+      <div style="text-align:center; margin-bottom:16px;">
+        <span style="display:inline-block; font-size:11px; letter-spacing:2px; color:#EAD088; border:1px solid rgba(216,178,92,0.55); border-radius:14px; padding:6px 16px;">
+          <%= seat.cohortLabel %> 기수 · 잔여 <%= seat.seatsLeft %>석 <span style="opacity:0.6;">/ 방주 정원 <%= seat.totalCap %>석</span>
+        </span>
+      </div>
+      <% } %>
+    <% } %>
+
     <form method="post" action="/join" id="joinForm">
       <div class="panel">
         <h2>신청자 정보</h2>
@@ -69,6 +91,9 @@
         <input type="text" name="name" value="<%= form.name || '' %>" placeholder="예: 홍길동" />
         <label class="f">휴대폰 번호</label>
         <input type="tel" name="phone" value="<%= form.phone || '' %>" placeholder="예: 01012345678" />
+        <label class="f">명부 닉네임 (선택)</label>
+        <input type="text" name="nickname" value="<%= form.nickname || '' %>" placeholder="예: 하월붕붕 — 공개 회원 명부에 표시됩니다" />
+        <div style="font-size:11px; opacity:0.7; margin-top:6px; line-height:1.7;">가입 승인 시 공개 회원 명부(성함록)에 이 닉네임으로 등재됩니다. 비워두시면 '비공개 회원'으로 표시됩니다.</div>
       </div>
 
       <div class="panel">
@@ -115,7 +140,7 @@
         <input type="hidden" name="signature" id="sigData" />
       </div>
 
-      <button class="submit" type="submit">서명하고 가입 신청하기</button>
+      <button class="submit" type="submit"><%= (typeof seat !== 'undefined' && seat && seat.waitlist) ? '서명하고 대기 명단에 등록하기' : '서명하고 가입 신청하기' %></button>
     </form>
     <div class="backlink"><a href="/about">← 방주 프로젝트 소개</a></div>
     <% } %>

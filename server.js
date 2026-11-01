@@ -525,17 +525,31 @@ app.get('/list', async (req, res) => {
   }
 });
 
+// 공개 회원 명부 (성함록 — 닉네임 + 가입 기수, 먼저 들어온 순)
+app.get('/members', async (req, res) => {
+  try {
+    const members = await sheets.getPublicMembers();
+    const seat = await sheets.getMembershipStatus().catch(() => null);
+    res.render('members_public', { members, seat, error: null });
+  } catch (err) {
+    console.error(err);
+    res.render('members_public', { members: [], seat: null, error: err.message });
+  }
+});
+
 app.get('/about', (req, res) => {
   res.render('about', { joinUrl: '/join', royalUrl: '/royal' });
 });
 
-app.get('/join', (req, res) => {
-  res.render('join', { error: null, done: false, form: {}, criteria: MEMBER_CRITERIA, bonus: MEMBER_BONUS, need: MEMBER_RULE.need });
+app.get('/join', async (req, res) => {
+  const seat = await sheets.getMembershipStatus().catch(() => null);
+  res.render('join', { error: null, done: false, form: {}, criteria: MEMBER_CRITERIA, bonus: MEMBER_BONUS, need: MEMBER_RULE.need, seat });
 });
 
 app.post('/join', async (req, res) => {
   const form = {
     name: (req.body.name || '').trim(),
+    nickname: (req.body.nickname || '').trim(),
     phone: (req.body.phone || '').trim(),
     criteria: [].concat(req.body.criteria || []),
     agree: req.body.agree === 'on',
@@ -566,6 +580,8 @@ app.post('/join', async (req, res) => {
 
     const now = new Date();
     const stamp = now.toISOString().slice(0, 10) + ' ' + now.toTimeString().slice(0, 5);
+    const seat = await sheets.getMembershipStatus().catch(() => null);
+    const isWait = !!(seat && seat.waitlist);
     await sheets.appendJoinApplication({
       일시: stamp,
       성함: form.name,
@@ -573,14 +589,26 @@ app.post('/join', async (req, res) => {
       충족요건: form.criteria.join(', '),
       서명이미지: photoUrl(req, fname),
       동의: '규정 동의함 (전자서명)',
+      상태: isWait ? '대기' : '심사 대기',
       제출넘버,
       자동확인,
+      닉네임: form.nickname,
     });
-    messaging.sendAdminAlert(`[방주] 새 멤버십 가입 신청\n${form.name} / ${form.phone}\n요건: ${form.criteria.join(', ')}` + (자동확인 ? `\n넘버 자동확인: ${자동확인}` : '')).catch(() => {});
-    res.render('join', { error: null, done: true, form: {}, criteria: MEMBER_CRITERIA, bonus: MEMBER_BONUS, need: MEMBER_RULE.need });
+    messaging.sendAdminAlert(`[방주] ${isWait ? '대기 명단 등록' : '새 멤버십 가입 신청'}\n${form.name} / ${form.phone}\n요건: ${form.criteria.join(', ')}` + (자동확인 ? `\n넘버 자동확인: ${자동확인}` : '')).catch(() => {});
+    // 신청자 본인에게 접수 확인 문자 (실패해도 신청은 정상 처리)
+    messaging.sendText({
+      to: form.phone,
+      subject: isWait ? '방주 대기 명단 등록' : '방주 가입 신청 접수',
+      text: `[지양하월시아 · 방주 프로젝트]\n\n${form.name}님, ` + (isWait
+        ? `현재 기수 정원이 마감되어 대기 명단에 등록되었습니다.\n자리가 나면 등록 순서에 따라 다음 기수 심사 대상으로 안내드리겠습니다.`
+        : `멤버십 가입 신청이 접수되었습니다.\n관리자 검토(요건 확인) 후 결과를 문자로 안내드리겠습니다.`) +
+        `\n\n감사합니다.\n지양하월시아 드림`,
+    }).catch((e) => console.warn('접수 확인 문자 실패(무시):', e.message));
+    res.render('join', { error: null, done: isWait ? 'wait' : true, form: {}, criteria: MEMBER_CRITERIA, bonus: MEMBER_BONUS, need: MEMBER_RULE.need, seat });
   } catch (err) {
     console.error(err);
-    res.render('join', { error: err.message, done: false, form, criteria: MEMBER_CRITERIA, bonus: MEMBER_BONUS, need: MEMBER_RULE.need });
+    const seat = await sheets.getMembershipStatus().catch(() => null);
+    res.render('join', { error: err.message, done: false, form, criteria: MEMBER_CRITERIA, bonus: MEMBER_BONUS, need: MEMBER_RULE.need, seat });
   }
 });
 
@@ -667,6 +695,42 @@ async function runBackup() {
 }
 setTimeout(runBackup, 3 * 60 * 1000);           // 서버 시작 3분 후 1회
 setInterval(runBackup, 24 * 60 * 60 * 1000);    // 이후 24시간마다
+
+// =============================================================
+// 승인 자동 환영: 구글시트에서 상태를 '승인'으로 바꾸면
+// 5분 안에 환영 문자 + 멤버십 카드 링크가 자동 발송됩니다. (K열에 기록)
+// =============================================================
+async function processWelcomes() {
+  try {
+    const list = await sheets.getPendingWelcomes();
+    if (!list.length) return;
+    for (const m of list) {
+      try {
+        await sheets.markWelcomeSent(m.sheetRow, '발송중');
+        const payload = Buffer.from(JSON.stringify({ n: m.성함, no: m.회원번호, d: (m.일시 || '').slice(0, 10), p: m.연락처 }), 'utf8').toString('base64url');
+        const cardUrl = BASE_URL ? `${BASE_URL}/card?d=${payload}&k=${signPayload(payload)}` : '';
+        const text =
+          `[지양하월시아 · 방주 프로젝트]\n\n` +
+          `${m.성함}님, 방주 멤버십 가입이 승인되었습니다.\n` +
+          `50석의 방주에 오르신 것을 진심으로 환영합니다.\n\n` +
+          `회원번호 ${m.회원번호}` +
+          (cardUrl ? `\n\n▼ 멤버십 카드 확인\n${cardUrl}` : '') +
+          `\n\n블랙 라인 분양과 회원 소식을 가장 먼저 안내드리겠습니다.\n지양하월시아 드림`;
+        await messaging.sendText({ to: m.연락처, subject: '방주 멤버십 승인', text });
+        const now = new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 16).replace('T', ' ');
+        await sheets.markWelcomeSent(m.sheetRow, '발송 ' + now);
+        messaging.sendAdminAlert(`[방주] 환영 문자 자동 발송\n${m.성함} / ${m.회원번호}`).catch(() => {});
+      } catch (e) {
+        console.warn('환영 문자 발송 실패:', e.message);
+        await sheets.markWelcomeSent(m.sheetRow, '실패(칸 비우면 재시도): ' + String(e.message || '').slice(0, 40)).catch(() => {});
+      }
+    }
+  } catch (e) {
+    console.warn('환영 자동발송 체크 실패(무시):', e.message);
+  }
+}
+setTimeout(processWelcomes, 30 * 1000);         // 서버 시작 30초 후 1회
+setInterval(processWelcomes, 5 * 60 * 1000);    // 이후 5분마다
 
 app.listen(PORT, () => {
   console.log('✅ 방주 보증서 서버(v4)가 실행되었습니다. 포트: ' + PORT);

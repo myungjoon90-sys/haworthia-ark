@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>방주 회원 명부 | ARK PROJECT BY JIYANG</title>
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="방주 회원 명부 · ARK PROJECT BY JIYANG" />
+  <meta property="og:description" content="방주에 오른 회원들의 성함록입니다." />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,500&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Noto+Serif+KR:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root { --g1:#1F4129; --g2:#122A18; --gold:#D2AC55; --gold2:#E9D6A0; --line:rgba(210,172,85,0.3); }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif; background:radial-gradient(circle at 50% -10%, var(--g1) 0%, var(--g2) 50%, #050a06 100%); color:#F6F0DF; min-height:100vh; padding:52px 18px 80px; -webkit-font-smoothing:antialiased; }
+    .wrap { max-width:620px; margin:0 auto; }
+    .hero { text-align:center; margin-bottom:46px; }
+    .crest { width:48px; height:48px; margin:0 auto 14px; border:1.5px solid var(--gold); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--gold); font-size:22px; }
+    .brand { font-family:'Playfair Display',serif; letter-spacing:8px; font-size:20px; color:var(--gold); text-transform:uppercase; }
+    .by { font-family:'Playfair Display',serif; letter-spacing:4px; font-size:10px; color:var(--gold2); opacity:0.85; text-transform:uppercase; margin-top:7px; }
+    h1 { font-family:'Noto Serif KR','Malgun Gothic',serif; font-size:21px; font-weight:600; color:#fff; margin-top:18px; letter-spacing:4px; }
+    .tagline { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:15px; color:var(--gold2); margin-top:12px; opacity:0.85; }
+    .count { margin-top:18px; font-size:12px; color:var(--gold); letter-spacing:2px; }
+    .err { margin-bottom:16px; padding:14px 16px; border-radius:12px; font-size:13px; background:rgba(180,50,50,0.18); border:1px solid rgba(220,100,100,0.5); color:#ffd9d9; }
+
+    .cohort { margin-top:36px; }
+    .cohort-head { display:flex; align-items:center; gap:12px; margin-bottom:6px; }
+    .cohort-name { font-family:'Playfair Display',serif; font-size:12px; letter-spacing:3px; color:var(--gold); }
+    .cohort-badge { font-size:8.5px; letter-spacing:2px; color:#EAD088; border:1px solid rgba(216,178,92,0.55); border-radius:10px; padding:3px 10px; }
+    .cohort-head::after { content:''; flex:1; height:1px; background:linear-gradient(90deg, var(--line), transparent); }
+    .roster { border-top:1px solid rgba(210,172,85,0.5); }
+    .row { display:flex; align-items:baseline; gap:14px; padding:16px 6px; border-bottom:1px solid rgba(210,172,85,0.16); }
+    .row .nick { font-family:'Noto Serif KR','Malgun Gothic',serif; font-size:16.5px; font-weight:600; color:#F3E8CC; letter-spacing:3px; }
+    .row .nick.anon { opacity:0.45; font-weight:300; letter-spacing:2px; }
+    .row .dots { flex:1; border-bottom:1px dotted rgba(210,172,85,0.35); transform:translateY(-4px); }
+    .row .yr { font-family:'Playfair Display',serif; font-size:12px; color:var(--gold); letter-spacing:2px; white-space:nowrap; }
+
+    .empty { text-align:center; font-size:13px; color:var(--gold2); opacity:0.75; padding:40px 0; line-height:2; font-family:'Cormorant Garamond','Malgun Gothic',serif; font-style:italic; font-size:15px; }
+    .note { text-align:center; font-size:10.5px; color:var(--gold2); opacity:0.55; margin-top:40px; line-height:1.9; letter-spacing:0.5px; }
+    .cta { text-align:center; margin-top:26px; }
+    .cta a { display:inline-block; border:1px solid var(--gold); color:var(--gold2); border-radius:22px; padding:11px 26px; font-size:13px; text-decoration:none; letter-spacing:1px; }
+    .backlink { text-align:center; margin-top:22px; font-size:12px; }
+    .backlink a { color:var(--gold2); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <div class="crest">&#10086;</div>
+      <div class="brand">The Register</div>
+      <div class="by">Ark Project · By Jiyang</div>
+      <h1>방주 회원 명부</h1>
+      <div class="tagline">"방주에 오른 이들의 이름이 여기에 남습니다."</div>
+      <% if (members.length) { %><div class="count">현재 회원 <%= members.length %>인</div><% } %>
+      <div style="margin-top:14px; font-family:'Cormorant Garamond','Malgun Gothic',serif; font-style:italic; font-size:14px; color:var(--gold2); opacity:0.75; letter-spacing:1px;">
+        정원 <%= (typeof seat !== 'undefined' && seat) ? seat.totalCap : 50 %>석 한정 — 추가 정원은 없습니다.
+      </div>
+    </div>
+
+    <% if (error) { %><div class="err">⚠️ <%= error %></div><% } %>
+
+    <%
+      // 기수(반기)별로 묶기 — 먼저 들어온 기수가 위 (원로 우선)
+      const cohorts = [];
+      const seen = new Map();
+      members.forEach(function (m) {
+        if (!seen.has(m.기수)) { seen.set(m.기수, { 기수: m.기수, 명단: [] }); cohorts.push(seen.get(m.기수)); }
+        seen.get(m.기수).명단.push(m);
+      });
+    %>
+
+    <% cohorts.forEach(function (c, ci) { %>
+    <div class="cohort">
+      <div class="cohort-head">
+        <span class="cohort-name"><%= c.기수 %></span>
+        <% if (ci === 0) { %><span class="cohort-badge">창립 기수</span><% } %>
+      </div>
+      <div class="roster">
+        <% c.명단.forEach(function (m) { %>
+        <div class="row">
+          <span class="nick <%= m.닉네임 === '비공개 회원' ? 'anon' : '' %>"><%= m.닉네임 %></span>
+          <span class="dots"></span>
+          <span class="yr"><%= m.기수 %></span>
+        </div>
+        <% }); %>
+      </div>
+    </div>
+    <% }); %>
+
+    <% if (!members.length) { %>
+    <div class="empty">첫 번째 명단이 곧 이 자리에 새겨집니다.<br/>The first names will be inscribed here soon.</div>
+    <% } %>
+
+    <div class="note">
+      방주 멤버십은 <b>6개월(반기)마다 한 차례</b> 신규 가입을 심사·승인하며, 기수마다 정원이 있습니다.<br/>
+      정원이 찬 뒤에는 대기 명단으로 등록되며, 자리는 탈퇴·제명으로만 생깁니다.<br/>
+      닉네임은 본인이 공개에 동의한 회원만 표시되며, 그 외에는 '비공개 회원'으로 등재됩니다.
+    </div>
+    <div class="cta"><a href="/join">다음 기수 가입 신청하기</a></div>
+    <div class="backlink"><a href="/about">← 방주 프로젝트 소개</a> &nbsp;·&nbsp; <a href="/list">방주 갤러리 →</a></div>
+  </div>
+</body>
+</html>

@@ -3,74 +3,219 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>방주 등재 품종 리스트 | ARK PROJECT</title>
+  <title>방주 갤러리 | ARK PROJECT BY JIYANG</title>
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="방주 등재 품종 리스트 · ARK PROJECT" />
-  <meta property="og:description" content="방주 프로젝트에 등재된 작출자별 품종 명단입니다." />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet" />
+  <meta property="og:title" content="방주 갤러리 · ARK PROJECT BY JIYANG" />
+  <meta property="og:description" content="방주 프로젝트가 지켜가는 품종들 — 작품으로 만나보세요." />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,500&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Noto+Serif+KR:wght@300;400;600&display=swap" rel="stylesheet" />
   <style>
-    :root { --g1:#1F4129; --g2:#122A18; --g3:#0C1F10; --gold:#D2AC55; --gold2:#E9D6A0; --line:rgba(210,172,85,0.25); }
+    :root { --g1:#1F4129; --g2:#122A18; --g3:#0C1F10; --gold:#D2AC55; --gold2:#E9D6A0; --line:rgba(210,172,85,0.3); }
     * { box-sizing:border-box; margin:0; padding:0; }
-    body { font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif; background:radial-gradient(circle at 50% 0%, var(--g1) 0%, var(--g2) 48%, var(--g3) 100%); color:#F6F0DF; min-height:100vh; padding:48px 18px 80px; }
-    .wrap { max-width:640px; margin:0 auto; }
-    .hero { text-align:center; margin-bottom:38px; }
+    body { font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif; background:radial-gradient(circle at 50% -10%, var(--g1) 0%, var(--g2) 50%, #050a06 100%); color:#F6F0DF; min-height:100vh; padding:52px 18px 80px; -webkit-font-smoothing:antialiased; }
+    .wrap { max-width:1020px; margin:0 auto; }
+    .hero { text-align:center; margin-bottom:50px; }
     .crest { width:48px; height:48px; margin:0 auto 14px; border:1.5px solid var(--gold); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--gold); font-size:22px; }
-    .brand { font-family:'Playfair Display',serif; letter-spacing:7px; font-size:20px; color:var(--gold); text-transform:uppercase; }
-    .by { font-family:'Playfair Display',serif; letter-spacing:4px; font-size:10px; color:var(--gold2); opacity:0.85; text-transform:uppercase; margin-top:6px; }
-    h1 { font-size:18px; font-weight:600; color:#fff; margin-top:16px; letter-spacing:1px; }
-    .lead { font-size:12.5px; color:var(--gold2); opacity:0.85; margin-top:8px; line-height:1.8; }
-    .maker { margin-bottom:34px; }
-    .maker-head { display:flex; align-items:baseline; gap:10px; padding-bottom:10px; border-bottom:1px solid var(--gold); margin-bottom:14px; }
-    .maker-label { font-family:'Playfair Display',serif; font-size:11px; letter-spacing:3px; color:var(--gold2); opacity:0.8; text-transform:uppercase; }
-    .maker-name { font-size:19px; font-weight:700; color:#fff; letter-spacing:1px; }
-    .maker-count { margin-left:auto; font-size:12px; color:var(--gold); }
-    .vlist { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-    .vcard { border:1px solid var(--line); border-radius:12px; padding:16px 14px; background:rgba(0,0,0,0.22); }
-    .vname { font-family:'Cormorant Garamond','Malgun Gothic',serif; font-size:18px; font-weight:600; color:#fff; }
-    .vdesc { font-size:11.5px; color:var(--gold2); opacity:0.8; margin-top:6px; line-height:1.6; }
-    .vcard img { width:100%; border-radius:8px; margin-bottom:10px; aspect-ratio:4/3; object-fit:cover; border:1px solid var(--line); }
-    .empty { text-align:center; font-size:13px; color:var(--gold2); opacity:0.7; padding:30px 0; }
+    .brand { font-family:'Playfair Display',serif; letter-spacing:8px; font-size:22px; color:var(--gold); text-transform:uppercase; }
+    .by { font-family:'Playfair Display',serif; letter-spacing:4px; font-size:10px; color:var(--gold2); opacity:0.85; text-transform:uppercase; margin-top:7px; }
+    .tagline { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:16px; color:var(--gold2); margin-top:18px; opacity:0.9; }
     .err { margin-bottom:16px; padding:14px 16px; border-radius:12px; font-size:13px; background:rgba(180,50,50,0.18); border:1px solid rgba(220,100,100,0.5); color:#ffd9d9; }
-    .backlink { text-align:center; margin-top:30px; font-size:12px; }
+
+    .maker-head { display:flex; align-items:baseline; gap:12px; margin:46px 0 26px; }
+    .maker-head::after { content:''; flex:1; height:1px; background:linear-gradient(90deg, var(--line), transparent); }
+    .maker-label { font-family:'Playfair Display',serif; font-size:10px; letter-spacing:3px; color:var(--gold2); opacity:0.75; text-transform:uppercase; }
+    .maker-name { font-family:'Noto Serif KR','Malgun Gothic',serif; font-size:20px; font-weight:600; color:#fff; letter-spacing:2px; }
+    .maker-count { font-size:11px; color:var(--gold); letter-spacing:1px; }
+
+    .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(235px,1fr)); gap:26px; }
+    .card { background:rgba(0,0,0,0.35); border:1px solid var(--line); border-radius:4px; padding:24px 18px 22px; text-align:center; position:relative; cursor:pointer; transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
+    .card:hover { transform:translateY(-4px); border-color:rgba(210,172,85,0.65); box-shadow:0 16px 46px rgba(0,0,0,0.5); }
+    .card::before, .card::after { content:''; position:absolute; width:13px; height:13px; border-color:var(--gold); border-style:solid; opacity:0.85; }
+    .card::before { top:7px; left:7px; border-width:1px 0 0 1px; }
+    .card::after { bottom:7px; right:7px; border-width:0 1px 1px 0; }
+    .ph { aspect-ratio:1/1; border-radius:50%; overflow:hidden; width:74%; margin:4px auto 0; box-shadow:0 0 0 1px rgba(210,172,85,0.5), 0 0 46px rgba(210,172,85,0.16), 0 16px 36px rgba(0,0,0,0.55); background:#06130a; }
+    .ph img, .ph svg { width:100%; height:100%; object-fit:cover; display:block; }
+    .nm { margin-top:18px; color:#F3E8CC; font-size:15.5px; letter-spacing:2px; font-weight:700; font-family:'Noto Serif KR','Malgun Gothic',serif; }
+    .en { font-family:'Playfair Display',serif; font-style:italic; color:var(--gold); font-size:11px; margin-top:5px; letter-spacing:1px; min-height:14px; }
+    .ped { margin-top:10px; color:#cfc5a8; font-size:10.5px; line-height:1.7; opacity:0.85; min-height:16px; }
+    .tier { display:inline-block; margin-top:12px; font-size:8.5px; letter-spacing:3px; border:1px solid rgba(216,178,92,0.55); border-radius:12px; padding:4px 12px; color:#EAD088; }
+    .tier.t-black { background:#000; border-color:#D8B25C; color:#EAD088; }
+    .tier.t-royal { color:#EBD8A4; }
+    .tier.t-gold { color:#F4DE9A; }
+    .tier.t-red { color:#F2C6C6; border-color:rgba(242,198,198,0.5); }
+    .tier.t-green { color:#BFE8CF; border-color:rgba(191,232,207,0.5); }
+    .more { margin-top:13px; font-size:10px; color:var(--gold2); opacity:0.55; letter-spacing:2px; }
+
+    /* ---- 상세 오버레이 (에디토리얼) ---- */
+    .ov { position:fixed; inset:0; z-index:100; background:rgba(3,8,4,0.96); display:none; overflow-y:auto; padding:30px 18px 60px; }
+    .ov.show { display:block; animation:fade .3s ease; }
+    @keyframes fade { from { opacity:0; } to { opacity:1; } }
+    .ov-inner { max-width:860px; margin:0 auto; }
+    .ov-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:26px; }
+    .ov-idx { font-family:'Playfair Display',serif; color:rgba(212,175,110,0.5); font-size:13px; letter-spacing:3px; }
+    .ov-close { background:none; border:1px solid var(--line); color:var(--gold2); border-radius:50%; width:38px; height:38px; font-size:16px; cursor:pointer; }
+    .ov-body { display:grid; grid-template-columns:1.15fr 1fr; gap:36px; align-items:start; }
+    .ov-ph { aspect-ratio:4/5; overflow:hidden; background:#06130a; box-shadow:0 24px 70px rgba(0,0,0,0.7); }
+    .ov-ph img, .ov-ph svg { width:100%; height:100%; object-fit:cover; display:block; }
+    .ov-num { font-family:'Playfair Display',serif; font-size:58px; color:rgba(212,175,110,0.32); line-height:1; }
+    .ov-nm { font-family:'Noto Serif KR','Malgun Gothic',serif; font-size:26px; font-weight:600; color:#f1ead9; margin-top:12px; letter-spacing:2px; }
+    .ov-en { font-family:'Playfair Display',serif; font-style:italic; color:var(--gold); font-size:13px; margin-top:7px; letter-spacing:1px; }
+    .ov-story { margin-top:22px; font-size:13.5px; line-height:2.15; color:#cfc8b6; font-weight:300; white-space:pre-line; }
+    .ov-ped { margin-top:22px; font-size:11.5px; color:#9d967f; letter-spacing:1px; line-height:2; border-left:1px solid rgba(212,175,110,0.4); padding-left:14px; }
+    .ov-ped b { color:#d8cfae; font-weight:600; }
+    .ov-tier { display:inline-block; margin-top:18px; font-size:9px; letter-spacing:3px; border:1px solid rgba(216,178,92,0.55); border-radius:12px; padding:5px 14px; color:#EAD088; }
+    .ov-maker { margin-top:26px; font-family:'Playfair Display',serif; font-size:10px; letter-spacing:3px; color:var(--gold2); opacity:0.6; text-transform:uppercase; }
+    .ov-nav { display:flex; justify-content:space-between; margin-top:38px; }
+    .ov-nav button { background:none; border:1px solid var(--line); color:var(--gold2); border-radius:20px; padding:9px 20px; font-size:12px; cursor:pointer; font-family:inherit; }
+    .ov-nav button:disabled { opacity:0.3; cursor:default; }
+
+    .empty { text-align:center; font-size:13px; color:var(--gold2); opacity:0.7; padding:30px 0; }
+    .note { text-align:center; font-size:10.5px; color:var(--gold2); opacity:0.55; margin-top:40px; line-height:1.8; letter-spacing:0.5px; }
+    .backlink { text-align:center; margin-top:18px; font-size:12px; }
     .backlink a { color:var(--gold2); }
-    .note { text-align:center; font-size:10.5px; color:var(--gold2); opacity:0.55; margin-top:24px; line-height:1.8; letter-spacing:0.5px; }
-    @media (max-width:460px) { .vlist { grid-template-columns:1fr; } }
+    @media (max-width:640px) {
+      .grid { grid-template-columns:repeat(2,1fr); gap:14px; }
+      .card { padding:18px 10px 16px; }
+      .nm { font-size:13.5px; }
+      .ov-body { grid-template-columns:1fr; gap:24px; }
+      .ov-num { font-size:44px; }
+      .ov-nm { font-size:21px; }
+    }
   </style>
+  <script>
+    // 사진 URL이 깨졌을 때 자리표시 그림으로 대체
+    window.PH_SVG = '<svg viewBox="0 0 100 100"><rect width="100" height="100" fill="#06130a"/><g transform="translate(50 58)"><g fill="#2e6b40"><path d="M0 0 L-10 -40 L10 -40 Z"/><path d="M0 0 L-10 -37 L10 -37 Z" transform="rotate(45)" opacity="0.9"/><path d="M0 0 L-10 -37 L10 -37 Z" transform="rotate(-45)" opacity="0.9"/><path d="M0 0 L-9 -30 L9 -30 Z" transform="rotate(90)" opacity="0.75"/><path d="M0 0 L-9 -30 L9 -30 Z" transform="rotate(-90)" opacity="0.75"/></g><g fill="#bfe8cf" opacity="0.6"><circle cx="0" cy="-31" r="2.6"/><circle cx="-5" cy="-22" r="2"/><circle cx="5" cy="-22" r="2"/></g></g></svg>';
+    window.phFallback = function (img) { var p = img.parentNode; if (p) p.innerHTML = window.PH_SVG; };
+  </script>
 </head>
 <body>
   <div class="wrap">
     <div class="hero">
       <div class="crest">&#10086;</div>
-      <div class="brand">Ark Project</div>
+      <div class="brand">Ark Gallery</div>
       <div class="by">By Jiyang</div>
-      <h1>방주 등재 품종 리스트</h1>
-      <div class="lead">방주 프로젝트에 등재된 작출자별 품종 명단입니다.</div>
+      <div class="tagline">"한 촉의 하월시아가 작품이 되기까지."</div>
     </div>
 
     <% if (error) { %><div class="err">⚠️ <%= error %></div><% } %>
 
+    <%
+      // 등급 → 배지 클래스/표기 변환
+      function tierInfo(g) {
+        const s = String(g || '').trim().toUpperCase();
+        if (/블랙|BLACK/.test(s)) return { cls: 't-black', label: 'BLACK · MEMBERS ONLY' };
+        if (/로얄|ROYAL/.test(s)) return { cls: 't-royal', label: 'ROYAL' };
+        if (/골드|GOLD/.test(s))  return { cls: 't-gold',  label: 'GOLD' };
+        if (/레드|적박|RED/.test(s)) return { cls: 't-red', label: 'RED' };
+        if (/그린|녹박|GREEN/.test(s)) return { cls: 't-green', label: 'GREEN' };
+        return null;
+      }
+      let gIdx = 0;
+    %>
+
     <% groups.forEach(function (g) { %>
-    <div class="maker">
-      <div class="maker-head">
-        <span class="maker-label">작출자</span>
-        <span class="maker-name"><%= g.작출자 %></span>
-        <span class="maker-count"><%= g.품종.length %>품종</span>
-      </div>
-      <div class="vlist">
-        <% g.품종.forEach(function (v) { %>
-        <div class="vcard">
-          <% if (v.사진URL) { %><img src="<%= v.사진URL %>" alt="<%= v.품종명 %>" /><% } %>
-          <div class="vname"><%= v.품종명 %></div>
-          <% if (v.설명) { %><div class="vdesc"><%= v.설명 %></div><% } %>
+    <div class="maker-head">
+      <span class="maker-label">작출자</span>
+      <span class="maker-name"><%= g.작출자 %></span>
+      <span class="maker-count"><%= g.품종.length %>품종</span>
+    </div>
+    <div class="grid">
+      <% g.품종.forEach(function (v) { const t = tierInfo(v.등급); gIdx++; %>
+      <div class="card" data-idx="<%= gIdx %>"
+           data-nm="<%= v.품종명 %>" data-en="<%= v.영문명 %>" data-yr="<%= v.작출연도 %>"
+           data-mo="<%= v.모본 %>" data-fa="<%= v.부본 %>" data-story="<%= v.설명 %>"
+           data-img="<%= v.사진URL %>" data-maker="<%= g.작출자 %>"
+           data-tier="<%= t ? t.label : '' %>">
+        <div class="ph">
+          <% if (v.사진URL) { %><img src="<%= v.사진URL %>" alt="<%= v.품종명 %>" loading="lazy" onerror="phFallback(this)" />
+          <% } else { %>
+          <svg viewBox="0 0 100 100"><rect width="100" height="100" fill="#06130a"/><g transform="translate(50 58)"><g fill="#2e6b40"><path d="M0 0 L-10 -40 L10 -40 Z"/><path d="M0 0 L-10 -37 L10 -37 Z" transform="rotate(45)" opacity="0.9"/><path d="M0 0 L-10 -37 L10 -37 Z" transform="rotate(-45)" opacity="0.9"/><path d="M0 0 L-9 -30 L9 -30 Z" transform="rotate(90)" opacity="0.75"/><path d="M0 0 L-9 -30 L9 -30 Z" transform="rotate(-90)" opacity="0.75"/></g><g fill="#bfe8cf" opacity="0.6"><circle cx="0" cy="-31" r="2.6"/><circle cx="-5" cy="-22" r="2"/><circle cx="5" cy="-22" r="2"/></g></g></svg>
+          <% } %>
         </div>
-        <% }); %>
+        <div class="nm"><%= v.품종명 %></div>
+        <div class="en"><%= v.영문명 %><% if (v.작출연도) { %><%= v.영문명 ? ', ' : '' %><%= v.작출연도 %><% } %></div>
+        <div class="ped"><% if (v.모본 || v.부본) { %><%= v.모본 || '?' %> × <%= v.부본 || '?' %><% } %></div>
+        <% if (t) { %><span class="tier <%= t.cls %>"><%= t.label %></span><% } %>
+        <div class="more">자세히 보기 +</div>
       </div>
+      <% }); %>
     </div>
     <% }); %>
     <% if (!groups.length) { %><div class="empty">등재된 품종이 아직 없습니다.</div><% } %>
 
-    <div class="note">※ 등급은 매년 갱신되나, 구매 연도에 해당하는 등급으로 인정됩니다.</div>
+    <div class="note">※ 등급은 매년 갱신되나, 구매 연도에 해당하는 등급으로 인정됩니다.<br/>방주 등재 품종의 무단 증식·조직배양은 협의서에 따라 금지됩니다.</div>
     <div class="backlink"><a href="/about">← 방주 프로젝트 소개</a> &nbsp;·&nbsp; <a href="/royal">로얄넘버 정품 등록 →</a></div>
   </div>
+
+  <!-- 상세 오버레이 -->
+  <div class="ov" id="ov">
+    <div class="ov-inner">
+      <div class="ov-top">
+        <div class="ov-idx" id="ovIdx"></div>
+        <button class="ov-close" onclick="closeOv()">✕</button>
+      </div>
+      <div class="ov-body">
+        <div class="ov-ph" id="ovPh"></div>
+        <div>
+          <div class="ov-num" id="ovNum"></div>
+          <div class="ov-nm" id="ovNm"></div>
+          <div class="ov-en" id="ovEn"></div>
+          <div class="ov-story" id="ovStory"></div>
+          <div class="ov-ped" id="ovPed"></div>
+          <span class="ov-tier" id="ovTier" style="display:none;"></span>
+          <div class="ov-maker" id="ovMaker"></div>
+        </div>
+      </div>
+      <div class="ov-nav">
+        <button id="ovPrev" onclick="moveOv(-1)">← 이전 품종</button>
+        <button id="ovNext" onclick="moveOv(1)">다음 품종 →</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var cards = Array.prototype.slice.call(document.querySelectorAll('.card'));
+    var cur = -1;
+    var PLACEHOLDER = '<svg viewBox="0 0 100 125" preserveAspectRatio="xMidYMid slice"><rect width="100" height="125" fill="#06130a"/><g transform="translate(50 72)"><g fill="#2e6b40"><path d="M0 0 L-11 -46 L11 -46 Z"/><path d="M0 0 L-11 -42 L11 -42 Z" transform="rotate(42)" opacity="0.9"/><path d="M0 0 L-11 -42 L11 -42 Z" transform="rotate(-42)" opacity="0.9"/><path d="M0 0 L-10 -34 L10 -34 Z" transform="rotate(84)" opacity="0.75"/><path d="M0 0 L-10 -34 L10 -34 Z" transform="rotate(-84)" opacity="0.75"/></g><g fill="#bfe8cf" opacity="0.6"><circle cx="0" cy="-36" r="2.8"/><circle cx="-6" cy="-26" r="2.2"/><circle cx="6" cy="-26" r="2.2"/></g></g></svg>';
+    function pad(n) { return (n < 10 ? '0' : '') + n; }
+    function openOv(i) {
+      if (i < 0 || i >= cards.length) return;
+      cur = i;
+      var d = cards[i].dataset;
+      document.getElementById('ovIdx').textContent = pad(i + 1) + ' / ' + pad(cards.length);
+      document.getElementById('ovNum').textContent = pad(i + 1);
+      document.getElementById('ovNm').textContent = d.nm;
+      var en = d.en || ''; if (d.yr) en += (en ? ' · ' : '') + d.yr;
+      document.getElementById('ovEn').textContent = en;
+      document.getElementById('ovStory').textContent = d.story || '';
+      var ped = '';
+      if (d.mo || d.fa) ped += '혈통 — ' + (d.mo || '?') + ' × ' + (d.fa || '?');
+      document.getElementById('ovPed').textContent = ped;
+      document.getElementById('ovPed').style.display = ped ? '' : 'none';
+      var tier = document.getElementById('ovTier');
+      if (d.tier) { tier.textContent = d.tier; tier.style.display = 'inline-block'; } else { tier.style.display = 'none'; }
+      document.getElementById('ovMaker').textContent = '작출 — ' + d.maker;
+      var ph = document.getElementById('ovPh');
+      if (d.img) { ph.innerHTML = ''; var img = document.createElement('img'); img.src = d.img; img.alt = d.nm; img.onerror = function () { phFallback(img); }; ph.appendChild(img); }
+      else { ph.innerHTML = PLACEHOLDER; }
+      document.getElementById('ovPrev').disabled = (i === 0);
+      document.getElementById('ovNext').disabled = (i === cards.length - 1);
+      var ov = document.getElementById('ov');
+      ov.classList.add('show'); ov.scrollTop = 0;
+      document.body.style.overflow = 'hidden';
+    }
+    function closeOv() {
+      document.getElementById('ov').classList.remove('show');
+      document.body.style.overflow = '';
+    }
+    function moveOv(step) { openOv(cur + step); }
+    cards.forEach(function (c, i) { c.addEventListener('click', function () { openOv(i); }); });
+    document.getElementById('ov').addEventListener('click', function (e) { if (e.target === this) closeOv(); });
+    document.addEventListener('keydown', function (e) {
+      if (!document.getElementById('ov').classList.contains('show')) return;
+      if (e.key === 'Escape') closeOv();
+      if (e.key === 'ArrowLeft') moveOv(-1);
+      if (e.key === 'ArrowRight') moveOv(1);
+    });
+  </script>
 </body>
 </html>
