@@ -164,7 +164,25 @@ app.get('/api/sheet-preview', requireLogin, async (req, res) => {
 
 // ---- 통합: 개체 등록 + 보증서 자동 발송 ----
 app.get('/admin/new', requireLogin, (req, res) => {
-  res.render('register', { error: null, result: null, form: {}, grades: Object.keys(sheets.GRADE_TABS) });
+  // /admin/submissions 의 [승인·등록] 버튼에서 넘어올 때 프리필
+  const q = req.query || {};
+  const form = {};
+  if (q.num) form.plantId = String(q.num);
+  if (q.vname) form.variety = String(q.vname);
+  if (q.owner) form.owner = String(q.owner);
+  if (q.phone) form.phone = String(q.phone);
+  res.render('register', { error: null, result: null, form, grades: Object.keys(sheets.GRADE_TABS) });
+});
+
+// 정품 등록 제출 승인 보드 (확인대기 목록)
+app.get('/admin/submissions', requireLogin, async (req, res) => {
+  try {
+    const subs = await sheets.listPendingSubmissions();
+    res.render('submissions', { subs, grades: Object.keys(sheets.GRADE_TABS), error: null });
+  } catch (err) {
+    console.error(err);
+    res.render('submissions', { subs: [], grades: Object.keys(sheets.GRADE_TABS), error: err.message });
+  }
 });
 
 app.post('/admin/new', requireLogin, upload.single('photo'), async (req, res) => {
@@ -782,6 +800,7 @@ app.get('/royal', (req, res) => {
 app.post('/royal', upload.single('photo'), async (req, res) => {
   const form = {
     number: (req.body.number || '').trim(),
+    vname: (req.body.vname || '').trim(),
     name: (req.body.name || '').trim(),
     phone: (req.body.phone || '').trim(),
     agree: req.body.agree === 'on' || req.body.agree === 'true',
@@ -790,6 +809,7 @@ app.post('/royal', upload.single('photo'), async (req, res) => {
   const stamp = now.toISOString().slice(0, 10) + ' ' + now.toTimeString().slice(0, 5);
   try {
     if (!form.number) throw new Error('로얄넘버를 입력해 주세요.');
+    if (!form.vname) throw new Error('품종명(라벨에 적힌 이름)을 입력해 주세요.');
     if (!form.name) throw new Error('성함을 입력해 주세요.');
     if (!form.phone.replace(/[^0-9]/g, '').match(/^01[0-9]{8,9}$/)) throw new Error('휴대폰 번호를 정확히 입력해 주세요. (예: 01012345678)');
     if (!form.agree) throw new Error('개인정보 수집·이용에 동의해 주셔야 등록이 가능합니다.');
@@ -800,10 +820,10 @@ app.post('/royal', upload.single('photo'), async (req, res) => {
 
     if (!row) {
       await sheets.appendSubmissionLog({
-        제출일시: stamp, 입력넘버: form.number, 성함: form.name,
+        제출일시: stamp, 입력넘버: form.number, 품종명: form.vname, 성함: form.name,
         연락처: form.phone, 일치여부: '불일치', 처리상태: '관리자 확인 필요',
       });
-      messaging.sendAdminAlert(`[방주] 새 넘버 제출(목록 불일치)\n${form.name} / ${form.phone}\n${form.number}\n사진: ${제출사진}`).catch(() => {});
+      messaging.sendAdminAlert(`[방주] 새 넘버 제출(목록 불일치)\n${form.name} / ${form.phone}\n${form.number} (${form.vname})\n사진: ${제출사진}`).catch(() => {});
       return res.render('royal', { error: null, form: {}, result: { type: 'pending', number: form.number } });
     }
 
@@ -811,10 +831,10 @@ app.post('/royal', upload.single('photo'), async (req, res) => {
     const existingPhone = (row['제출자연락처'] || '').replace(/[^0-9]/g, '');
     if (existingName && existingPhone && existingPhone !== form.phone.replace(/[^0-9]/g, '')) {
       await sheets.appendSubmissionLog({
-        제출일시: stamp, 입력넘버: form.number, 성함: form.name,
+        제출일시: stamp, 입력넘버: form.number, 품종명: form.vname, 성함: form.name,
         연락처: form.phone, 일치여부: '일치(중복제출)', 처리상태: '관리자 확인 필요',
       });
-      messaging.sendAdminAlert(`[방주] 중복 제출(소유권 확인 필요)\n${form.name} / ${form.phone}\n${form.number}\n사진: ${제출사진}`).catch(() => {});
+      messaging.sendAdminAlert(`[방주] 중복 제출(소유권 확인 필요)\n${form.name} / ${form.phone}\n${form.number} (${form.vname})\n사진: ${제출사진}`).catch(() => {});
       return res.render('royal', { error: null, form: {}, result: { type: 'duplicate', number: form.number } });
     }
 
@@ -825,9 +845,9 @@ app.post('/royal', upload.single('photo'), async (req, res) => {
       등록상태: '제출완료(확인대기)',
       제출사진,
     });
-    messaging.sendAdminAlert(`[방주] 새 정품 등록 제출\n${form.name} / ${form.phone}\n${form.number}\n사진: ${제출사진}`).catch(() => {});
+    messaging.sendAdminAlert(`[방주] 새 정품 등록 제출\n${form.name} / ${form.phone}\n${form.number} (${form.vname})\n승인: /admin/submissions\n사진: ${제출사진}`).catch(() => {});
     await sheets.appendSubmissionLog({
-      제출일시: stamp, 입력넘버: form.number, 성함: form.name,
+      제출일시: stamp, 입력넘버: form.number, 품종명: form.vname, 성함: form.name,
       연락처: form.phone, 일치여부: '일치', 처리상태: '자동기록 완료',
     });
     res.render('royal', { error: null, form: {}, result: { type: 'ok', number: form.number, name: form.name } });
@@ -878,6 +898,8 @@ async function processWelcomes() {
     if (!list.length) return;
     for (const m of list) {
       try {
+        const freshK = await sheets.readJoinCellFresh('K' + m.sheetRow).catch(() => '');
+        if (freshK) continue; // 다른 인스턴스가 이미 처리함 (배포 교체 중 중복 방지)
         await sheets.markWelcomeSent(m.sheetRow, '발송중');
         const payload = Buffer.from(JSON.stringify({ n: m.성함, no: m.회원번호, d: (m.일시 || '').slice(0, 10), p: m.연락처 }), 'utf8').toString('base64url');
         const cardUrl = BASE_URL ? `${BASE_URL}/card?d=${payload}&k=${signPayload(payload)}` : '';
@@ -902,7 +924,7 @@ async function processWelcomes() {
     console.warn('환영 자동발송 체크 실패(무시):', e.message);
   }
 }
-setTimeout(processWelcomes, 30 * 1000);         // 서버 시작 30초 후 1회
+setTimeout(processWelcomes, 3 * 60 * 1000);     // 서버 시작 3분 후 1회 (배포 교체 중 중복 방지)
 setInterval(processWelcomes, 5 * 60 * 1000);    // 이후 5분마다
 
 // =============================================================
@@ -916,6 +938,8 @@ async function processContracts() {
     const list = await sheets.getPendingContracts();
     for (const m of list) {
       try {
+        const freshL = await sheets.readJoinCellFresh('L' + m.sheetRow).catch(() => '');
+        if (freshL) continue; // 다른 인스턴스가 이미 처리함 (배포 교체 중 중복 방지)
         await sheets.markContractRequested(m.sheetRow, '안내중');
         const payload = Buffer.from(JSON.stringify({ p: m.연락처, n: m.성함 }), 'utf8').toString('base64url');
         const url = `${BASE_URL}/contract?d=${payload}&k=${signPayload(payload)}`;
@@ -935,7 +959,7 @@ async function processContracts() {
     }
   } catch (e) { console.warn('계약 안내 체크 실패(무시):', e.message); }
 }
-setTimeout(processContracts, 40 * 1000);
+setTimeout(processContracts, 3.5 * 60 * 1000);
 setInterval(processContracts, 5 * 60 * 1000);
 
 app.listen(PORT, () => {
