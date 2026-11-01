@@ -52,7 +52,7 @@
       <div class="tagline">"방주에 오른 이들의 이름이 여기에 남습니다."</div>
       <% if (members.length) { %><div class="count">현재 회원 <%= members.length %>인</div><% } %>
       <div style="margin-top:14px; font-family:'Cormorant Garamond','Noto Serif KR','Malgun Gothic',serif; font-style:italic; font-size:14px; color:var(--gold2); opacity:0.75; letter-spacing:1px;">
-        정원 <%= (typeof seat !== 'undefined' && seat) ? seat.totalCap : 50 %>석 한정 — 추가 정원은 없습니다.
+        정원 <span style="font-family:'Playfair Display',serif; font-feature-settings:'lnum' 1;"><%= (typeof seat !== 'undefined' && seat) ? seat.totalCap : 50 %></span>석 한정 — 추가 정원은 없습니다.
       </div>
     </div>
 
@@ -96,7 +96,7 @@
       닉네임은 본인이 공개에 동의한 회원만 표시되며, 그 외에는 '비공개 회원'으로 등재됩니다.
     </div>
     <div class="cta"><a href="/join">다음 기수 가입 신청하기</a></div>
-    <div class="backlink"><a href="/about">← 방주 프로젝트 소개</a> &nbsp;·&nbsp; <a href="/list">방주 갤러리 →</a></div>
+    <div class="backlink"><a href="/about">← 방주 프로젝트 소개</a> &nbsp;·&nbsp; <a href="/list">방주 갤러리</a> &nbsp;·&nbsp; <a href="/vote">등재 투표</a> &nbsp;·&nbsp; <a href="/community">커뮤니티 →</a></div>
   </div>
 </body>
 </html>

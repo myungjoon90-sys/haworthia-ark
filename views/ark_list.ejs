@@ -124,7 +124,12 @@
            data-nm="<%= v.품종명 %>" data-en="<%= v.영문명 %>" data-yr="<%= v.작출연도 %>"
            data-mo="<%= v.모본 %>" data-fa="<%= v.부본 %>" data-story="<%= v.설명 %>"
            data-img="<%= v.사진URL %>" data-maker="<%= g.작출자 %>"
-           data-tier="<%= t ? t.label : '' %>">
+           data-tier="<%= t ? t.label : '' %>"
+           <% if (typeof isMember !== 'undefined' && isMember && typeof ownership !== 'undefined' && ownership[v.품종명]) {
+                const ow = ownership[v.품종명]; %>
+           data-own="<%= ow.보유.map(function(o){ return o.이름 + (o.가격 ? ' (' + o.가격 + (o.일자 ? ' · ' + o.일자 : '') + ')' : ''); }).join(', ') %>"
+           data-queue="<%= ow.대기.map(function(q,qi){ return (q.순번 < 999 ? q.순번 : qi+1) + '. ' + q.이름; }).join('  ·  ') %>"
+           <% } %>>
         <div class="ph">
           <% if (v.사진URL) { %><img src="<%= v.사진URL %>" alt="<%= v.품종명 %>" loading="lazy" onerror="phFallback(this)" />
           <% } else { %>
@@ -143,7 +148,7 @@
     <% if (!groups.length) { %><div class="empty">등재된 품종이 아직 없습니다.</div><% } %>
 
     <div class="note">※ 등급은 매년 갱신되나, 구매 연도에 해당하는 등급으로 인정됩니다.<br/>방주 등재 품종의 무단 증식·조직배양은 협의서에 따라 금지됩니다.</div>
-    <div class="backlink"><a href="/about">← 방주 프로젝트 소개</a> &nbsp;·&nbsp; <a href="/royal">로얄넘버 정품 등록 →</a></div>
+    <div class="backlink"><a href="/about">← 방주 프로젝트 소개</a> &nbsp;·&nbsp; <a href="/royal">로얄넘버 정품 등록 →</a><% if (typeof isMember !== 'undefined' && isMember) { %> &nbsp;·&nbsp; <a href="/vote">등재 투표 →</a><% } %></div>
   </div>
 
   <!-- 상세 오버레이 -->
@@ -162,6 +167,11 @@
           <div class="ov-story" id="ovStory"></div>
           <div class="ov-ped" id="ovPed"></div>
           <span class="ov-tier" id="ovTier" style="display:none;"></span>
+          <div id="ovOwn" style="display:none; margin-top:20px; padding:14px 16px; background:rgba(210,172,85,0.07); border:1px solid rgba(210,172,85,0.35); border-radius:10px;">
+            <div style="font-family:'Playfair Display',serif; font-size:10px; letter-spacing:3px; color:#D2AC55; text-transform:uppercase; margin-bottom:8px;">Ownership · 회원 전용</div>
+            <div id="ovOwnHold" style="font-size:12.5px; line-height:1.9; color:#E9D6A0;"></div>
+            <div id="ovOwnQueue" style="font-size:12px; line-height:1.9; color:#cfc5a8; margin-top:4px;"></div>
+          </div>
           <div class="ov-maker" id="ovMaker"></div>
         </div>
       </div>
@@ -194,6 +204,12 @@
       var tier = document.getElementById('ovTier');
       if (d.tier) { tier.textContent = d.tier; tier.style.display = 'inline-block'; } else { tier.style.display = 'none'; }
       document.getElementById('ovMaker').textContent = '작출 — ' + d.maker;
+      var ownBox = document.getElementById('ovOwn');
+      if (d.own !== undefined || d.queue !== undefined) {
+        document.getElementById('ovOwnHold').textContent = d.own ? ('보유 — ' + d.own) : '보유 — (기록 없음)';
+        document.getElementById('ovOwnQueue').textContent = d.queue ? ('분양 대기 — ' + d.queue) : '';
+        ownBox.style.display = 'block';
+      } else { ownBox.style.display = 'none'; }
       var ph = document.getElementById('ovPh');
       if (d.img) { ph.innerHTML = ''; var img = document.createElement('img'); img.src = d.img; img.alt = d.nm; img.onerror = function () { phFallback(img); }; ph.appendChild(img); }
       else { ph.innerHTML = PLACEHOLDER; }

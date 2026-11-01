@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>방주 등재 투표 | ARK PROJECT</title>
+  <meta name="robots" content="noindex" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,500&family=Noto+Serif+KR:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root { --gold:#D2AC55; --gold2:#E9D6A0; --line:rgba(210,172,85,0.3); }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Noto Serif KR','Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',serif; background:radial-gradient(circle at 50% -10%, #1F4129 0%, #122A18 50%, #050a06 100%); color:#F6F0DF; min-height:100vh; padding:48px 18px 80px; }
+    .wrap { max-width:620px; margin:0 auto; }
+    .hero { text-align:center; margin-bottom:38px; }
+    .crest { width:46px; height:46px; margin:0 auto 13px; border:1.5px solid var(--gold); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--gold); font-size:21px; }
+    .brand { font-family:'Playfair Display',serif; letter-spacing:7px; font-size:18px; color:var(--gold); text-transform:uppercase; }
+    h1 { font-size:20px; font-weight:600; color:#fff; margin-top:14px; letter-spacing:3px; }
+    .lead { font-size:12.5px; color:var(--gold2); opacity:0.9; margin-top:10px; line-height:1.9; }
+    .msg { margin-bottom:16px; padding:14px 16px; border-radius:12px; font-size:13px; background:rgba(210,172,85,0.12); border:1px solid rgba(210,172,85,0.5); color:var(--gold2); }
+    .err { margin-bottom:16px; padding:14px 16px; border-radius:12px; font-size:13px; background:rgba(180,50,50,0.18); border:1px solid rgba(220,100,100,0.5); color:#ffd9d9; }
+    .card { background:rgba(0,0,0,0.3); border:1px solid var(--line); border-radius:14px; padding:20px; margin-bottom:18px; }
+    .card .top { display:flex; gap:16px; }
+    .card .ph { width:110px; height:138px; flex-shrink:0; border-radius:8px; overflow:hidden; background:#06130a; border:1px solid var(--line); }
+    .card .ph img { width:100%; height:100%; object-fit:cover; display:block; }
+    .card .nm { font-size:17px; font-weight:600; color:#F3E8CC; letter-spacing:1px; }
+    .card .by { font-size:11.5px; color:var(--gold); margin-top:5px; }
+    .card .desc { font-size:12.5px; color:#cfc5a8; margin-top:9px; line-height:1.8; }
+    .bar { margin-top:14px; height:7px; border-radius:4px; background:rgba(255,255,255,0.08); overflow:hidden; }
+    .bar > div { height:100%; background:linear-gradient(90deg,#E6C75A,#D2AC55); }
+    .tally { display:flex; justify-content:space-between; font-size:11px; color:var(--gold2); margin-top:7px; letter-spacing:0.5px; }
+    .btns { display:flex; gap:10px; margin-top:13px; }
+    .btns form { flex:1; }
+    .btns button { width:100%; padding:12px; border-radius:9px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; letter-spacing:1px; }
+    .yes { border:none; background:linear-gradient(180deg,#E6C75A,#D2AC55); color:#10220f; }
+    .no { border:1px solid rgba(220,120,120,0.5); background:none; color:#f2c6c6; }
+    .stamp { display:inline-block; margin-top:13px; font-size:10px; letter-spacing:2px; border-radius:11px; padding:4px 12px; border:1px solid var(--line); color:var(--gold2); }
+    .stamp.pass { border-color:#D8B25C; color:#EAD088; background:rgba(216,178,92,0.1); }
+    .propose { background:rgba(0,0,0,0.3); border:1px dashed rgba(210,172,85,0.5); border-radius:14px; padding:20px; margin-top:28px; }
+    .propose h2 { font-size:14px; color:var(--gold2); letter-spacing:1px; margin-bottom:12px; }
+    label.f { display:block; font-size:12.5px; color:var(--gold2); margin:12px 0 6px; }
+    input[type=text], textarea { width:100%; padding:12px; border-radius:8px; font-size:14px; border:1px solid rgba(210,172,85,0.3); background:rgba(255,255,255,0.06); color:#fff; font-family:inherit; }
+    input[type=file] { font-size:12px; color:var(--gold2); }
+    .propose button { width:100%; margin-top:14px; padding:14px; border:none; border-radius:9px; background:linear-gradient(180deg,#E6C75A,#D2AC55); color:#10220f; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; }
+    .note { font-size:11px; color:var(--gold2); opacity:0.65; margin-top:10px; line-height:1.8; }
+    .empty { text-align:center; padding:30px 0; font-size:13px; color:var(--gold2); opacity:0.75; }
+    .backlink { text-align:center; margin-top:26px; font-size:12px; }
+    .backlink a { color:var(--gold2); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <div class="crest">&#10086;</div>
+      <div class="brand">Ark Vote</div>
+      <h1>방주 등재 투표</h1>
+      <div class="lead">회원이 작출한 실생을 방주에 올릴지 회원 전체가 결정합니다.<br/>
+      <b style="color:#fff;">전체 회원의 70% 이상 찬성</b> 시 방주 갤러리에 등재됩니다.</div>
+    </div>
+
+    <% if (msg) { %><div class="msg">✦ <%= msg %></div><% } %>
+    <% if (error) { %><div class="err">⚠️ <%= error %></div><% } %>
+
+    <% proposals.forEach(function (p) { %>
+    <div class="card">
+      <div class="top">
+        <div class="ph"><% if (p.사진URL) { %><img src="<%= p.사진URL %>" alt="<%= p.품종명 %>" /><% } %></div>
+        <div style="flex:1;">
+          <div class="nm"><%= p.품종명 %></div>
+          <div class="by">제안 — <%= p.제안자 %> · <%= p.제안일 %></div>
+          <% if (p.설명) { %><div class="desc"><%= p.설명 %></div><% } %>
+        </div>
+      </div>
+      <div class="bar"><div style="width:<%= Math.min(100, Math.round(p.찬성 / p.필요 * 100)) %>%;"></div></div>
+      <div class="tally">
+        <span>찬성 <%= p.찬성 %> · 반대 <%= p.반대 %></span>
+        <span>가결 기준 <%= p.필요 %>표 (전체 <%= p.전체회원 %>인의 70%)</span>
+      </div>
+      <% if (p.상태.includes('가결')) { %>
+        <span class="stamp pass">✦ 가결 — 방주 등재</span>
+      <% } else if (!p.상태.includes('진행')) { %>
+        <span class="stamp"><%= p.상태 %></span>
+      <% } else if (p.내선택) { %>
+        <span class="stamp">내 투표: <%= p.내선택 %></span>
+      <% } else { %>
+      <div class="btns">
+        <form method="post" action="/vote/cast"><input type="hidden" name="no" value="<%= p.번호 %>" /><input type="hidden" name="choice" value="찬성" /><button class="yes" type="submit">찬성 — 방주에 올립니다</button></form>
+        <form method="post" action="/vote/cast"><input type="hidden" name="no" value="<%= p.번호 %>" /><input type="hidden" name="choice" value="반대" /><button class="no" type="submit">반대</button></form>
+      </div>
+      <% } %>
+    </div>
+    <% }); %>
+    <% if (!proposals.length) { %><div class="empty">진행 중인 등재 투표가 없습니다.<br/>첫 번째 실생을 올려보세요.</div><% } %>
+
+    <div class="propose">
+      <h2>내 실생 등재 제안하기</h2>
+      <form method="post" action="/vote/propose" enctype="multipart/form-data">
+        <label class="f">품종명(가칭)</label>
+        <input type="text" name="vname" placeholder="예: 새벽의 창" />
+        <label class="f">소개 (혈통·특징·작출 과정)</label>
+        <textarea name="vdesc" rows="3" placeholder="예: 미카엘의 심장 × 에뚜왈블루 실생. 5년차, 창의 백은 무늬가 특징."></textarea>
+        <label class="f">개체 사진 (필수)</label>
+        <input type="file" name="photo" accept="image/*" />
+        <button type="submit">등재 투표 올리기</button>
+      </form>
+      <div class="note">제안자: <%= me.nick %> · 등재가 가결되면 방주 갤러리에 작출자 본인 이름으로 올라가며, 오리지널과 동일하게 보호받습니다.</div>
+    </div>
+
+    <div class="backlink"><a href="/members">← 회원 명부</a> &nbsp;·&nbsp; <a href="/list">방주 갤러리</a> &nbsp;·&nbsp; <a href="/community">커뮤니티 →</a></div>
+  </div>
+</body>
+</html>

@@ -27,10 +27,6 @@
     .crit.bonus { background:rgba(210,172,85,0.08); border:1px dashed rgba(210,172,85,0.45); border-radius:10px; padding:12px 10px; margin-top:10px; }
     .crit-note { font-size:12px; color:var(--gold2); opacity:0.75; margin-top:10px; line-height:1.6; }
     #critCount { color:var(--gold); font-weight:700; }
-    canvas#sigPad { width:100%; height:170px; background:#FBF8F0; border-radius:10px; touch-action:none; cursor:crosshair; display:block; }
-    .sig-tools { display:flex; align-items:center; gap:10px; margin-top:10px; }
-    .sig-tools button { border:1px solid rgba(210,172,85,0.4); background:none; color:var(--gold2); border-radius:8px; padding:9px 14px; font-size:13px; cursor:pointer; font-family:inherit; }
-    .sig-hint { font-size:12px; color:var(--gold2); opacity:0.7; }
     .agree { display:flex; gap:9px; align-items:flex-start; font-size:12.5px; line-height:1.75; color:var(--gold2); }
     .agree input { margin-top:3px; accent-color:var(--gold); }
     button.submit { width:100%; margin-top:6px; padding:16px; border:none; border-radius:10px; background:linear-gradient(180deg,#E6C75A,#D2AC55); color:#10220f; font-size:17px; font-weight:700; letter-spacing:1px; cursor:pointer; font-family:inherit; }
@@ -48,7 +44,7 @@
       <div class="brand">Ark Project</div>
       <div class="by">By Jiyang</div>
       <h1>방주 멤버십 가입 신청</h1>
-      <div class="lead">아래 가입 요건 중 <b style="color:#fff;"><%= need %>가지 이상</b>을 충족하시면 신청하실 수 있습니다.<br/>관리자 확인 후 개별 연락으로 안내드립니다.</div>
+      <div class="lead">아래 가입 요건 중 <b style="color:#fff;"><%= need %>가지 이상</b>을 충족하시면 신청하실 수 있습니다.<br/>승인 → 협의서 서명 → 가입완료 순서로 진행됩니다.</div>
     </div>
 
     <% if (error) { %><div class="alert error">⚠️ <%= error %></div><% } %>
@@ -62,9 +58,9 @@
     <div class="backlink"><a href="/about">← 방주 프로젝트 소개로 돌아가기</a></div>
     <% } else if (done) { %>
     <div class="alert ok">
-      ✅ <b>가입 신청이 접수되었습니다.</b><br/>
-      서명과 함께 신청 내용이 안전하게 기록되었으며, 관리자 확인(요건 검토) 후
-      입력하신 연락처로 안내드리겠습니다. 감사합니다.
+      ✅ <b>가입 승인 신청이 접수되었습니다.</b><br/>
+      관리자가 요건을 확인한 뒤 승인되면, 입력하신 연락처로
+      <b>협의서 확인·서명 링크</b>를 보내드립니다. 서명까지 마치시면 가입이 완료됩니다.
     </div>
     <div class="backlink"><a href="/about">← 방주 프로젝트 소개로 돌아가기</a></div>
     <% } else { %>
@@ -111,36 +107,17 @@
       </div>
 
       <div class="panel">
-        <h2>방주 협의서 (요지)</h2>
-        <div style="max-height:180px; overflow-y:auto; padding:14px 16px; background:rgba(255,255,255,0.04); border:1px solid rgba(210,172,85,0.3); border-radius:10px; font-size:12.5px; line-height:1.9; color:#F0E9D8;">
-          하월시아 방주 프로젝트 협의서는 오랜 시간 정성과 노력을 기울여 온 회원들의 권리를 지키기 위한 약속입니다.<br/><br/>
-          하나. 본 협의는 서로의 <b>신뢰</b>를 바탕으로 하며, 회원은 약속을 지키고 배신하지 않습니다.<br/>
-          하나. 보호 대상 품종은 <b>내부에서 먼저 나누는 것</b>을 원칙으로 하며, 충분한 육종과 준비를 마치기 전에는 외부에 유출하지 않습니다.<br/>
-          하나. 본 협의의 보호·관리 대상은 세계적으로 인정받는 수준의 <b>로얄급 품종에 한정</b>합니다.<br/>
-          하나. 무단 증식·불법 유통·위조는 협의서에 따라 제한되며, 위반 시 명부 제외 등 조치될 수 있습니다.<br/>
-          하나. 재분양 시 지양하월시아에 우선 매수 기회를 제공합니다.<br/><br/>
-          ※ 위 내용은 요지이며, 협의서 전문은 가입 승인 시 개별 전달됩니다. 아래 서명은 본 요지에 대한 동의를 포함합니다.
-        </div>
-      </div>
-
-      <div class="panel">
-        <h2>규정 동의 · 전자서명</h2>
-        <div class="agree" style="margin-bottom:14px;">
+        <h2>동의</h2>
+        <div class="agree">
           <input type="checkbox" name="agree" id="agree" />
           <label for="agree">
             [필수] 방주 프로젝트 규정(등록 개체만 보증, 무단 증식·위조 금지, 소유권 이전 절차, 개인정보 수집·이용)에 동의하며,
-            아래 서명은 본인이 직접 작성한 것임을 확인합니다.
+            체크한 가입 요건이 사실임을 확인합니다. 승인 시 협의서 확인·서명 절차가 문자로 안내됩니다.
           </label>
         </div>
-        <canvas id="sigPad"></canvas>
-        <div class="sig-tools">
-          <button type="button" id="sigClear">지우기</button>
-          <span class="sig-hint">손가락(휴대폰) 또는 마우스로 서명해 주세요.</span>
-        </div>
-        <input type="hidden" name="signature" id="sigData" />
       </div>
 
-      <button class="submit" type="submit"><%= (typeof seat !== 'undefined' && seat && seat.waitlist) ? '서명하고 대기 명단에 등록하기' : '서명하고 가입 신청하기' %></button>
+      <button class="submit" type="submit"><%= (typeof seat !== 'undefined' && seat && seat.waitlist) ? '대기 명단에 등록하기' : '가입 승인 신청하기' %></button>
     </form>
     <div class="backlink"><a href="/about">← 방주 프로젝트 소개</a></div>
     <% } %>
@@ -163,39 +140,6 @@
       });
     });
 
-    // ---- 전자서명 패드 ----
-    var pad = document.getElementById('sigPad');
-    if (pad) {
-      var ctx = pad.getContext('2d');
-      var drawing = false, drew = false;
-      function resize() {
-        var ratio = window.devicePixelRatio || 1;
-        var w = pad.clientWidth, h = pad.clientHeight;
-        var old = drew ? pad.toDataURL() : null;
-        pad.width = w * ratio; pad.height = h * ratio;
-        ctx.scale(ratio, ratio);
-        ctx.lineWidth = 2.4; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#1A2B14';
-        if (old) { var img = new Image(); img.onload = function () { ctx.drawImage(img, 0, 0, w, h); }; img.src = old; }
-      }
-      resize(); window.addEventListener('resize', resize);
-      function pos(e) {
-        var r = pad.getBoundingClientRect();
-        var t = e.touches ? e.touches[0] : e;
-        return { x: t.clientX - r.left, y: t.clientY - r.top };
-      }
-      function start(e) { drawing = true; drew = true; var p = pos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); e.preventDefault(); }
-      function move(e) { if (!drawing) return; var p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); e.preventDefault(); }
-      function end() { drawing = false; }
-      pad.addEventListener('mousedown', start); pad.addEventListener('mousemove', move); window.addEventListener('mouseup', end);
-      pad.addEventListener('touchstart', start, { passive: false }); pad.addEventListener('touchmove', move, { passive: false }); pad.addEventListener('touchend', end);
-      document.getElementById('sigClear').addEventListener('click', function () {
-        ctx.clearRect(0, 0, pad.width, pad.height); drew = false;
-      });
-      document.getElementById('joinForm').addEventListener('submit', function (e) {
-        if (!drew) { e.preventDefault(); alert('서명란에 서명해 주세요.'); return; }
-        document.getElementById('sigData').value = pad.toDataURL('image/png');
-      });
-    }
   </script>
 </body>
 </html>

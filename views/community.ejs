@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>방주 커뮤니티 | ARK PROJECT</title>
+  <meta name="robots" content="noindex" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700&family=Noto+Serif+KR:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root { --gold:#D2AC55; --gold2:#E9D6A0; --line:rgba(210,172,85,0.3); }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Noto Serif KR','Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',serif; background:radial-gradient(circle at 50% -10%, #1F4129 0%, #122A18 50%, #050a06 100%); color:#F6F0DF; min-height:100vh; padding:48px 18px 80px; }
+    .wrap { max-width:620px; margin:0 auto; }
+    .hero { text-align:center; margin-bottom:34px; }
+    .crest { width:46px; height:46px; margin:0 auto 13px; border:1.5px solid var(--gold); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--gold); font-size:21px; }
+    .brand { font-family:'Playfair Display',serif; letter-spacing:7px; font-size:18px; color:var(--gold); text-transform:uppercase; }
+    h1 { font-size:20px; font-weight:600; color:#fff; margin-top:14px; letter-spacing:3px; }
+    .lead { font-size:12.5px; color:var(--gold2); opacity:0.9; margin-top:10px; line-height:1.8; }
+    .msg { margin-bottom:16px; padding:13px 15px; border-radius:12px; font-size:13px; background:rgba(210,172,85,0.12); border:1px solid rgba(210,172,85,0.5); color:var(--gold2); }
+    .err { margin-bottom:16px; padding:13px 15px; border-radius:12px; font-size:13px; background:rgba(180,50,50,0.18); border:1px solid rgba(220,100,100,0.5); color:#ffd9d9; }
+    .write { background:rgba(0,0,0,0.3); border:1px dashed rgba(210,172,85,0.5); border-radius:14px; padding:18px; margin-bottom:26px; }
+    .write h2 { font-size:13.5px; color:var(--gold2); letter-spacing:1px; margin-bottom:10px; }
+    input[type=text], textarea { width:100%; padding:12px; border-radius:8px; font-size:14px; border:1px solid rgba(210,172,85,0.3); background:rgba(255,255,255,0.06); color:#fff; font-family:inherit; margin-bottom:9px; }
+    input[type=file] { font-size:12px; color:var(--gold2); }
+    .write button { width:100%; margin-top:11px; padding:13px; border:none; border-radius:9px; background:linear-gradient(180deg,#E6C75A,#D2AC55); color:#10220f; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; }
+    a.post { display:block; text-decoration:none; color:inherit; background:rgba(0,0,0,0.3); border:1px solid var(--line); border-radius:13px; padding:16px 18px; margin-bottom:12px; transition:border-color .2s; }
+    a.post:hover { border-color:rgba(210,172,85,0.65); }
+    .post .row1 { display:flex; gap:14px; align-items:center; }
+    .post .thumb { width:56px; height:56px; border-radius:8px; overflow:hidden; flex-shrink:0; background:#06130a; border:1px solid var(--line); }
+    .post .thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+    .post .tt { font-size:15px; font-weight:600; color:#F3E8CC; }
+    .post .meta { font-size:11px; color:var(--gold2); opacity:0.75; margin-top:6px; letter-spacing:0.5px; }
+    .post .cmt { color:var(--gold); }
+    .empty { text-align:center; padding:30px 0; font-size:13px; color:var(--gold2); opacity:0.75; }
+    .backlink { text-align:center; margin-top:26px; font-size:12px; }
+    .backlink a { color:var(--gold2); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <div class="crest">&#10086;</div>
+      <div class="brand">Ark Community</div>
+      <h1>방주 커뮤니티</h1>
+      <div class="lead">방주에 오른 분들만의 공간입니다. 개체 자랑, 재배 이야기, 질문 — 자유롭게 나눠주세요.</div>
+    </div>
+
+    <% if (msg) { %><div class="msg">✦ <%= msg %></div><% } %>
+    <% if (error) { %><div class="err">⚠️ <%= error %></div><% } %>
+
+    <div class="write">
+      <h2>✎ 새 글 쓰기 — <%= me.nick %></h2>
+      <form method="post" action="/community/post" enctype="multipart/form-data">
+        <input type="text" name="title" placeholder="제목" />
+        <textarea name="body" rows="3" placeholder="내용을 적어주세요"></textarea>
+        <input type="file" name="photo" accept="image/*" />
+        <button type="submit">올리기</button>
+      </form>
+    </div>
+
+    <% posts.forEach(function (p) { %>
+    <a class="post" href="/community/<%= p.번호 %>">
+      <div class="row1">
+        <% if (p.사진URL) { %><div class="thumb"><img src="<%= p.사진URL %>" alt="" /></div><% } %>
+        <div style="flex:1; min-width:0;">
+          <div class="tt"><%= p.제목 %></div>
+          <div class="meta"><%= p.작성자 %> · <%= p.일시 %> · <span class="cmt">댓글 <%= p.댓글수 %></span></div>
+        </div>
+      </div>
+    </a>
+    <% }); %>
+    <% if (!posts.length) { %><div class="empty">아직 글이 없습니다. 첫 글을 남겨보세요.</div><% } %>
+
+    <div class="backlink"><a href="/members">← 회원 명부</a> &nbsp;·&nbsp; <a href="/list">방주 갤러리</a> &nbsp;·&nbsp; <a href="/vote">등재 투표 →</a></div>
+  </div>
+</body>
+</html>

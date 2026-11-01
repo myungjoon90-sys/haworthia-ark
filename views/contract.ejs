@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>방주 협의서 서명 | ARK PROJECT</title>
+  <meta name="robots" content="noindex" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Noto+Serif+KR:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root { --gold:#D2AC55; --gold2:#E9D6A0; --line:rgba(210,172,85,0.25); }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Noto Serif KR','Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',serif; background:linear-gradient(160deg,#1A3620,#0E1F12); color:#F6F0DF; min-height:100vh; padding:40px 16px 70px; }
+    .wrap { max-width:560px; margin:0 auto; }
+    .head { text-align:center; margin-bottom:26px; }
+    .brand { font-family:'Playfair Display',serif; letter-spacing:6px; font-size:19px; color:var(--gold); text-transform:uppercase; }
+    .by { font-family:'Playfair Display',serif; letter-spacing:4px; font-size:10px; color:var(--gold2); opacity:0.85; margin-top:5px; text-transform:uppercase; }
+    h1 { font-size:19px; font-weight:600; color:#fff; margin-top:16px; }
+    .lead { font-size:13px; color:var(--gold2); opacity:0.9; margin-top:8px; line-height:1.8; }
+    .panel { background:rgba(0,0,0,0.24); border:1px solid var(--line); border-radius:14px; padding:22px 20px; margin-bottom:16px; }
+    .panel h2 { font-size:14px; font-weight:600; color:var(--gold2); margin-bottom:12px; letter-spacing:1px; }
+    canvas#sigPad { width:100%; height:170px; background:#FBF8F0; border-radius:10px; touch-action:none; cursor:crosshair; display:block; }
+    .sig-tools { display:flex; align-items:center; gap:10px; margin-top:10px; }
+    .sig-tools button { border:1px solid rgba(210,172,85,0.4); background:none; color:var(--gold2); border-radius:8px; padding:9px 14px; font-size:13px; cursor:pointer; font-family:inherit; }
+    .sig-hint { font-size:12px; color:var(--gold2); opacity:0.7; }
+    .agree { display:flex; gap:9px; align-items:flex-start; font-size:12.5px; line-height:1.75; color:var(--gold2); margin-bottom:14px; }
+    .agree input { margin-top:3px; accent-color:var(--gold); }
+    button.submit { width:100%; margin-top:6px; padding:16px; border:none; border-radius:10px; background:linear-gradient(180deg,#E6C75A,#D2AC55); color:#10220f; font-size:17px; font-weight:700; letter-spacing:1px; cursor:pointer; font-family:inherit; }
+    .alert { margin-bottom:16px; padding:15px 17px; border-radius:12px; font-size:13.5px; line-height:1.8; }
+    .alert.error { background:rgba(180,50,50,0.18); border:1px solid rgba(220,100,100,0.5); color:#ffd9d9; }
+    .alert.ok { background:rgba(210,172,85,0.12); border:1px solid rgba(210,172,85,0.5); color:var(--gold2); }
+    .alert.ok b { color:#fff; }
+    .cov { max-height:260px; overflow-y:auto; padding:14px 16px; background:rgba(255,255,255,0.04); border:1px solid rgba(210,172,85,0.3); border-radius:10px; font-size:12.5px; line-height:1.9; color:#F0E9D8; }
+    .backlink { text-align:center; margin-top:22px; font-size:12px; }
+    .backlink a { color:var(--gold2); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="head">
+      <div class="brand">Ark Project</div>
+      <div class="by">By Jiyang</div>
+      <h1>방주 협의서 확인 · 서명</h1>
+      <div class="lead"><b style="color:#fff;"><%= name %></b>님의 멤버십 가입이 승인되었습니다.<br/>아래 협의서를 확인하고 서명해 주시면 가입이 완료됩니다.</div>
+    </div>
+
+    <% if (error) { %><div class="alert error">⚠️ <%= error %></div><% } %>
+
+    <% if (done === 'already') { %>
+    <div class="alert ok">
+      ✅ <b>이미 서명이 완료된 협의서입니다.</b><br/>
+      가입이 완료되어 있으며, 궁금하신 점은 지양하월시아로 문의해 주세요.
+    </div>
+    <div class="backlink"><a href="/about">← 방주 프로젝트 소개</a></div>
+    <% } else if (done) { %>
+    <div class="alert ok">
+      ⚓ <b>서명이 완료되었습니다 — 방주에 오신 것을 환영합니다!</b><br/>
+      가입이 완료되었습니다. 잠시 후 회원번호와 멤버십 카드, 회원 명부 입장 안내가
+      문자로 발송됩니다.
+    </div>
+    <div class="backlink"><a href="/about">← 방주 프로젝트 소개</a> &nbsp;·&nbsp; <a href="/members">회원 명부 →</a></div>
+    <% } else { %>
+
+    <form method="post" action="/contract" id="contractForm">
+      <input type="hidden" name="d" value="<%= dq %>" />
+      <input type="hidden" name="k" value="<%= kq %>" />
+
+      <div class="panel">
+        <h2>방주 협의서 (요지)</h2>
+        <div class="cov">
+          하월시아 방주 프로젝트 협의서는 오랜 시간 정성과 노력을 기울여 온 회원들의 권리를 지키기 위한 약속입니다.<br/><br/>
+          하나. 본 협의는 서로의 <b>신뢰</b>를 바탕으로 하며, 회원은 약속을 지키고 배신하지 않습니다.<br/>
+          하나. 보호 대상 품종은 <b>내부에서 먼저 나누는 것</b>을 원칙으로 하며, 충분한 육종과 준비를 마치기 전에는 외부에 유출하지 않습니다.<br/>
+          하나. 본 협의의 보호·관리 대상은 세계적으로 인정받는 수준의 <b>로얄급 품종에 한정</b>합니다.<br/>
+          하나. 무단 증식·불법 유통·위조는 협의서에 따라 제한되며, 위반 시 명부 제외 등 조치될 수 있습니다.<br/>
+          하나. 재분양 시 지양하월시아에 우선 매수 기회를 제공합니다.<br/>
+          하나. 본 협의의 보호·서약 대상은 <b>지양하월시아가 등재한 오리지널 개체에 한정</b>됩니다.
+          회원이 직접 교배하여 얻은 <b>실생 개체는 서약 대상에 포함되지 않으며</b>, 실생은 온전히 그 회원의 것입니다.<br/><br/>
+          ※ 위 내용은 요지이며, 협의서 전문은 가입 완료 후 개별 전달·안내됩니다. 아래 서명은 본 요지에 대한 동의를 포함합니다.
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>향후 재분양(판매) 시 — 하나를 선택해 주세요</h2>
+        <div style="font-size:12px; color:var(--gold2); opacity:0.8; line-height:1.8; margin-bottom:10px;">
+          방주는 회원의 출구(판매 경로)를 함께 만들어 드립니다. 언제든 변경을 요청하실 수 있습니다.
+        </div>
+        <label class="agree" style="cursor:pointer;"><input type="radio" name="resale" value="지양 판매지원 희망" checked />
+          <span>재분양이 필요할 때 <b>지양하월시아의 판매 지원(위탁·중개)</b>을 받고 싶습니다.</span></label>
+        <label class="agree" style="cursor:pointer;"><input type="radio" name="resale" value="단독 판매 우선" />
+          <span><b>단독 판매를 우선 고려</b>하겠습니다. (지양 우선 매수 기회 제공 원칙은 동일하게 적용됩니다)</span></label>
+      </div>
+
+      <div class="panel">
+        <h2>동의 · 전자서명</h2>
+        <div class="agree">
+          <input type="checkbox" name="agree" id="agree" />
+          <label for="agree">
+            [필수] 위 협의서 요지를 확인하였고 이에 동의하며, 아래 서명은 본인(<%= name %>)이 직접 작성한 것임을 확인합니다.
+          </label>
+        </div>
+        <canvas id="sigPad"></canvas>
+        <div class="sig-tools">
+          <button type="button" id="sigClear">지우기</button>
+          <span class="sig-hint">손가락(휴대폰) 또는 마우스로 서명해 주세요.</span>
+        </div>
+        <input type="hidden" name="signature" id="sigData" />
+      </div>
+
+      <button class="submit" type="submit">서명하고 가입 완료하기</button>
+    </form>
+    <% } %>
+  </div>
+
+  <script>
+    var pad = document.getElementById('sigPad');
+    if (pad) {
+      var ctx = pad.getContext('2d');
+      var drawing = false, drew = false;
+      function resize() {
+        var ratio = window.devicePixelRatio || 1;
+        var w = pad.clientWidth, h = pad.clientHeight;
+        var old = drew ? pad.toDataURL() : null;
+        pad.width = w * ratio; pad.height = h * ratio;
+        ctx.scale(ratio, ratio);
+        ctx.lineWidth = 2.4; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#1A2B14';
+        if (old) { var img = new Image(); img.onload = function () { ctx.drawImage(img, 0, 0, w, h); }; img.src = old; }
+      }
+      resize(); window.addEventListener('resize', resize);
+      function pos(e) {
+        var r = pad.getBoundingClientRect();
+        var t = e.touches ? e.touches[0] : e;
+        return { x: t.clientX - r.left, y: t.clientY - r.top };
+      }
+      function start(e) { drawing = true; drew = true; var p = pos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); e.preventDefault(); }
+      function move(e) { if (!drawing) return; var p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); e.preventDefault(); }
+      function end() { drawing = false; }
+      pad.addEventListener('mousedown', start); pad.addEventListener('mousemove', move); window.addEventListener('mouseup', end);
+      pad.addEventListener('touchstart', start, { passive: false }); pad.addEventListener('touchmove', move, { passive: false }); pad.addEventListener('touchend', end);
+      document.getElementById('sigClear').addEventListener('click', function () {
+        ctx.clearRect(0, 0, pad.width, pad.height); drew = false;
+      });
+      document.getElementById('contractForm').addEventListener('submit', function (e) {
+        if (!drew) { e.preventDefault(); alert('서명란에 서명해 주세요.'); return; }
+        document.getElementById('sigData').value = pad.toDataURL('image/png');
+      });
+    }
+  </script>
+</body>
+</html>
