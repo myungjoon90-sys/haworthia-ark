@@ -95,10 +95,10 @@
       <div class="panel">
         <h2>가입 요건 — 해당하는 항목에 모두 체크 (<span id="critCount">0</span>/<%= need %> 이상)</h2>
         <% criteria.forEach(function (c) { %>
-        <label class="crit"><input type="checkbox" name="criteria" value="<%= c.id %>" /><span><%= c.label %></span></label>
+        <label class="crit"><input type="checkbox" name="criteria" value="<%= c.id %>" /><span><%= c.label %><% if (c.id === '커뮤니티100') { %><br/><small style="opacity:0.75;">위에 적으신 휴대폰 번호로 클럽 기록을 자동 확인합니다. · <a href="/club/levels" target="_blank" style="color:var(--gold);">클럽 등급 안내</a></small><% } %></span></label>
         <% }); %>
         <div id="goldNumBox" style="display:none; margin:10px 0 4px; padding:12px; background:rgba(255,255,255,0.04); border:1px solid rgba(210,172,85,0.3); border-radius:10px;">
-          <label class="f" style="margin-top:0;">보유하신 골드 등급 이상 넘버 (10개 이상, 줄바꿈 또는 쉼표로 구분)</label>
+          <label class="f" style="margin-top:0;">보유하신 골드 등급 이상 넘버 (15개 이상, 줄바꿈 또는 쉼표로 구분)</label>
           <textarea name="goldNumbers" rows="5" style="width:100%; padding:12px; border-radius:8px; font-size:13px; border:1px solid rgba(210,172,85,0.3); background:rgba(255,255,255,0.06); color:#fff; font-family:inherit; line-height:1.7;" placeholder="JY-OM-N009-20-G0001&#10;JY-QQ-JY001-26-RG0762&#10;..."></textarea>
           <div class="crit-note" style="margin-top:6px;">적어주신 넘버는 방주 명부와 자동 대조됩니다. 정품 등록이 완료된 넘버만 인정되니, 아직 등록 전이라면 <a href="/royal" target="_blank" style="color:var(--gold);">정품 등록</a>을 먼저 진행해 주세요.</div>
         </div>

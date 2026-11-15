@@ -27,6 +27,16 @@ const messaging = require('./lib/messaging');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// ---- 하월시아 클럽 (club.haworthia.co.kr · 방주 주소에서는 /club) — 방주 경로보다 먼저 연결 ----
+//  운영자 비밀번호: Railway 변수 CLUB_ADMIN_PASSWORD (없으면 ADMIN_PASSWORD)
+const { mountClub } = require('./club');
+const club = mountClub(app, {
+  sheets, messaging,
+  certToken: (id) => certToken(id),
+  adminPassword: process.env.CLUB_ADMIN_PASSWORD || process.env.ADMIN_PASSWORD || '',
+  sessionSecret: process.env.SESSION_SECRET || 'jiyang-ark-secret',
+});
+
 const BASE_URL = (process.env.BASE_URL || '').replace(/\/$/, '');
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'change-me';
 
@@ -510,14 +520,14 @@ app.post('/admin/send', requireLogin, async (req, res) => {
 // (id는 시트에 기록되는 짧은 이름, need는 총 몇 개를 충족해야 하는지)
 const MEMBER_RULE = { need: 3 };
 const MEMBER_CRITERIA = [
-  { id: '골드10', label: '골드 등급 이상, 디지털 보증서 10개 이상 보유 (넘버 제출)' },
-  { id: '구매1천', label: '지양하월시아 누적 구매 1,000만원 이상' },
+  { id: '골드10', label: '골드 등급 이상, 디지털 보증서 15개 이상 보유 (넘버 제출)' },
+  { id: '구매1천', label: '지양하월시아 누적 구매 1,500만원 이상' },
   { id: '키핑', label: '지양하월시아에 하월시아를 키핑 중' },
-  { id: '컬렉션30', label: '지양하월시아 출신 개체 30주 이상 보유 (방주 등록 기준)' },
-  { id: '대회출품', label: '하월시아 대회·전시에 지양 개체로 출품(수상)한 이력' },
+  { id: '커뮤니티100', label: '하월시아 클럽 활동 — 💎 다이아 등급 (게시물·댓글 각 100개 이상 작성)' },
+  { id: '대회출품', label: '하월시아 대회·전시에 지양 개체로 출품하여 동상 이상 수상 2회 이상' },
 ];
 // 보너스 요건: 충족 시 위 요건 1개를 충족한 것으로 인정
-const MEMBER_BONUS = { id: '보너스-초기라벨3세트', label: '[보너스] 초기(2015~10년대) 개체를 정품 라벨 완전 세트(한글판+시리얼번호판 2장 = 1세트)로 총 3세트 보유' };
+const MEMBER_BONUS = { id: '보너스-초기라벨5세트', label: '[보너스] 초기(2015~10년대) 개체를 정품 라벨 완전 세트(한글판+시리얼번호판 2장 = 1세트)로 총 5세트 보유' };
 
 // 공개 정품 조회: 넘버 상태만 확인 (개인정보 없음)
 app.get('/verify', async (req, res) => {
@@ -700,9 +710,17 @@ app.post('/join', async (req, res) => {
     if (form.criteria.includes('골드10')) {
       const goldNumbers = (req.body.goldNumbers || '').trim();
       const check = await sheets.verifyGoldPlusNumbers(goldNumbers, form.phone);
-      if (check.제출 < 10) throw new Error(`골드 등급 이상 넘버를 10개 이상 적어 주세요. (현재 인식된 넘버: ${check.제출}개)`);
+      if (check.제출 < 15) throw new Error(`골드 등급 이상 넘버를 15개 이상 적어 주세요. (현재 인식된 넘버: ${check.제출}개)`);
       제출넘버 = check.목록.join('\n');
       자동확인 = `제출 ${check.제출}개 / 골드+ 시트 확인 ${check.확인}개 / 본인 정품등록 ${check.본인등록}개`;
+    }
+
+    // '커뮤니티100' 요건 체크 시: 하월시아 클럽 기록을 휴대폰 번호로 자동 확인 (💎 다이아 = 게시물·댓글 각 100개 이상)
+    if (form.criteria.includes('커뮤니티100')) {
+      const cs = club.statsByPhone(form.phone);
+      if (!cs.found) throw new Error('하월시아 클럽에서 이 휴대폰 번호로 가입한 기록을 찾을 수 없습니다. 클럽에 가입하신 번호로 신청해 주세요.');
+      if (!cs.ark) throw new Error(`하월시아 클럽 💎 다이아 등급 조건이 아직 안 됩니다. (현재 ${cs.tier.icon}${cs.tier.name} · 게시물 ${cs.posts}/100 · 댓글 ${cs.comments}/100)`);
+      자동확인 = (자동확인 ? 자동확인 + ' / ' : '') + `클럽 ${cs.nick} 💎다이아 확인 (게시물 ${cs.posts} · 댓글 ${cs.comments})`;
     }
 
     const now = new Date();

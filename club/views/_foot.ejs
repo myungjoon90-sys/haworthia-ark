@@ -1,0 +1,13 @@
+</main>
+<% var tb = (typeof tab !== 'undefined') ? tab : ''; %>
+<nav class="tabs"><div class="in">
+  <a href="<%= B %>/" class="<%= tb==='feed'?'on':'' %>"><span class="ic">🏡</span>피드</a>
+  <a href="<%= B %>/dex" class="<%= tb==='dex'?'on':'' %>"><span class="ic">📖</span>도감</a>
+  <a href="<%= B %>/write" class="plus" aria-label="사진 올리기"><span class="ic">＋</span></a>
+  <a href="<%= B %>/me" class="<%= tb==='me'?'on':'' %>"><span class="ic">🪴</span>온실</a>
+  <a href="<%= ARK_URL %>/about" class="ark"><span class="ic">🛡</span>방주</a>
+</div></nav>
+<div id="toast" class="toast"></div>
+<script src="<%= B %>/static/club.js?v=<%= VERSION %>"></script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<%- include('_head') %>
+<div style="padding-top:6px"></div>
+<%- include('_card', { c: c, full: true }) %>
+<% if (pins.length) { %>
+<div class="box" style="border:1.5px solid var(--gold2)">
+  <h3>📌 태그 대표 사진 지정 <small style="font-weight:400;color:var(--sub)">(운영자만 보임)</small></h3>
+  <p style="margin-bottom:10px">지정하면 그 태그 페이지 맨 위에 항상 이 사진이 나옵니다. 풀면 다시 자동(최근 30일 인기 1위)으로 돌아갑니다.</p>
+  <div style="display:flex;flex-wrap:wrap;gap:8px">
+  <% pins.forEach(function (p) { %>
+    <% if (p.pinned) { %>
+      <button class="btn line s" data-act="/api/admin/pin" data-body='<%= JSON.stringify({ tag: p.key, post_id: null }) %>' data-go="reload">📌 #<%= T.tagWord(p.label) %> 대표 풀기</button>
+    <% } else { %>
+      <button class="btn gold s" data-act="/api/admin/pin" data-body='<%= JSON.stringify({ tag: p.key, post_id: c.id }) %>' data-go="reload">📌 #<%= T.tagWord(p.label) %> 대표로 지정</button>
+    <% } %>
+  <% }); %>
+  </div>
+</div>
+<% } %>
+<section class="card" id="cmts">
+  <div style="padding:14px 14px 4px;font-weight:800">댓글 <%= cmts.filter(function (x) { return !x.hidden; }).length %></div>
+  <div class="cmts">
+    <% if (!cmts.length) { %><div class="hint" style="padding:8px 0 4px">첫 댓글을 남겨 주세요.</div><% } %>
+    <% cmts.forEach(function (m) { %>
+    <div class="cmt <%= m.hidden ? 'hid' : '' %>">
+      <a class="ava" href="<%= B %>/u/<%= encodeURIComponent(m.nick || '') %>"><%= String(m.nick || '?').slice(0,1) %></a>
+      <div class="tx"><b><a href="<%= B %>/u/<%= encodeURIComponent(m.nick || '') %>"><%= m.nick || '(탈퇴)' %></a></b><%- include('_badges', { u: { tier: m.tier, ark_no: m.ark_no } }) %>
+        <div><%- T.renderBody(m.body, B) %></div>
+        <small><%= T.timeAgo(m.created_at) %>
+          <% if (me && me.id === m.user_id) { %><button data-act="/api/comments/<%= m.id %>/delete" data-confirm="댓글을 지울까요?" data-go="reload">지우기</button>
+          <% } else if (me) { %><button data-act="/api/report" data-body='{"comment_id":<%= m.id %>}' data-prompt="신고하는 까닭" data-prompt-key="reason" data-done="신고가 접수되었습니다.">신고</button><% } %>
+          <% if (isAdmin) { %><button data-act="/api/admin/comment-hide" data-body='{"comment_id":<%= m.id %>,"hidden":<%= m.hidden ? 0 : 1 %>}' data-go="reload"><%= m.hidden ? '숨김 풀기' : '숨기기' %></button><% } %>
+        </small>
+      </div>
+    </div>
+    <% }); %>
+  </div>
+  <form class="cform" id="cform" data-post="<%= c.id %>">
+    <input type="text" maxlength="500" placeholder="<%= me ? '댓글 달기… (#품종명도 돼요)' : '로그인하고 댓글 달기' %>" <%= me ? '' : 'readonly' %>>
+    <button type="submit">등록</button>
+  </form>
+</section>
+<%- include('_foot', { tab: '' }) %>

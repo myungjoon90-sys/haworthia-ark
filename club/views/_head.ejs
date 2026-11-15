@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ko" data-b="<%= B %>" data-me="<%= me ? 1 : 0 %>">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title><%= (typeof title !== 'undefined' && title) ? title + ' · ' : '' %>하월시아 클럽</title>
+<meta name="description" content="하월시아를 키우는 사람들이 사진을 올리고 품종별로 모아 보는 곳 · by 지양하월시아">
+<meta name="theme-color" content="#1F4129">
+<link rel="manifest" href="<%= B %>/manifest.webmanifest">
+<link rel="icon" href="<%= B %>/static/icon-192.png">
+<link rel="apple-touch-icon" href="<%= B %>/static/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="하월시아 클럽">
+<meta property="og:site_name" content="하월시아 클럽">
+<meta property="og:title" content="<%= (typeof title !== 'undefined' && title) ? title : '하월시아 클럽' %>">
+<% if (typeof ogImage !== 'undefined' && ogImage) { %><meta property="og:image" content="<%= ogImage %>"><% } %>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="<%= B %>/static/club.css?v=<%= VERSION %>">
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="logo" href="<%= B %>/"><b>HAWORTHIA CLUB</b><i>BY JIYANG</i></a>
+  <span class="sp"></span>
+  <% if (isAdmin) { %><a class="chip" href="<%= B %>/admin" style="padding:6px 11px;font-size:12px">⚙ 운영</a><% } %>
+  <% if (me) { %>
+    <a class="me" href="<%= B %>/me"><span class="ava"><%= me.nick.slice(0,1) %></span></a>
+  <% } else { %>
+    <a class="btn-s" href="<%= B %>/login">로그인</a>
+  <% } %>
+</div></header>
+<main class="wrap">

@@ -1,0 +1,8 @@
+<%- include('_head') %>
+<form class="box" method="post" action="<%= B %>/admin/login" style="margin-top:30px">
+  <h3>⚙ 운영자 로그인</h3>
+  <input class="in" type="password" name="password" placeholder="운영자 비밀번호" autocomplete="current-password" autofocus>
+  <% if (error) { %><div class="err" style="display:block"><%= error %></div><% } %>
+  <button class="btn" type="submit" style="margin-top:12px">들어가기</button>
+</form>
+<%- include('_foot', { tab: '' }) %>

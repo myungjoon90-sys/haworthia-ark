@@ -1,0 +1,2 @@
+<% list.forEach(function (c) { %><%- include('_card', { c: c, full: false }) %><% }); %>
+<% if (more) { %><button class="btn line moreb" data-more="<%= next %>" data-target="feedlist">더 보기</button><% } %>

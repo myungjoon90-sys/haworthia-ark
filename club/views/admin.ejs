@@ -1,0 +1,79 @@
+<%- include('_head') %>
+<div class="adm">
+  <div style="display:flex;align-items:center;padding-top:16px"><h1 style="font-size:20px">⚙ 클럽 운영</h1>
+    <form method="post" action="<%= B %>/admin/logout" style="margin-left:auto"><button class="btn line s">운영자 나가기</button></form></div>
+  <div class="num" style="margin-top:12px">
+    <div><b><%= stats.users %></b><small>회원</small></div>
+    <div><b><%= stats.posts %></b><small>글</small></div>
+    <div><b><%= stats.week %></b><small>이번 주 글</small></div>
+    <div><b><%= stats.certs %></b><small>🛡 정품 식물</small></div>
+    <div><b><%= stats.ark %></b><small>ARK 멤버</small></div>
+  </div>
+  <p class="hint" style="margin-top:8px">방주 시트 품종명: <%= arkReady ? '등재 ' + arkOfficial + '종 · 전체 ' + arkNames + '개 읽음' : '아직 못 읽음' %>
+    <button class="btn line s" style="margin-left:6px;padding:4px 9px" data-act="/api/admin/ark-refresh" data-go="reload">다시 읽기</button></p>
+
+  <h2>🛡 보증서 연결 확인 <small style="font-weight:400;color:var(--sub)"><%= pending.length %>건</small></h2>
+  <% if (!pending.length) { %><p class="hint">확인할 것이 없습니다.</p><% } %>
+  <% pending.forEach(function (p) { %>
+  <div class="pc">
+    <% if (p.cover) { %><img src="<%= B %>/media/<%= p.cover %>" alt=""><% } else { %><div class="noimg"></div><% } %>
+    <div class="tx"><b><%= p.name %></b> · <a href="<%= B %>/u/<%= encodeURIComponent(p.nick) %>"><%= p.nick %></a> <small>(<%= T.maskPhone(p.phone) %>)</small><br>
+      넘버 <b><%= p.cert_no %></b> · <%= String(p.info.품종명 || '').split('\n')[0] %> <small style="color:var(--sub)"><%= p.info.출처 || '' %><%= p.info.상태 ? ' · ' + p.info.상태 : '' %></small><br>
+      <a href="<%= B %>/plant/<%= p.id %>" style="text-decoration:underline">식물 기록 보기</a> · <a href="<%= ARK_URL %>/certificate/<%= encodeURIComponent(p.cert_no) %>" target="_blank" style="text-decoration:underline">보증서</a></div>
+    <div class="bt">
+      <button class="btn s" data-act="/api/admin/cert" data-body='<%= JSON.stringify({ plant_id: p.id, action: "approve" }) %>' data-go="reload">승인</button>
+      <button class="btn red s" data-act="/api/admin/cert" data-body='<%= JSON.stringify({ plant_id: p.id, action: "reject" }) %>' data-prompt="거절 까닭 (회원에게 보입니다)" data-prompt-value="실물·사진 확인이 필요합니다. 운영자에게 연락 주세요." data-prompt-key="note" data-go="reload">거절</button>
+    </div>
+  </div>
+  <% }); %>
+
+  <h2>🚩 신고 <small style="font-weight:400;color:var(--sub)"><%= reports.length %>건</small></h2>
+  <% if (!reports.length) { %><p class="hint">새 신고가 없습니다.</p><% } else { %>
+  <table><tr><th>대상</th><th>까닭</th><th>신고한 사람</th><th></th></tr>
+  <% reports.forEach(function (rp) { %>
+    <tr><td><% if (rp.post_id) { %><a href="<%= B %>/p/<%= rp.post_id %>" style="text-decoration:underline">글 #<%= rp.post_id %></a><% } else { %>댓글 #<%= rp.comment_id %><% } %></td><td><%= rp.reason %></td><td><%= rp.nick %><br><small><%= T.timeAgo(rp.created_at) %></small></td>
+    <td><button class="btn line s" data-act="/api/admin/report-done" data-body='{"id":<%= rp.id %>}' data-go="reload">처리함</button></td></tr>
+  <% }); %></table>
+  <% } %>
+
+  <h2>#️⃣ 태그 정리</h2>
+  <% if (typos.length) { %>
+  <p class="hint" style="margin-bottom:8px">한 글자만 다른 태그입니다. 오타면 [합치기]를 누르세요. 합친 뒤 옛 태그로 쓴 글도 새 태그로 모이고, 앞으로 옛 태그로 써도 자동으로 옮겨집니다.</p>
+  <% typos.forEach(function (x) { %>
+  <div class="pc" style="padding:9px 12px"><div class="tx">#<%= T.tagWord(x.from.label) %> <small>(<%= x.from.n %>)</small> → <b>#<%= T.tagWord(x.to.label) %></b> <small>(<%= x.to.n %>)</small></div>
+    <button class="btn s" data-act="/api/admin/merge" data-body='<%= JSON.stringify({ from: x.from.key, to: x.to.key }) %>' data-confirm="#<%= T.tagWord(x.from.label) %> 을(를) #<%= T.tagWord(x.to.label) %> 로 합칠까요?" data-go="reload">합치기</button></div>
+  <% }); %>
+  <% } %>
+  <div class="box">
+    <h3>직접 합치기</h3>
+    <form id="mergeform" class="row2"><input class="in" name="from" placeholder="#잘못된태그"><span style="align-self:center">→</span><input class="in" name="to" placeholder="#맞는태그"><button class="btn s" type="submit">합치기</button></form>
+  </div>
+  <table><tr><th>태그</th><th>글</th><th>대표</th><th></th></tr>
+  <% tagRows.slice(0, 200).forEach(function (t) { %>
+    <tr><td><a href="<%= B %>/t/<%= encodeURIComponent(t.key) %>" style="font-weight:700">#<%= T.tagWord(t.label) %></a><br><small style="color:var(--sub)"><%= t.label %></small></td><td><%= t.n %></td>
+    <td><%= t.pinned_post ? '📌 글 #' + t.pinned_post : '자동' %></td>
+    <td><button class="btn line s" data-act="/api/admin/label" data-body='<%= JSON.stringify({ tag: t.key }) %>' data-prompt="보이는 이름 (띄어쓰기·대소문자만 바꿀 수 있어요)" data-prompt-value="<%= t.label %>" data-prompt-key="label" data-go="reload">이름</button>
+      <% if (t.pinned_post) { %><button class="btn line s" data-act="/api/admin/pin" data-body='<%= JSON.stringify({ tag: t.key, post_id: null }) %>' data-go="reload">📌 풀기</button><% } %></td></tr>
+  <% }); %></table>
+  <p class="hint" style="margin-top:6px">📌 대표 지정은 글 화면 아래 「태그 대표 사진 지정」에서 합니다.</p>
+
+  <h2>🙈 숨긴 글 <small style="font-weight:400;color:var(--sub)"><%= hidden.length %></small></h2>
+  <% if (!hidden.length) { %><p class="hint">없습니다.</p><% } %>
+  <div class="grid"><%- include('_gridcells', { list: hidden }) %></div>
+
+  <h2>👥 회원 <small style="font-weight:400;color:var(--sub)">최근 200명</small></h2>
+  <table><tr><th>닉네임</th><th>번호</th><th>글</th><th>가입</th><th></th></tr>
+  <% users.forEach(function (x) { %>
+    <tr style="<%= x.blocked ? 'opacity:.5' : '' %>"><td><a href="<%= B %>/u/<%= encodeURIComponent(x.nick) %>" style="font-weight:700"><%= x.nick %></a> <% if (x.ark_no) { %><span class="arkb">ARK</span><% } %></td><td><small><%= T.maskPhone(x.phone) %></small></td><td><%= x.n %></td><td><small><%= T.ymd(x.created_at) %></small></td>
+    <td><button class="btn <%= x.blocked ? 'line' : 'red' %> s" data-act="/api/admin/block" data-body='<%= JSON.stringify({ user_id: x.id, blocked: x.blocked ? 0 : 1 }) %>' data-confirm="<%= x.blocked ? '이용 제한을 풀까요?' : '이 회원의 글쓰기·댓글을 막을까요?' %>" data-go="reload"><%= x.blocked ? '제한 풀기' : '이용 제한' %></button></td></tr>
+  <% }); %></table>
+</div>
+<script>
+document.getElementById('mergeform').addEventListener('submit', function (e) {
+  e.preventDefault();
+  var f = e.target, a = f.from.value.replace(/^#/, ''), b = f.to.value.replace(/^#/, '');
+  if (!a || !b || !confirm('#' + a + ' → #' + b + ' 로 합칠까요?')) return;
+  clubApi('/api/admin/merge', { from: a, to: b }).then(function (r) { if (!r.ok) return clubToast(r.error); clubToast(r.moved + '개 글을 옮겼습니다.'); setTimeout(function () { location.reload(); }, 700); });
+});
+</script>
+<%- include('_foot', { tab: '' }) %>
