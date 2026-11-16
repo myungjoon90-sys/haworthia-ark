@@ -3,7 +3,7 @@
   <div class="hd">
     <a href="<%= B %>/u/<%= encodeURIComponent(c.user.nick) %>" class="ava"><%= String(c.user.nick).slice(0,1) %></a>
     <div class="who">
-      <b><a href="<%= B %>/u/<%= encodeURIComponent(c.user.nick) %>"><%= c.user.nick %></a> <%- include('_badges', { u: c.user }) %></b>
+      <b><a href="<%= B %>/u/<%= encodeURIComponent(c.user.nick) %>"><%= c.user.nick %></a> <%- include('_badges', { u: c.user }) %><% if (full && typeof followBtn !== 'undefined' && followBtn) { %> <button class="fmini" type="button" data-follow="<%= c.user.nick %>"><%= t('＋ 팔로우') %></button><% } %></b>
       <small><%= ago(c.created_at) %><% if (c.hidden) { %> · <span style="color:var(--red)"><%= t('숨김(운영자)') %></span><% } %></small>
     </div>
     <button class="more" data-menu="p<%= c.id %>" aria-label="<%= t('메뉴') %>">⋯</button>

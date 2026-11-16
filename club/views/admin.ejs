@@ -36,6 +36,26 @@
   <% }); %></table>
   <% } %>
 
+  <h2>🛒 판매 연결 (품종 페이지 아래 「지양하월시아에서 판매 중」)</h2>
+  <% if (!shopInfo.enabled) { %>
+  <p class="hint">꺼져 있어요. Railway 변수 <b>CLUB_IMWEB_KEY</b> · <b>CLUB_IMWEB_SECRET</b> (아임웹 API 키, 팔림과 같은 값) 을 넣으면 켜집니다. 상품 주소는 <%= shopInfo.url %>/shop_view?idx=상품번호</p>
+  <% } else { %>
+  <p class="hint" style="margin-bottom:8px">아임웹 판매중 상품 <b><%= shopInfo.n %></b>개 · 마지막 확인 <%= shopInfo.at ? T.ymd(shopInfo.at) + ' ' + new Date(shopInfo.at + 9 * 3600000).toISOString().slice(11, 16) : '아직' %> (30분마다 자동)
+    <% if (!shopInfo.complete) { %> · <span style="color:var(--red)">목록을 끝까지 못 읽음</span><% } %>
+    <% if (shopInfo.error) { %><br><span style="color:var(--red)">⚠ <%= shopInfo.error %></span><% } %>
+    <button class="btn line s" style="margin-left:6px" data-act="/api/admin/shop" data-body='{"action":"refresh"}' data-go="reload">지금 다시 읽기</button></p>
+  <% if (shopRows.length) { %>
+  <table><tr><th>품종</th><th>판매중</th><th></th></tr>
+  <% shopRows.forEach(function (x) { %>
+    <tr><td><a href="<%= B %>/t/<%= encodeURIComponent(x.key) %>">#<%= T.tagWord(x.label) %></a></td><td><%= x.n %></td>
+    <td><button class="btn <%= x.off ? 'line' : 'red' %> s" data-act="/api/admin/shop" data-body='<%= JSON.stringify({ action: "toggle", tag: x.key }) %>' data-go="reload"><%= x.off ? '다시 보이기' : '이 품종은 숨기기' %></button></td></tr>
+  <% }); %>
+  </table>
+  <p class="hint">엉뚱한 상품이 잡히는 품종(이름이 너무 짧거나 겹치는 것)은 「숨기기」로 끄세요.</p>
+  <% } else { %><p class="hint">아직 판매중 상품과 이름이 겹치는 품종 태그가 없어요.</p><% } %>
+  <% } %>
+  <p class="hint" style="margin:6px 0 14px">📲 폰 알림 켠 회원: <b><%= pushN %></b>명</p>
+
   <h2>🌿 종 (맨 위 칩)</h2>
   <p class="hint" style="margin-bottom:8px">클럽 첫 화면 맨 위 칩 순서입니다. ETC 는 맨 끝에 항상 있고, 종이 정해지지 않은 글이 들어갑니다.</p>
   <table><tr><th>종</th><th>글</th><th></th></tr>

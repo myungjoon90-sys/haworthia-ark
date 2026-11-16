@@ -1,14 +1,46 @@
 // 하월시아 클럽 번역표 — 열쇠: 한국어 원문 / 값: [English, 简体中文, 繁體中文]
 // 새 문장을 화면에 넣으면 여기에도 한 줄 넣는다 (빠지면 한국어로 나옴)
 module.exports = {
- "닉네임은 3개월에 한 번만 바꿀 수 있습니다. {date} 부터 다시 바꿀 수 있어요.": ["You can change your nickname once every 3 months. You can change it again from {date}.", "昵称每3个月只能修改一次，{date} 起可以再次修改。", "暱稱每3個月只能修改一次，{date} 起可以再次修改。"],
- "{date} 부터 바꿀 수 있어요": ["You can change it from {date}", "{date} 起可以修改", "{date} 起可以修改"],
- "{date} 부터": ["from {date}", "{date} 起", "{date} 起"],
- "새 닉네임 (2~16자, 띄어쓰기 없이) — 바꾸면 3개월 동안 다시 못 바꿔요": ["New nickname (2–16 characters, no spaces) — once changed, you can't change it again for 3 months", "新昵称（2–16个字，不含空格）— 修改后3个月内不能再改", "新暱稱（2–16個字，不含空格）— 修改後3個月內不能再改"],
- "내 온실": ["My greenhouse", "我的温室", "我的溫室"],
- "그린": ["Green", "绿", "綠"],
- "레드": ["Red", "红", "紅"],
- "로얄": ["Royal", "皇家", "皇家"],
+ "닉네임은 3개월에 한 번만 바꿀 수 있습니다. {date} 부터 다시 바꿀 수 있어요.": [
+  "You can change your nickname once every 3 months. You can change it again from {date}.",
+  "昵称每3个月只能修改一次，{date} 起可以再次修改。",
+  "暱稱每3個月只能修改一次，{date} 起可以再次修改。"
+ ],
+ "{date} 부터 바꿀 수 있어요": [
+  "You can change it from {date}",
+  "{date} 起可以修改",
+  "{date} 起可以修改"
+ ],
+ "{date} 부터": [
+  "from {date}",
+  "{date} 起",
+  "{date} 起"
+ ],
+ "새 닉네임 (2~16자, 띄어쓰기 없이) — 바꾸면 3개월 동안 다시 못 바꿔요": [
+  "New nickname (2–16 characters, no spaces) — once changed, you can't change it again for 3 months",
+  "新昵称（2–16个字，不含空格）— 修改后3个月内不能再改",
+  "新暱稱（2–16個字，不含空格）— 修改後3個月內不能再改"
+ ],
+ "내 온실": [
+  "My greenhouse",
+  "我的温室",
+  "我的溫室"
+ ],
+ "그린": [
+  "Green",
+  "绿",
+  "綠"
+ ],
+ "레드": [
+  "Red",
+  "红",
+  "紅"
+ ],
+ "로얄": [
+  "Royal",
+  "皇家",
+  "皇家"
+ ],
  "숨김(운영자)": [
   "Hidden (admin)",
   "已隐藏（管理员）",
@@ -1608,5 +1640,300 @@ module.exports = {
   "Nicknames that could be mistaken for the admin aren't allowed.",
   "不能使用可能被误认为管理员的昵称。",
   "不能使用可能被誤認為管理員的暱稱。"
+ ],
+ "＋ 팔로우": [
+  "＋ Follow",
+  "＋ 关注",
+  "＋ 追蹤"
+ ],
+ "알림": [
+  "Notifications",
+  "通知",
+  "通知"
+ ],
+ "비교 사진 만들어 공유하기": [
+  "Make a before/after photo to share",
+  "制作对比图并分享",
+  "製作對比圖並分享"
+ ],
+ "비교 사진 만들기": [
+  "Make a before/after photo",
+  "制作对比图",
+  "製作對比圖"
+ ],
+ "세로 9:16": [
+  "Vertical 9:16",
+  "竖版 9:16",
+  "直式 9:16"
+ ],
+ "정사각 1:1": [
+  "Square 1:1",
+  "方形 1:1",
+  "方形 1:1"
+ ],
+ "타임라인 4:5": [
+  "Timeline 4:5",
+  "时间线 4:5",
+  "時間軸 4:5"
+ ],
+ "만드는 중…": [
+  "Creating…",
+  "生成中…",
+  "製作中…"
+ ],
+ "사진 저장": [
+  "Save image",
+  "保存图片",
+  "儲存圖片"
+ ],
+ "공유하기": [
+  "Share",
+  "分享",
+  "分享"
+ ],
+ "인스타·틱톡·카톡에 올려 보세요. QR 을 찍으면 이 성장일기로 와요.": [
+  "Post it on Instagram, TikTok or anywhere. Scanning the QR opens this growth diary.",
+  "可以发到小红书、Instagram、TikTok。扫描二维码即可打开这本成长日记。",
+  "可以發到 Instagram、TikTok、LINE。掃描 QR 碼即可打開這本成長日記。"
+ ],
+ "팔로우한 사람 새 사진": [
+  "New from people you follow",
+  "关注的人的新照片",
+  "追蹤對象的新照片"
+ ],
+ "팔로우": [
+  "Following",
+  "关注",
+  "追蹤中"
+ ],
+ "아직 팔로우한 사람이 없어요.": [
+  "You're not following anyone yet.",
+  "还没有关注任何人。",
+  "還沒有追蹤任何人。"
+ ],
+ "마음에 드는 회원 온실에서 「＋ 팔로우」를 눌러 보세요.": [
+  "Tap “＋ Follow” on a member's greenhouse you like.",
+  "在喜欢的会员温室里点「＋ 关注」。",
+  "在喜歡的會員溫室裡點「＋ 追蹤」。"
+ ],
+ "팔로우한 사람의 새 사진이 아직 없어요.": [
+  "No new photos from people you follow yet.",
+  "关注的人还没有发布新照片。",
+  "追蹤對象還沒有發布新照片。"
+ ],
+ "전체 사진 보기": [
+  "See all photos",
+  "查看全部照片",
+  "查看全部照片"
+ ],
+ "팔로워": [
+  "followers",
+  "粉丝",
+  "粉絲"
+ ],
+ "팔로잉": [
+  "Following",
+  "已关注",
+  "追蹤中"
+ ],
+ "아직 팔로워가 없어요.": [
+  "No followers yet.",
+  "还没有粉丝。",
+  "還沒有粉絲。"
+ ],
+ "폰으로도 알림 받기": [
+  "Get notifications on your phone",
+  "在手机上接收通知",
+  "在手機上接收通知"
+ ],
+ "문자 아님 · 무료 · 댓글·♥·팔로우 소식을 폰으로": [
+  "Not SMS · free · comments, ♥ and follows sent to your phone",
+  "不是短信 · 免费 · 评论、♥、关注消息推送到手机",
+  "不是簡訊 · 免費 · 留言、♥、追蹤消息推送到手機"
+ ],
+ "켜기": [
+  "Turn on",
+  "开启",
+  "開啟"
+ ],
+ "아이폰은 먼저 Safari 아래 <b>공유 버튼 → 「홈 화면에 추가」</b>로 클럽을 홈 화면에 놓고, 그 아이콘으로 열어서 켜 주세요. (iOS 16.4 이상)": [
+  "On iPhone, first tap Safari's <b>Share button → “Add to Home Screen”</b>, then open the Club from that icon and turn it on. (iOS 16.4 or later)",
+  "iPhone 请先点 Safari 下方的<b>分享按钮 → 「添加到主屏幕」</b>，再从该图标打开俱乐部并开启。（iOS 16.4 以上）",
+  "iPhone 請先點 Safari 下方的<b>分享按鈕 → 「加入主畫面」</b>，再從該圖示打開俱樂部並開啟。（iOS 16.4 以上）"
+ ],
+ "아직 알림이 없어요.": [
+  "No notifications yet.",
+  "还没有通知。",
+  "還沒有通知。"
+ ],
+ "사진을 올리면 ♥·댓글 소식이 여기 모여요.": [
+  "When you post photos, ♥ and comments show up here.",
+  "发布照片后，♥ 和评论消息会显示在这里。",
+  "發布照片後，♥ 和留言消息會顯示在這裡。"
+ ],
+ "<b>{nick}</b>님이 회원님 사진에 댓글: “{text}”": [
+  "<b>{nick}</b> commented on your photo: “{text}”",
+  "<b>{nick}</b> 评论了你的照片：“{text}”",
+  "<b>{nick}</b> 在你的照片留言：「{text}」"
+ ],
+ "<b>{nick}</b>님 외 {n}명이 회원님 사진을 ♥ 했어요": [
+  "<b>{nick}</b> and {n} others ♥ your photo",
+  "<b>{nick}</b> 等 {n} 人 ♥ 了你的照片",
+  "<b>{nick}</b> 等 {n} 人 ♥ 了你的照片"
+ ],
+ "<b>{nick}</b>님이 회원님 사진을 ♥ 했어요": [
+  "<b>{nick}</b> ♥ your photo",
+  "<b>{nick}</b> ♥ 了你的照片",
+  "<b>{nick}</b> ♥ 了你的照片"
+ ],
+ "<b>{nick}</b>님이 회원님을 팔로우해요": [
+  "<b>{nick}</b> started following you",
+  "<b>{nick}</b> 关注了你",
+  "<b>{nick}</b> 開始追蹤你"
+ ],
+ "팔로우한 <b>{nick}</b>님이 새 사진을 올렸어요": [
+  "<b>{nick}</b>, whom you follow, posted a new photo",
+  "你关注的 <b>{nick}</b> 发布了新照片",
+  "你追蹤的 <b>{nick}</b> 發布了新照片"
+ ],
+ "<b>#{tag}</b> 마지막 기록이 한 달 지났어요. 오늘 모습을 남겨 볼까요?": [
+  "It's been a month since your last <b>#{tag}</b> entry. Add how it looks today?",
+  "<b>#{tag}</b> 上次记录已过一个月，记录一下今天的样子吧？",
+  "<b>#{tag}</b> 上次紀錄已過一個月，記錄一下今天的樣子吧？"
+ ],
+ "지양하월시아에서 판매 중": [
+  "On sale at Jiyang Haworthia",
+  "Jiyang Haworthia 在售",
+  "Jiyang Haworthia 販售中"
+ ],
+ "#{tag} · {n}개": [
+  "#{tag} · {n} items",
+  "#{tag} · {n} 件",
+  "#{tag} · {n} 件"
+ ],
+ "보러 가기": [
+  "View",
+  "去看看",
+  "去看看"
+ ],
+ "{n}개 더 보기": [
+  "{n} more",
+  "再看 {n} 件",
+  "再看 {n} 件"
+ ],
+ "{n}일 성장일기": [
+  "{n}-day growth diary",
+  "{n}天成长日记",
+  "{n}天成長日記"
+ ],
+ "{n}일의 변화": [
+  "{n} days of change",
+  "{n}天的变化",
+  "{n}天的變化"
+ ],
+ "▼ {n}일 뒤": [
+  "▼ {n} days later",
+  "▼ {n}天后",
+  "▼ {n}天後"
+ ],
+ "사진으로 보는 하월시아 성장 기록": [
+  "Haworthia growth, photo by photo",
+  "用照片记录十二卷的成长",
+  "用照片記錄十二卷的成長"
+ ],
+ "최근에 다른 회원이 쓰던 닉네임이라 지금은 쓸 수 없습니다.": [
+  "Another member used this nickname recently, so it can't be used right now.",
+  "该昵称最近被其他会员使用过，暂时不能使用。",
+  "此暱稱最近被其他會員使用過，暫時不能使用。"
+ ],
+ "나를 팔로우할 수는 없어요.": [
+  "You can't follow yourself.",
+  "不能关注自己。",
+  "不能追蹤自己。"
+ ],
+ "폰 알림이 켜졌어요": [
+  "Phone notifications are on",
+  "手机通知已开启",
+  "手機通知已開啟"
+ ],
+ "폰 알림을 껐어요": [
+  "Phone notifications are off",
+  "已关闭手机通知",
+  "已關閉手機通知"
+ ],
+ "이 폰은 알림을 지원하지 않아요": [
+  "This phone or browser doesn't support notifications",
+  "此手机或浏览器不支持通知",
+  "此手機或瀏覽器不支援通知"
+ ],
+ "알림을 허용해야 받을 수 있어요. 폰 설정에서 허용해 주세요.": [
+  "Please allow notifications in your phone settings to receive them.",
+  "需要允许通知才能接收，请在手机设置中允许。",
+  "需要允許通知才能接收，請在手機設定中允許。"
+ ],
+ "끄기": [
+  "Turn off",
+  "关闭",
+  "關閉"
+ ],
+ "켜는 중…": [
+  "Turning on…",
+  "开启中…",
+  "開啟中…"
+ ],
+ "사진을 저장했어요": [
+  "Image saved",
+  "图片已保存",
+  "圖片已儲存"
+ ],
+ "주소를 복사했어요": [
+  "Link copied",
+  "链接已复制",
+  "連結已複製"
+ ],
+ "사진 만들기에 실패했어요": [
+  "Couldn't create the image",
+  "图片生成失败",
+  "圖片製作失敗"
+ ],
+ "{nick}님이 댓글을 남겼어요": [
+  "{nick} left a comment",
+  "{nick} 留下了评论",
+  "{nick} 留言了"
+ ],
+ "{nick}님이 회원님 사진을 ♥ 했어요": [
+  "{nick} ♥ your photo",
+  "{nick} ♥ 了你的照片",
+  "{nick} ♥ 了你的照片"
+ ],
+ "{nick}님이 회원님을 팔로우해요": [
+  "{nick} started following you",
+  "{nick} 关注了你",
+  "{nick} 開始追蹤你"
+ ],
+ "온실 보러 가기": [
+  "Visit their greenhouse",
+  "去看看TA的温室",
+  "去看看他的溫室"
+ ],
+ "{nick}님 새 사진": [
+  "New photo from {nick}",
+  "{nick} 的新照片",
+  "{nick} 的新照片"
+ ],
+ "🌱 #{tag} 마지막 기록 {n}일째": [
+  "🌱 #{tag}: {n} days since your last entry",
+  "🌱 #{tag} 距上次记录已 {n} 天",
+  "🌱 #{tag} 距上次紀錄已 {n} 天"
+ ],
+ "한 달 전 사진과 비교해 볼까요? 오늘 모습을 남겨 보세요": [
+  "Compare with last month — add how it looks today",
+  "和一个月前比比看？记录一下今天的样子吧",
+  "和一個月前比比看？記錄一下今天的樣子吧"
+ ],
+ "댓글·♥·팔로우 소식을 폰으로 알려 드릴게요 🌿": [
+  "We'll send comments, ♥ and follows to your phone 🌿",
+  "评论、♥、关注消息会推送到你的手机 🌿",
+  "留言、♥、追蹤消息會推送到你的手機 🌿"
  ]
 };

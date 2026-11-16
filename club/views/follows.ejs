@@ -1,0 +1,22 @@
+<%- include('_head') %>
+<div class="prof" style="padding-bottom:6px">
+  <span class="ava l"><%= u.nick.slice(0,1) %></span>
+  <div style="min-width:0"><h1><a href="<%= B %>/u/<%= encodeURIComponent(u.nick) %>"><%= u.nick %></a></h1></div>
+</div>
+<div class="seg">
+  <a class="<%= tab === 'followers' ? 'on' : '' %>" href="?tab=followers"><b><%= fol.followers %></b> <%= t('팔로워') %></a>
+  <a class="<%= tab === 'following' ? 'on' : '' %>" href="?tab=following"><b><%= fol.following %></b> <%= t('팔로잉') %></a>
+</div>
+<% if (!rows.length) { %>
+  <div class="empty-st"><i>👤</i><%= tab === 'followers' ? t('아직 팔로워가 없어요.') : t('아직 팔로우한 사람이 없어요.') %></div>
+<% } else { %>
+<div class="flist">
+  <% rows.forEach(function (x) { %>
+  <div class="frow">
+    <a class="who" href="<%= B %>/u/<%= encodeURIComponent(x.nick) %>"><span class="ava"><%= x.nick.slice(0,1) %></span><span><b><%= x.nick %></b> <%- include('_badges', { u: x }) %><% if (x.bio) { %><small><%= String(x.bio).slice(0, 40) %></small><% } %></span></a>
+    <% if (!me || me.id !== x.id) { %><button class="fbtn s <%= x.iFollow ? 'on' : '' %>" type="button" data-follow="<%= x.nick %>" data-big="1"><%= x.iFollow ? t('팔로잉') : t('＋ 팔로우') %></button><% } %>
+  </div>
+  <% }); %>
+</div>
+<% } %>
+<%- include('_foot', { tab: '' }) %>

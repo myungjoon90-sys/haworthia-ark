@@ -31,4 +31,17 @@
   <% if (more) { %><button class="btn line moreb" data-more="<%= next %>" data-target="gridlist"><%= t('더 보기') %></button><% } %>
 <% } %>
 <a class="btn gold" href="<%= B %>/write?tag=<%= encodeURIComponent(word) %>" style="margin:18px 0">＋ <%= t('#{tag} 사진 올리기', { tag: word }) %></a>
+<% if (forSale.n) { %>
+<div class="shopcard" id="shopcard">
+  <div class="sh"><b>🌿 <%= t('지양하월시아에서 판매 중') %></b><small><%= t('#{tag} · {n}개', { tag: word, n: forSale.n }) %></small></div>
+  <% forSale.list.forEach(function (x, i) { %>
+  <a class="srow<%= i >= 3 ? ' more' : '' %>" href="<%= x.url %>" target="_blank" rel="noopener">
+    <span class="im"><% if (x.img) { %><img src="<%= x.img %>" alt="" loading="lazy"><% } %></span>
+    <span class="tx"><b><%= x.name %></b><small>₩<%= Number(x.price).toLocaleString('ko-KR') %></small></span>
+    <span class="go"><%= t('보러 가기') %> ›</span>
+  </a>
+  <% }); %>
+  <% if (forSale.list.length > 3) { %><button class="smore" type="button" onclick="document.getElementById('shopcard').classList.add('open');this.remove()"><%= t('{n}개 더 보기', { n: forSale.list.length - 3 }) %></button><% } %>
+</div>
+<% } %>
 <%- include('_foot', { tab: 'dex' }) %>

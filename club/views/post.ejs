@@ -1,6 +1,6 @@
 <%- include('_head') %>
 <div style="padding-top:6px"></div>
-<%- include('_card', { c: c, full: true }) %>
+<%- include('_card', { c: c, full: true, followBtn: !(me && me.id === c.user.id) && !followingAuthor }) %>
 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:-2px 2px 8px">
   <a class="chip" href="<%= B %>/?s=<%= c.species || 'etc' %>" style="padding:5px 12px;font-size:12.5px"><%= t('종') %> · <%= c.speciesLabel %></a>
   <% if (isAdmin) { %>
@@ -49,7 +49,7 @@
   <div class="cmts">
     <% if (!cmts.length) { %><div class="hint" style="padding:8px 0 4px"><%= t('첫 댓글을 남겨 주세요.') %></div><% } %>
     <% cmts.forEach(function (m) { %>
-    <div class="cmt <%= m.hidden ? 'hid' : '' %>">
+    <div class="cmt <%= m.hidden ? 'hid' : '' %>" id="c<%= m.id %>">
       <a class="ava" href="<%= B %>/u/<%= encodeURIComponent(m.nick || '') %>"><%= String(m.nick || '?').slice(0,1) %></a>
       <div class="tx"><b><a href="<%= B %>/u/<%= encodeURIComponent(m.nick || '') %>"><%= m.nick || t('(탈퇴)') %></a></b><%- include('_badges', { u: { tier: m.tier, ark_no: m.ark_no } }) %>
         <div><%- T.renderBody(m.body, B) %></div>

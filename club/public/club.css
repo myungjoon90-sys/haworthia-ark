@@ -410,3 +410,71 @@ label.f{display:block;font-size:13px;font-weight:700;margin:14px 0 6px}
 .langbar a{font-size:11.5px;color:var(--sub);padding:2px 6px;border-radius:6px}
 .langbar a.on{color:var(--ink);font-weight:800;background:#ebeadf}
 .dtli .hidb{position:absolute;top:8px;left:8px;font-size:11px;font-weight:700;color:#fff;background:var(--red);padding:2px 8px;border-radius:999px}
+
+/* ---------- v29: 🔔 알림 · 팔로우 · 공유 카드 · 판매 연결 ---------- */
+.top .bell{position:relative;display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:#fff;border:1px solid var(--line);font-size:17px;flex:0 0 auto}
+.top .bell .nb{position:absolute;top:-5px;right:-6px;min-width:19px;height:19px;padding:0 5px;border-radius:999px;background:#E0483E;color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #fff;font-style:normal;line-height:1}
+.pgt{font-size:19px;margin:14px 2px 6px}
+.pushcard{display:flex;gap:12px;align-items:center;background:linear-gradient(135deg,#1F4129,#2D6A3E);color:#fff;border-radius:16px;padding:14px 16px;margin:10px 0}
+.pushcard .ic{font-size:26px;flex:0 0 auto}
+.pushcard .tx{min-width:0}
+.pushcard b{font-size:14.5px;display:block}
+.pushcard small{display:block;font-size:12px;opacity:.85;margin-top:2px;line-height:1.45}
+.pushcard button{margin-left:auto;flex:0 0 auto;white-space:nowrap;background:#E2C27A;color:#1F4129;border:0;border-radius:999px;padding:9px 16px;font-weight:800;font-size:13px;cursor:pointer}
+.pushcard.on{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.pushcard.on button{background:#F1EEE4;color:var(--sub)}
+.pushios{background:#FBF7EA;border:1px solid #EADFBF;border-radius:12px;padding:10px 12px;margin:-2px 0 10px;line-height:1.6}
+.notis{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;margin:6px 0 12px}
+.nrow{display:flex;gap:11px;align-items:center;padding:12px 14px;border-top:1px solid var(--line);font-size:13.5px;line-height:1.45;color:var(--ink)}
+.nrow:first-child{border-top:0}
+.nrow.new{background:#FBF7EA}
+.nrow .av{flex:0 0 auto;width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#3f7d52,#1F4129);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800}
+.nrow .av.em{background:#EEF3E9;font-size:19px}
+.nrow .tx{min-width:0;flex:1;word-break:break-word}
+.nrow .tx small{display:block;color:var(--sub);font-size:11.5px;margin-top:2px}
+.nrow .th{flex:0 0 auto;width:44px;height:44px;border-radius:9px;object-fit:cover}
+.follow-row{display:flex;align-items:center;gap:10px;margin:4px 0 12px;flex-wrap:wrap}
+.fbtn{background:var(--green2);color:#fff;border:1.5px solid var(--green2);border-radius:999px;padding:8px 20px;font-weight:800;font-size:14px;cursor:pointer}
+.fbtn.on{background:#fff;color:var(--green2)}
+.fbtn.s{padding:6px 14px;font-size:12.5px}
+.fcnt{font-size:13px;color:var(--sub)} .fcnt b{color:var(--ink);font-size:14px}
+.fdot{color:var(--sub)}
+.fmini{margin-left:4px;font-size:11.5px;font-weight:800;color:var(--green2);background:#fff;border:1.5px solid var(--green2);border-radius:999px;padding:1px 9px;vertical-align:1px;cursor:pointer}
+.fmini.on{border-color:var(--line);color:var(--sub)}
+.flist{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;margin:8px 0}
+.frow{display:flex;align-items:center;gap:10px;padding:11px 14px;border-top:1px solid var(--line)}
+.frow:first-child{border-top:0}
+.frow .who{display:flex;align-items:center;gap:10px;min-width:0;flex:1;color:var(--ink)}
+.frow .who small{display:block;font-size:11.5px;color:var(--sub);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sharecard{background:#1F4129;color:#fff;margin:0 0 12px;width:100%}
+body.noscroll{overflow:hidden}
+.csheet{position:fixed;inset:0;z-index:120}
+.csheet[hidden]{display:none}
+.csheet .dim{position:absolute;inset:0;background:rgba(0,0,0,.48)}
+.csheet .panel{position:absolute;left:0;right:0;bottom:0;max-width:640px;margin:0 auto;background:#fff;border-radius:22px 22px 0 0;padding:12px 16px calc(18px + var(--safe-b,0px));max-height:94vh;overflow:auto}
+.csheet .grab{width:44px;height:5px;border-radius:9px;background:#ddd;margin:0 auto 10px}
+.csheet .ch{display:flex;align-items:center;margin-bottom:10px} .csheet .ch b{font-size:16px}
+.csheet .ch .x{margin-left:auto;border:0;background:none;font-size:18px;color:var(--sub);cursor:pointer}
+.seg3{display:flex;gap:6px;margin-bottom:10px}
+.seg3 button{flex:1;font-size:12.5px;font-weight:700;padding:8px 0;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--sub);cursor:pointer}
+.seg3 button.on{background:#1F4129;color:#fff;border-color:#1F4129}
+.cprev{position:relative;background:#F4F1E8;border:1px solid var(--line);border-radius:12px;min-height:240px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.cprev img{display:block;max-width:100%;max-height:58vh;object-fit:contain}
+.cprev .cwait{position:absolute;font-size:13px;color:var(--sub);display:none}
+.csheet.wait .cwait{display:block} .csheet.wait .cprev img{opacity:.3}
+.cbt{display:flex;gap:8px;margin-top:12px}
+.cbt button{flex:1;padding:13px 0;border-radius:12px;font-weight:800;font-size:14.5px;border:0;cursor:pointer}
+.cbt .sv{background:#F1EEE4;color:#1F4129}
+.cbt .sh{background:linear-gradient(180deg,#D3B05A,#B8913F);color:#fff}
+.shopcard{background:#fff;border:1px solid var(--line);border-radius:16px;padding:6px 0;margin:4px 0 16px;overflow:hidden}
+.shopcard .sh{display:flex;align-items:baseline;gap:8px;padding:8px 14px 6px;flex-wrap:wrap}
+.shopcard .sh b{font-size:14.5px} .shopcard .sh small{font-size:12px;color:var(--sub)}
+.shopcard .srow{display:flex;gap:12px;align-items:center;padding:9px 14px;border-top:1px solid var(--line);color:var(--ink)}
+.shopcard .srow.more{display:none}
+.shopcard.open .srow.more{display:flex}
+.shopcard .im{flex:0 0 auto;width:54px;height:54px;border-radius:10px;overflow:hidden;background:#eef0e8}
+.shopcard .im img{width:100%;height:100%;object-fit:cover;display:block}
+.shopcard .tx{min-width:0;flex:1} .shopcard .tx b{display:block;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shopcard .tx small{font-size:12.5px;color:var(--sub)}
+.shopcard .go{font-size:12.5px;font-weight:800;color:var(--green2);white-space:nowrap}
+.shopcard .smore{display:block;width:100%;border:0;border-top:1px solid var(--line);background:#fff;padding:10px 0;font-size:13px;font-weight:700;color:var(--green2);cursor:pointer}

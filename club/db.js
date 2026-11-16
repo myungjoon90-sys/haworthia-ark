@@ -159,6 +159,59 @@ function openDb(dataDir) {
   for (const [n, v] of Object.entries(SP_I18N)) {
     db.prepare("UPDATE species SET name_en=?, name_zhs=?, name_zht=? WHERE name=? AND COALESCE(name_en,'')='' AND COALESCE(name_zhs,'')='' AND COALESCE(name_zht,'')=''").run(v[0], v[1], v[2], n);
   }
+
+  // ---- v29 (2026-11-16): 팔로우 · 알림 · 폰 알림(웹 푸시) · 옛 닉네임 주소 · 판매 연결 ----
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS follows(
+      follower_id INTEGER NOT NULL,
+      followee_id INTEGER NOT NULL,
+      created_at INTEGER NOT NULL,
+      PRIMARY KEY(follower_id, followee_id)
+    );
+    CREATE INDEX IF NOT EXISTS ix_follows_followee ON follows(followee_id);
+
+    -- 알림 한 줄. kind: like · comment · follow · newpost · diary
+    -- ukey 가 같은 알림은 한 번만 (같은 사람이 ♥ 눌렀다 뺐다 해도 한 줄)
+    CREATE TABLE IF NOT EXISTS notifs(
+      id INTEGER PRIMARY KEY,
+      user_id INTEGER NOT NULL,
+      kind TEXT NOT NULL,
+      actor_id INTEGER,
+      post_id INTEGER,
+      comment_id INTEGER,
+      tag_key TEXT,
+      ukey TEXT UNIQUE,
+      created_at INTEGER NOT NULL,
+      read_at INTEGER DEFAULT 0
+    );
+    CREATE INDEX IF NOT EXISTS ix_notifs_user ON notifs(user_id, id);
+
+    -- 폰 알림을 켠 기기 (브라우저가 준 받는 주소)
+    CREATE TABLE IF NOT EXISTS push_subs(
+      id INTEGER PRIMARY KEY,
+      user_id INTEGER NOT NULL,
+      endpoint TEXT UNIQUE NOT NULL,
+      p256dh TEXT NOT NULL,
+      auth TEXT NOT NULL,
+      ua TEXT DEFAULT '',
+      created_at INTEGER NOT NULL,
+      last_ok INTEGER DEFAULT 0,
+      fails INTEGER DEFAULT 0
+    );
+    CREATE INDEX IF NOT EXISTS ix_push_user ON push_subs(user_id);
+
+    -- 예전 닉네임 → 지금 회원 (옛 온실 주소를 새 주소로 넘김)
+    CREATE TABLE IF NOT EXISTS nick_history(
+      old_key TEXT PRIMARY KEY,
+      user_id INTEGER NOT NULL,
+      changed_at INTEGER NOT NULL
+    );
+
+    -- 작은 설정값 (폰 알림 열쇠 등)
+    CREATE TABLE IF NOT EXISTS kv(k TEXT PRIMARY KEY, v TEXT);
+  `);
+  addCol('users', 'lang', "TEXT DEFAULT ''");          // 폰 알림을 이 언어로
+  addCol('tags', 'shop_off', 'INTEGER DEFAULT 0');      // 1 = 이 품종은 판매 연결 안 보임 (운영자)
   return db;
 }
 

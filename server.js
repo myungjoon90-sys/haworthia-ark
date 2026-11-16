@@ -184,6 +184,46 @@ app.get('/admin/new', requireLogin, (req, res) => {
   res.render('register', { error: null, result: null, form, grades: Object.keys(sheets.GRADE_TABS) });
 });
 
+// ---- 갤러리 사진 (방주리스트 D열) — 시트를 직접 고치지 않고 품종 고르고 사진 올리기 (v29) ----
+app.get('/admin/gallery', requireLogin, async (req, res) => {
+  try {
+    const rows = await sheets.listArkListRows();
+    res.render('gallery_admin', { rows, grades: Object.keys(sheets.GRADE_TABS), ok: String(req.query.ok || ''), error: String(req.query.err || '') || null });
+  } catch (err) {
+    console.error(err);
+    res.render('gallery_admin', { rows: [], grades: Object.keys(sheets.GRADE_TABS), ok: '', error: err.message });
+  }
+});
+app.post('/admin/gallery/photo', requireLogin, upload.single('photo'), async (req, res) => {
+  const wantJson = String(req.headers.accept || '').includes('application/json');
+  try {
+    if (!req.file) throw new Error('사진을 골라 주세요.');
+    if (!/^image\//.test(req.file.mimetype || '')) { fs.unlink(req.file.path, () => {}); throw new Error('사진 파일만 올릴 수 있습니다.'); }
+    const url = photoUrl(req, req.file.filename);
+    await sheets.setArkListPhoto(req.body.row, req.body.name, url);
+    if (wantJson) return res.json({ ok: true, url });
+    res.redirect('/admin/gallery?ok=' + encodeURIComponent(req.body.name || '') + '#r' + encodeURIComponent(req.body.row || ''));
+  } catch (err) {
+    if (req.file && req.file.path) fs.unlink(req.file.path, () => {});
+    if (wantJson) return res.json({ ok: false, error: err.message });
+    res.redirect('/admin/gallery?err=' + encodeURIComponent(err.message));
+  }
+});
+app.post('/admin/gallery/add', requireLogin, upload.single('photo'), async (req, res) => {
+  try {
+    let url = '';
+    if (req.file) {
+      if (!/^image\//.test(req.file.mimetype || '')) { fs.unlink(req.file.path, () => {}); throw new Error('사진 파일만 올릴 수 있습니다.'); }
+      url = photoUrl(req, req.file.filename);
+    }
+    await sheets.addArkListRow({ 작출자: req.body.maker, 품종명: req.body.name, 설명: req.body.desc, 사진URL: url });
+    res.redirect('/admin/gallery?ok=' + encodeURIComponent(req.body.name || ''));
+  } catch (err) {
+    if (req.file && req.file.path) fs.unlink(req.file.path, () => {});
+    res.redirect('/admin/gallery?err=' + encodeURIComponent(err.message));
+  }
+});
+
 // 정품 등록 제출 승인 보드 (확인대기 목록)
 app.get('/admin/submissions', requireLogin, async (req, res) => {
   try {

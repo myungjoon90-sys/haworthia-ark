@@ -6,6 +6,12 @@
     <p><%= u.bio || (own ? t('소개를 적어 보세요.') : '') %></p>
   </div>
 </div>
+<div class="follow-row">
+  <% if (!own) { %><button class="fbtn <%= iFollow ? 'on' : '' %>" type="button" data-follow="<%= u.nick %>" data-big="1"><%= iFollow ? t('팔로잉') : t('＋ 팔로우') %></button><% } %>
+  <a class="fcnt" href="<%= B %>/u/<%= encodeURIComponent(u.nick) %>/follows?tab=followers"><b data-fcount><%= fol.followers %></b> <%= t('팔로워') %></a>
+  <span class="fdot">·</span>
+  <a class="fcnt" href="<%= B %>/u/<%= encodeURIComponent(u.nick) %>/follows?tab=following"><b><%= fol.following %></b> <%= t('팔로잉') %></a>
+</div>
 <div class="stats">
   <div><b><%= plants.length %></b><small><%= t('식물') %></small></div>
   <div><b><%= stats.posts %></b><small><%= t('사진·글') %></small></div>

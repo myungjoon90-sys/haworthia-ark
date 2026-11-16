@@ -25,6 +25,7 @@
   <a class="btn-w" href="<%= B %>/write">＋ <%= t('글쓰기') %></a>
   <% if (isAdmin) { %><a class="chip" href="<%= B %>/admin" style="padding:6px 11px;font-size:12px">⚙ 운영</a><% } %>
   <% if (me) { %>
+    <a class="bell" href="<%= B %>/noti" aria-label="<%= t('알림') %>">🔔<% if (notiN) { %><i class="nb"><%= notiN > 99 ? '99+' : notiN %></i><% } %></a>
     <a class="me" href="<%= B %>/me"><span class="ava"><%= me.nick.slice(0,1) %></span></a>
   <% } else { %>
     <a class="btn-s" href="<%= B %>/login"><%= t('로그인') %></a>

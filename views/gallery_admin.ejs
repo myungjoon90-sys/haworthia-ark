@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>갤러리 사진 | ARK PROJECT</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&display=swap" rel="stylesheet" />
+  <style>
+    :root { --gold:#D4AF37; --gold-soft:#E8D9A0; --line:rgba(212,175,55,0.22); }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif; background:linear-gradient(160deg,#1A3620,#0E1F12); color:#FBF8F0; min-height:100vh; padding:26px 14px 60px; }
+    .wrap { max-width:1100px !important; margin:0 auto; }
+    h1 { font-size:19px; font-weight:600; margin-bottom:6px; }
+    h2 { font-size:15px; font-weight:700; color:var(--gold-soft); margin:26px 0 10px; }
+    .desc { font-size:12.5px; color:var(--gold-soft); opacity:0.85; margin-bottom:14px; line-height:1.8; }
+    .desc a { color:var(--gold); }
+    .err, .okm { margin-bottom:14px; padding:12px 15px; border-radius:10px; font-size:13.5px; }
+    .err { background:rgba(180,50,50,0.18); border:1px solid rgba(220,100,100,0.5); color:#ffd9d9; }
+    .okm { background:rgba(80,160,90,0.18); border:1px solid rgba(120,200,130,0.5); color:#dfffe2; }
+    .tools { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:12px; }
+    .tools input { flex:1; min-width:200px; background:rgba(0,0,0,0.3); border:1px solid var(--line); border-radius:10px; padding:11px 13px; color:#fff; font-size:14px; }
+    .chip { font-size:12.5px; padding:8px 13px; border-radius:999px; border:1px solid var(--line); color:var(--gold-soft); background:none; cursor:pointer; }
+    .chip.on { background:var(--gold); color:#10220f; font-weight:700; border-color:var(--gold); }
+    .maker { font-size:12px; color:var(--gold); letter-spacing:1px; margin:18px 0 8px; }
+    .g { display:grid; grid-template-columns:repeat(auto-fill,minmax(310px,1fr)); gap:10px; }
+    .v { display:flex; gap:12px; align-items:center; background:rgba(0,0,0,0.24); border:1px solid var(--line); border-radius:12px; padding:10px; }
+    .v.hi { outline:2px solid var(--gold); }
+    .v .thumb { width:70px; height:70px; border-radius:8px; overflow:hidden; background:#06130a; border:1px solid var(--line); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--gold-soft); opacity:.95; position:relative; }
+    .v .thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+    .v .thumb .spin { position:absolute; inset:0; background:rgba(0,0,0,.55); display:none; align-items:center; justify-content:center; font-size:11px; }
+    .v.busy .thumb .spin { display:flex; }
+    .v .nm { font-size:14px; font-weight:700; color:#fff; word-break:keep-all; }
+    .v .st { font-size:11.5px; color:var(--gold-soft); margin-top:4px; opacity:.85; }
+    .v .st.none { color:#ffc9a0; }
+    .v .up { margin-left:auto; flex-shrink:0; }
+    .btn { display:inline-block; font-size:12.5px; padding:9px 12px; border-radius:9px; background:linear-gradient(180deg,#E6C75A,#D4AF37); color:#10220f; font-weight:700; cursor:pointer; border:0; white-space:nowrap; }
+    .btn.line { background:none; border:1px solid rgba(212,175,55,0.45); color:var(--gold-soft); font-weight:600; }
+    .add { background:rgba(0,0,0,0.24); border:1px solid var(--line); border-radius:12px; padding:14px; display:grid; gap:8px; grid-template-columns:1fr 1fr; }
+    .add input, .add textarea { width:100%; background:rgba(0,0,0,0.3); border:1px solid var(--line); border-radius:9px; padding:10px 12px; color:#fff; font-size:13.5px; font-family:inherit; }
+    .add textarea { grid-column:1 / -1; min-height:64px; }
+    .add .row { grid-column:1 / -1; display:flex; gap:10px; align-items:center; flex-wrap:wrap; font-size:12.5px; color:var(--gold-soft); }
+    .empty { text-align:center; padding:30px 0; font-size:13.5px; color:var(--gold-soft); opacity:0.8; }
+    input[type=file] { display:none; }
+    @media (max-width:560px) { .add { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <%- include('partials/nav', { active: 'gallery', grades: grades }) %>
+    <h1>🖼 갤러리 사진</h1>
+    <div class="desc">
+      공개 <a href="/list" target="_blank">방주 갤러리 ↗</a> 에 보이는 사진을 여기서 바꿉니다.
+      품종을 찾아 <b>📷 사진 올리기</b>를 누르고 사진을 고르면 바로 올라가고, 구글 시트 「방주리스트」 D열(사진URL)에 주소가 자동으로 들어갑니다.
+      사진은 올리기 전에 1600px 로 줄여서 갤러리가 빨리 열립니다.
+    </div>
+    <% if (error) { %><div class="err">⚠️ <%= error %></div><% } %>
+    <% if (ok) { %><div class="okm">✓ 「<%= ok %>」 반영했습니다. 갤러리에는 1분 안에 보입니다.</div><% } %>
+
+    <div class="tools">
+      <input id="q" type="search" placeholder="품종 · 작출자 찾기" autocomplete="off" />
+      <button class="chip on" type="button" data-f="all">전체 <%= rows.length %></button>
+      <button class="chip" type="button" data-f="none">사진 없는 것 <%= rows.filter(function (x) { return !x.사진URL; }).length %></button>
+    </div>
+
+    <% if (!rows.length) { %><div class="empty">방주리스트에 품종이 없습니다. 아래에서 새로 넣어 주세요.</div><% } %>
+    <% var makers = []; rows.forEach(function (x) { if (makers.indexOf(x.작출자) < 0) makers.push(x.작출자); }); %>
+    <% makers.forEach(function (m) { %>
+    <div class="grp" data-maker="<%= m %>">
+      <div class="maker"><%= m || '(작출자 없음)' %></div>
+      <div class="g">
+        <% rows.filter(function (x) { return x.작출자 === m; }).forEach(function (x) { %>
+        <form class="v <%= ok && ok === x.품종명 ? 'hi' : '' %>" id="r<%= x.row %>" method="post" action="/admin/gallery/photo" enctype="multipart/form-data"
+              data-name="<%= x.품종명 %>" data-maker="<%= x.작출자 %>" data-has="<%= x.사진URL ? 1 : 0 %>">
+          <input type="hidden" name="row" value="<%= x.row %>" />
+          <input type="hidden" name="name" value="<%= x.품종명 %>" />
+          <input type="hidden" name="plantId" value="gallery-<%= x.row %>" />
+          <div class="thumb"><% if (x.사진URL) { %><img src="<%= x.사진URL %>" alt="" loading="lazy" onerror="this.replaceWith(document.createTextNode('깨진 주소'))" /><% } else { %>사진 없음<% } %><span class="spin">올리는 중…</span></div>
+          <div style="min-width:0">
+            <div class="nm"><%= x.품종명 %></div>
+            <div class="st <%= x.사진URL ? '' : 'none' %>"><%= x.사진URL ? '사진 있음' : '사진 없음' %> · <%= x.row %>번째 줄</div>
+          </div>
+          <label class="btn up">📷 <%= x.사진URL ? '바꾸기' : '사진 올리기' %><input type="file" name="photo" accept="image/*" /></label>
+        </form>
+        <% }); %>
+      </div>
+    </div>
+    <% }); %>
+
+    <h2>＋ 목록에 없는 품종 새로 넣기</h2>
+    <form class="add" id="addform" method="post" action="/admin/gallery/add" enctype="multipart/form-data">
+      <input type="hidden" name="plantId" value="gallery-new" />
+      <input name="maker" value="지양하월시아" placeholder="작출자" />
+      <input name="name" placeholder="품종명 (예: 미카엘의 심장)" required />
+      <textarea name="desc" placeholder="설명 (갤러리 「스토리」로 보임 — 비워도 됩니다)"></textarea>
+      <div class="row"><label class="btn line">📷 사진 고르기 (선택)<input type="file" name="photo" accept="image/*" id="addphoto" /></label><span id="addfn"></span>
+        <button class="btn" type="submit" style="margin-left:auto">방주리스트에 넣기</button></div>
+    </form>
+    <div class="desc" style="margin-top:8px">영문명·작출연도·모본·부본·등급(E~I열)은 지금처럼 시트에서 적어 주세요.</div>
+  </div>
+<script>
+(function () {
+  // 사진 줄이기 (긴 변 1600px, JPEG) — 실패하면(HEIC 등) 원본 그대로
+  function shrink(file) {
+    return new Promise(function (ok) {
+      if (!/^image\//.test(file.type) || file.size < 400 * 1024) return ok(file);
+      var u = URL.createObjectURL(file), im = new Image();
+      im.onload = function () {
+        var s = Math.min(1, 1600 / Math.max(im.width, im.height));
+        var c = document.createElement('canvas'); c.width = Math.round(im.width * s); c.height = Math.round(im.height * s);
+        c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); URL.revokeObjectURL(u);
+        c.toBlob(function (b) { ok(b && b.size < file.size ? new File([b], (file.name || 'photo').replace(/\.[^.]+$/, '') + '.jpg', { type: 'image/jpeg' }) : file); }, 'image/jpeg', 0.88);
+      };
+      im.onerror = function () { URL.revokeObjectURL(u); ok(file); };
+      im.src = u;
+    });
+  }
+  function send(form, file) {
+    var fd = new FormData();
+    Array.prototype.forEach.call(form.querySelectorAll('input[type=hidden], input[name=maker], input[name=name], textarea'), function (i) { fd.append(i.name, i.value); });
+    if (file) fd.append('photo', file);
+    return fetch(form.action, { method: 'POST', body: fd, headers: { Accept: 'application/json' }, credentials: 'same-origin' }).then(function (r) { return r.json(); });
+  }
+  document.querySelectorAll('form.v input[type=file]').forEach(function (inp) {
+    inp.addEventListener('change', function () {
+      var form = inp.closest('form'), f = inp.files && inp.files[0];
+      if (!f) return;
+      form.classList.add('busy');
+      shrink(f).then(function (sf) { return send(form, sf); }).then(function (r) {
+        form.classList.remove('busy');
+        if (!r || !r.ok) { alert((r && r.error) || '올리지 못했습니다.'); return; }
+        var th = form.querySelector('.thumb'); th.innerHTML = '<img src="' + r.url + '" alt=""><span class="spin">올리는 중…</span>';
+        var st = form.querySelector('.st'); st.textContent = '방금 올림 ✓'; st.classList.remove('none');
+        form.setAttribute('data-has', '1'); form.classList.add('hi');
+        form.querySelector('label.up').firstChild.textContent = '📷 바꾸기';
+      }).catch(function () { form.classList.remove('busy'); alert('인터넷 연결을 확인해 주세요.'); });
+    });
+  });
+  var af = document.getElementById('addform'), ap = document.getElementById('addphoto');
+  ap.addEventListener('change', function () { document.getElementById('addfn').textContent = ap.files[0] ? ap.files[0].name : ''; });
+  af.addEventListener('submit', function (e) {
+    var f = ap.files && ap.files[0];
+    if (!f) return; // 사진 없으면 그냥 보냄
+    e.preventDefault();
+    shrink(f).then(function (sf) {
+      var fd = new FormData(af); fd.set('photo', sf);
+      return fetch(af.action, { method: 'POST', body: fd, credentials: 'same-origin' });
+    }).then(function (r) { location.href = r.url || '/admin/gallery'; });
+  });
+  // 찾기 · 사진 없는 것만
+  var q = document.getElementById('q'), mode = 'all';
+  function apply() {
+    var k = q.value.replace(/\s+/g, '').toLowerCase();
+    document.querySelectorAll('.grp').forEach(function (g) {
+      var any = false;
+      g.querySelectorAll('form.v').forEach(function (v) {
+        var hit = (!k || (v.getAttribute('data-name') + v.getAttribute('data-maker')).replace(/\s+/g, '').toLowerCase().indexOf(k) >= 0) && (mode === 'all' || v.getAttribute('data-has') === '0');
+        v.style.display = hit ? '' : 'none'; if (hit) any = true;
+      });
+      g.style.display = any ? '' : 'none';
+    });
+  }
+  q.addEventListener('input', apply);
+  document.querySelectorAll('.chip[data-f]').forEach(function (c) { c.onclick = function () { mode = c.getAttribute('data-f'); document.querySelectorAll('.chip[data-f]').forEach(function (x) { x.classList.toggle('on', x === c); }); apply(); }; });
+  var hi = document.querySelector('form.v.hi'); if (hi) hi.scrollIntoView({ block: 'center' });
+})();
+</script>
+</body>
+</html>

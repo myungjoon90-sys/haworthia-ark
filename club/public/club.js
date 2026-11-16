@@ -468,4 +468,190 @@
     var st = $('.dstrip', d), cur = $('.ditem.cur', d);
     if (st && cur) st.scrollLeft = Math.max(0, cur.offsetLeft - st.offsetLeft - (st.clientWidth - cur.clientWidth) / 2);
   });
+  // =============================================================
+  // v29 — 팔로우 · 폰 알림 · 앱 아이콘 숫자 · 성장일기 공유 카드
+  // =============================================================
+
+  // ---- 팔로우 버튼 (온실 · 글 닉네임 옆 · 팔로워 목록) ----
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-follow]');
+    if (!b) return;
+    e.preventDefault();
+    if (needLogin()) return;
+    var on = !b.classList.contains('on');
+    b.disabled = true;
+    api('/api/follow', { nick: b.getAttribute('data-follow'), on: on }).then(function (r) {
+      b.disabled = false;
+      if (!r.ok) return toast(r.error || L('실패했습니다.'));
+      if (b.classList.contains('fmini')) { b.textContent = L('팔로잉'); b.classList.add('on'); b.disabled = true; return; }
+      b.classList.toggle('on', !!r.following);
+      b.textContent = r.following ? L('팔로잉') : L('＋ 팔로우');
+      var c = $('[data-fcount]'); if (c && b.closest('.follow-row')) c.textContent = r.followers;
+    });
+  });
+
+  // ---- 앱 아이콘 숫자 (홈 화면에 놓은 클럽 아이콘에 안 읽은 알림 수) ----
+  try {
+    if (LOGGED && 'setAppBadge' in navigator) {
+      var nb = $('.top .bell .nb'), n = nb ? parseInt(nb.textContent, 10) || 0 : 0;
+      (n ? navigator.setAppBadge(n) : navigator.clearAppBadge()).catch(function () {});
+    }
+  } catch (x) {}
+
+  // ---- 폰 알림 켜기·끄기 (알림 화면) ----
+  var pc = $('#pushcard');
+  if (pc) (function () {
+    var btn = $('[data-pb]', pc), title = $('[data-pt]', pc), sub = $('[data-ps]', pc);
+    var key = pc.getAttribute('data-key');
+    var standalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+    var ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    var ok = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+    function b64u(s) { var p = '='.repeat((4 - s.length % 4) % 4); var r = atob((s + p).replace(/-/g, '+').replace(/_/g, '/')); var a = new Uint8Array(r.length); for (var i = 0; i < r.length; i++) a[i] = r.charCodeAt(i); return a; }
+    function show(state) {
+      pc.classList.toggle('on', state === 'on');
+      if (state === 'on') { title.textContent = L('폰 알림이 켜졌어요'); btn.textContent = L('끄기'); }
+      else { btn.textContent = L('켜기'); }
+    }
+    if (!ok) {
+      if (ios && !standalone) { $('#pushios').style.display = 'block'; btn.style.display = 'none'; }
+      else { sub.textContent = L('이 폰은 알림을 지원하지 않아요'); btn.style.display = 'none'; }
+      return;
+    }
+    if (ios && !standalone) { $('#pushios').style.display = 'block'; btn.style.display = 'none'; return; }
+    navigator.serviceWorker.ready.then(function (reg) { return reg.pushManager.getSubscription(); }).then(function (s) { show(s && Notification.permission === 'granted' ? 'on' : 'off'); }).catch(function () {});
+    btn.onclick = function () {
+      btn.disabled = true;
+      navigator.serviceWorker.ready.then(function (reg) {
+        return reg.pushManager.getSubscription().then(function (s) {
+          if (s && pc.classList.contains('on')) {
+            return s.unsubscribe().then(function () { return api('/api/push/unsub', { endpoint: s.endpoint }); }).then(function () { show('off'); toast(L('폰 알림을 껐어요')); });
+          }
+          btn.textContent = L('켜는 중…');
+          return Notification.requestPermission().then(function (perm) {
+            if (perm !== 'granted') { show('off'); toast(L('알림을 허용해야 받을 수 있어요. 폰 설정에서 허용해 주세요.')); return; }
+            return reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64u(key) }).then(function (ns) {
+              return api('/api/push/sub', { sub: ns.toJSON() }).then(function (r) { if (!r.ok) { show('off'); return toast(r.error || L('실패했습니다.')); } show('on'); toast(L('폰 알림이 켜졌어요')); });
+            });
+          });
+        });
+      }).catch(function () { show('off'); toast(L('실패했습니다.')); }).then(function () { btn.disabled = false; });
+    };
+  })();
+
+  // ---- 🎬 성장일기 공유 카드 (폰에서 그림으로 만든다 · 폰 글꼴 사용) ----
+  var cbtn = $('#cardbtn'), cdata = $('#carddata');
+  if (cbtn && cdata) (function () {
+    var D; try { D = JSON.parse(cdata.textContent); } catch (x) { return; }
+    var sheet = $('#csheet'), img = $('#cimg'), fmt = 'square', blob = null, busy = false;
+    var SANS = '"Apple SD Gothic Neo","Noto Sans KR","Noto Sans CJK KR","Malgun Gothic","PingFang TC","PingFang SC","Microsoft JhengHei",sans-serif';
+    var SERIF = '"Playfair Display",Georgia,"Times New Roman",serif';
+    var G = '#1F4129', G2 = '#2D6A3E', GOLD = '#B8913F', GOLD2 = '#E2C27A', BG = '#F4F1E8', SUB = '#6b7368', INK = '#1d2a20';
+    var cache = {};
+    function load(src) {
+      if (cache[src]) return cache[src];
+      return (cache[src] = new Promise(function (ok, no) { var i = new Image(); i.onload = function () { ok(i); }; i.onerror = no; i.src = src; }));
+    }
+    function rr(c, x, y, w, h, r) { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
+    function cover(c, im, x, y, w, h, r) {
+      c.save(); rr(c, x, y, w, h, r); c.clip(); c.fillStyle = '#ddd'; c.fillRect(x, y, w, h);
+      var s = Math.max(w / im.width, h / im.height), iw = im.width * s, ih = im.height * s;
+      c.drawImage(im, x + (w - iw) / 2, y + (h - ih) / 2, iw, ih); c.restore();
+    }
+    function pill(c, text, x, y, size, bg, fg, alignRight) {
+      c.font = '800 ' + size + 'px ' + SANS; var w = c.measureText(text).width + size * 1.2, h = size * 1.7;
+      var px = alignRight ? x - w : x; c.fillStyle = bg; rr(c, px, y, w, h, h / 2); c.fill();
+      c.fillStyle = fg; c.textBaseline = 'middle'; c.fillText(text, px + size * 0.6, y + h / 2 + 1); c.textBaseline = 'alphabetic';
+    }
+    function logo(c, x, y, size, color) {
+      c.fillStyle = color; c.font = '700 ' + size + 'px ' + SERIF; c.letterSpacing = (size * 0.14) + 'px';
+      c.fillText('HAWORTHIA CLUB', x, y); c.font = '700 ' + Math.round(size * 0.42) + 'px ' + SERIF; c.letterSpacing = (size * 0.13) + 'px';
+      c.fillStyle = GOLD; c.fillText('BY JIYANG', x, y + size * 0.75); c.letterSpacing = '0px';
+    }
+    function fit(c, text, maxW) { var t = String(text || ''); if (c.measureText(t).width <= maxW) return t; while (t.length > 1 && c.measureText(t + '…').width > maxW) t = t.slice(0, -1); return t + '…'; }
+    function dLabel(e) { return 'D+' + e.day; }
+    function draw() {
+      var size = fmt === 'story' ? [1080, 1920] : fmt === 'tl' ? [1080, 1350] : [1080, 1080];
+      var cv = document.createElement('canvas'); cv.width = size[0]; cv.height = size[1];
+      var c = cv.getContext('2d');
+      var srcs = [D.first.src, D.last.src].concat(D.tl.map(function (e) { return e.src; }));
+      return Promise.all(srcs.map(load).concat([load(D.qr), document.fonts && document.fonts.load ? document.fonts.load('700 40px "Playfair Display"').catch(function () {}) : null])).then(function (ims) {
+        var A = ims[0], Z = ims[1], TL = ims.slice(2, 2 + D.tl.length), QR = ims[2 + D.tl.length];
+        var tagTxt = '#' + D.tag;
+        if (fmt === 'story') {
+          c.fillStyle = BG; c.fillRect(0, 0, 1080, 1920);
+          logo(c, 64, 118, 44, G);
+          c.font = '800 62px ' + SANS; c.fillStyle = G2; c.fillText(fit(c, tagTxt, 950), 64, 268);
+          c.fillStyle = INK; c.fillText(fit(c, D.L.days, 950), 64, 344);
+          c.font = '500 30px ' + SANS; c.fillStyle = SUB; c.fillText('@' + D.nick + ' · ' + D.L.count, 64, 396);
+          cover(c, A, 64, 440, 952, 600, 28); pill(c, dLabel(D.first), 88, 464, 34, 'rgba(31,65,41,.88)', '#fff'); pill(c, D.first.date, 88, 966, 24, 'rgba(255,255,255,.9)', INK);
+          c.font = '800 38px ' + SANS; c.fillStyle = GOLD; c.textAlign = 'center'; c.fillText(D.L.after, 540, 1092); c.textAlign = 'left';
+          cover(c, Z, 64, 1120, 952, 600, 28); pill(c, dLabel(D.last), 88, 1144, 34, GOLD, '#fff'); pill(c, D.last.date, 88, 1646, 24, 'rgba(255,255,255,.9)', INK);
+          c.fillStyle = '#fff'; rr(c, 64, 1748, 952, 120, 26); c.fill();
+          c.drawImage(QR, 84, 1758, 100, 100);
+          c.fillStyle = INK; c.font = '800 32px ' + SANS; c.fillText(fit(c, D.L.foot, 780), 208, 1802);
+          c.fillStyle = SUB; c.font = '500 26px ' + SANS; c.fillText(D.host, 208, 1844);
+        } else if (fmt === 'tl') {
+          c.fillStyle = G; c.fillRect(0, 0, 1080, 1350);
+          logo(c, 60, 104, 34, '#fff');
+          c.font = '800 50px ' + SANS; c.fillStyle = GOLD2; var tw = c.measureText(tagTxt).width;
+          c.fillText(fit(c, tagTxt, 640), 60, 210); c.fillStyle = '#fff'; c.fillText(' ' + D.L.diary, 60 + Math.min(tw, 640), 210);
+          var n = TL.length, top = 250, bottom = 1350 - 190, gap = 22, h = Math.min(300, Math.floor((bottom - top - gap * (n - 1)) / n)), w = Math.round(h * 4 / 3);
+          TL.forEach(function (im, i) {
+            var y = top + i * (h + gap), e = D.tl[i];
+            cover(c, im, 60, y, w, h, 22);
+            c.fillStyle = GOLD2; c.font = '800 44px ' + SANS; c.fillText(dLabel(e), 60 + w + 30, y + h / 2 - 14);
+            c.fillStyle = 'rgba(255,255,255,.88)'; c.font = '500 28px ' + SANS; c.fillText(e.date, 60 + w + 30, y + h / 2 + 30);
+            if (e.note) c.fillText(fit(c, e.note, 1080 - (60 + w + 30) - 50), 60 + w + 30, y + h / 2 + 68);
+          });
+          c.fillStyle = 'rgba(255,255,255,.9)'; c.font = '500 26px ' + SANS; c.fillText(fit(c, '@' + D.nick + ' · ' + D.host, 800), 60, 1300);
+          c.fillStyle = '#fff'; rr(c, 920, 1180, 110, 110, 10); c.fill(); c.drawImage(QR, 925, 1185, 100, 100);
+        } else {
+          c.fillStyle = BG; c.fillRect(0, 0, 1080, 1080);
+          logo(c, 54, 100, 36, G);
+          c.font = '500 28px ' + SANS; c.fillStyle = SUB; c.textAlign = 'right'; c.fillText(fit(c, '@' + D.nick, 360), 1026, 110); c.textAlign = 'left';
+          c.font = '800 46px ' + SANS; c.fillStyle = G2; var t1 = fit(c, tagTxt, 640); c.fillText(t1, 54, 210);
+          var w1 = c.measureText(t1).width; c.fillStyle = INK; c.fillText(fit(c, ' · ' + D.L.change, 1026 - 54 - w1), 54 + w1, 210);
+          cover(c, A, 54, 252, 452, 560, 28); pill(c, dLabel(D.first), 76, 274, 34, 'rgba(31,65,41,.88)', '#fff'); pill(c, D.first.date, 76, 762, 24, 'rgba(255,255,255,.9)', INK);
+          c.fillStyle = GOLD; c.font = '900 40px ' + SANS; c.textAlign = 'center'; c.fillText('→', 540, 546); c.textAlign = 'left';
+          cover(c, Z, 574, 252, 452, 560, 28); pill(c, dLabel(D.last), 596, 274, 34, GOLD, '#fff'); pill(c, D.last.date, 596, 762, 24, 'rgba(255,255,255,.9)', INK);
+          c.fillStyle = SUB; c.font = '500 28px ' + SANS; c.fillText(fit(c, D.host + ' · ' + D.L.club, 760), 54, 950);
+          c.drawImage(QR, 916, 860, 110, 110);
+        }
+        return new Promise(function (ok) { cv.toBlob(function (b) { ok(b); }, 'image/jpeg', 0.9); });
+      });
+    }
+    function render() {
+      if (busy) return; busy = true; blob = null;
+      sheet.classList.add('wait');
+      draw().then(function (b) {
+        blob = b; if (img._u) URL.revokeObjectURL(img._u);
+        img._u = URL.createObjectURL(b); img.src = img._u;
+      }).catch(function () { toast(L('사진 만들기에 실패했어요')); }).then(function () { busy = false; sheet.classList.remove('wait'); });
+    }
+    function fileName() { return 'haworthia-' + String(D.tag).replace(/[^\w가-힣]/g, '') + '-D' + D.span + '-' + fmt + '.jpg'; }
+    cbtn.onclick = function () { sheet.hidden = false; document.body.classList.add('noscroll'); if (!blob) render(); };
+    $$('[data-close]', sheet).forEach(function (x) { x.onclick = function () { sheet.hidden = true; document.body.classList.remove('noscroll'); }; });
+    $$('[data-fmt]', sheet).forEach(function (x) {
+      x.onclick = function () { if (busy || fmt === x.getAttribute('data-fmt')) return; fmt = x.getAttribute('data-fmt'); $$('[data-fmt]', sheet).forEach(function (y) { y.classList.toggle('on', y === x); }); render(); };
+    });
+    $('#csave').onclick = function () {
+      if (!blob) return;
+      var a = document.createElement('a'); a.href = img._u; a.download = fileName(); document.body.appendChild(a); a.click(); a.remove();
+      toast(L('사진을 저장했어요'));
+    };
+    $('#cshare').onclick = function () {
+      if (!blob) return;
+      var file = null;
+      try { file = new File([blob], fileName(), { type: 'image/jpeg' }); } catch (x) {}
+      var text = '#' + D.tag + ' ' + D.L.days + '\n' + D.url;
+      if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+        navigator.share({ files: [file], text: text }).catch(function () {});
+      } else if (navigator.share) {
+        navigator.share({ title: '#' + D.tag, text: text, url: D.url }).catch(function () {});
+      } else if (navigator.clipboard) {
+        navigator.clipboard.writeText(D.url).then(function () { toast(L('주소를 복사했어요')); });
+      }
+    };
+    window.__clubCard = { draw: function (f) { fmt = f; return draw(); } }; // 시험용
+  })();
 })();
