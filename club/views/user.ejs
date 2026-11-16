@@ -20,7 +20,7 @@
   <div class="row"><span>게시물 <%= u.act.posts %> / <%= nx.posts %></span><span><%= pp %>%</span></div><div class="bar"><i style="width:<%= pp %>%"></i></div>
   <div class="row"><span>댓글 <%= u.act.comments %> / <%= nx.comments %> <small>(남의 글에 단 것)</small></span><span><%= cp %>%</span></div><div class="bar"><i style="width:<%= cp %>%"></i></div>
   <% } %>
-  <% if (t.ark) { %><div class="ok" style="margin-top:10px">💎 방주 가입 요건 「하월시아 클럽 활동」을 채웠습니다. <a href="<%= ARK_URL %>/join" style="font-weight:800;text-decoration:underline">방주 가입 신청 →</a></div><% } %>
+  <% if (t.ark && own) { %><p class="hint" style="margin-top:10px">💎 다이아 기록은 <a href="<%= B %>/ark" style="text-decoration:underline">방주</a> 가입 요건으로도 인정됩니다.</p><% } %>
 </div>
 
 <% if (own) { %>
@@ -46,7 +46,7 @@
 
 <div class="sec"><h2>사진</h2><small><%= stats.posts %>개</small></div>
 <% if (!list.length) { %><div class="empty-st" style="padding:26px"><i>📷</i><%= own ? '첫 사진을 올려 보세요.' : '아직 올린 사진이 없어요.' %></div><% } else { %>
-<div class="grid" id="gridlist"><%- include('_gridcells', { list: list }) %></div>
+<div class="masonry" id="gridlist"><% list.forEach(function (c) { %><%- include('_pin', { c: c }) %><% }); %></div>
 <% if (more) { %><button class="btn line moreb" data-more="<%= next %>" data-target="gridlist">더 보기</button><% } %>
 <% } %>
 <%- include('_foot', { tab: own ? 'me' : '' }) %>

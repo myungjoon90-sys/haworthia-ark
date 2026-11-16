@@ -127,6 +127,26 @@
     });
   });
 
+  // ---- 사진 벽돌판: 짧은 줄에 차례로 넣기 (사진 비율을 미리 알아서 화면이 덜 흔들림) ----
+  function masonry(el) {
+    if (el._m) return;
+    var n = window.innerWidth >= 700 ? 3 : 2;
+    var pins = $$('.pin', el);
+    el.innerHTML = ''; el.classList.add('mjs');
+    var cols = [];
+    for (var i = 0; i < n; i++) { var c = document.createElement('div'); c.className = 'mcol'; el.appendChild(c); cols.push({ el: c, h: 0 }); }
+    el._m = { cols: cols };
+    masonryAdd(el, pins);
+  }
+  function masonryAdd(el, pins) {
+    pins.forEach(function (p) {
+      var ar = parseFloat(p.getAttribute('data-ar')) || 1;
+      var c = el._m.cols.reduce(function (a, b) { return b.h < a.h ? b : a; });
+      c.el.appendChild(p); c.h += ar + 0.3;
+    });
+  }
+  $$('.masonry').forEach(masonry);
+
   // ---- 더 보기 ----
   document.addEventListener('click', function (e) {
     var b = e.target.closest('[data-more]');
@@ -139,7 +159,8 @@
       var nb = tmp.querySelector('[data-more]');
       $$('[data-more]', tmp).forEach(function (x) { x.parentNode.removeChild(x); });
       var holder = tmp.querySelector('.grid') || tmp;
-      while (holder.firstChild) target.appendChild(holder.firstChild);
+      if (target._m) masonryAdd(target, $$('.pin', holder));
+      else while (holder.firstChild) target.appendChild(holder.firstChild);
       bindStrips(target);
       if (nb) { b.setAttribute('data-more', nb.getAttribute('data-more')); b.disabled = false; b.textContent = '더 보기'; }
       else b.parentNode.removeChild(b);
@@ -163,8 +184,7 @@
       if (!items.length) return hide();
       box.innerHTML = items.map(function (it, i) {
         return '<div data-i="' + i + '" class="' + (i === sel ? 'on' : '') + '"><b>#' + esc(it.word) + '</b>' +
-          (it.ark ? ' <span class="a">방주</span>' : '') +
-          '<small>' + (it.fresh ? '새 태그로 쓰기' : it.n ? it.n + '개 글' : (it.ark ? '방주 등재 품종' : '방주 품종명')) + '</small></div>';
+          '<small>' + (it.fresh ? '새 태그로 쓰기' : it.n ? it.n + '개 글' : '품종명') + '</small></div>';
       }).join('');
       box.style.display = 'block';
     }
@@ -180,11 +200,11 @@
     function lookup() {
       tok = current();
       if (!tok) return hide();
-      var my = ++seq;
+      var my = ++seq, qv = tok.q;
       clearTimeout(timer);
       timer = setTimeout(function () {
-        fetch(B + '/api/tags?q=' + encodeURIComponent(tok.q), { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (r) {
-          if (my !== seq) return;
+        fetch(B + '/api/tags?q=' + encodeURIComponent(qv), { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (r) {
+          if (my !== seq || !tok) return;
           items = (r.list || []).slice(0, 8);
           // 지금 치고 있는 글자 그대로도 고를 수 있게 (새 품종명)
           if (tok && tok.q && !items.some(function (x) { return x.key === tok.q.toLowerCase(); })) items.push({ word: tok.q, key: tok.q.toLowerCase(), n: 0, ark: false, fresh: true });
@@ -279,6 +299,36 @@
       });
     });
 
+    // ---- 종 고르기: #품종이나 고른 식물로 자동, 손으로 누르면 그 뒤로는 손으로 고른 것 ----
+    var spBox = $('#sppick');
+    var spChoice = '', spManual = false, spMap = {};
+    function tkey(x) { return String(x || '').normalize('NFC').toLowerCase().replace(/[^\p{L}\p{N}]/gu, ''); }
+    function spShow() { $$('#sppick button').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-sp') === String(spChoice)); }); }
+    function spAuto() {
+      if (!spBox || spManual) return;
+      var keys = [];
+      var pb = $('.plpick button.on[data-tag]', wf); if (pb) keys.push(pb.getAttribute('data-tag'));
+      if (plantId === 'new' && $('#newplantname')) keys.push(tkey($('#newplantname').value));
+      var txt = $('#body').value, re = /#([\p{L}\p{N}_]{1,40})((?:[ \t]+[\p{L}\p{N}_]{1,20}){0,3})/gu, m;
+      while ((m = re.exec(txt))) {
+        var ws = m[2].trim() ? m[2].trim().split(/[ \t]+/) : [];
+        for (var n = ws.length; n >= 0; n--) { var k = tkey(m[1] + ws.slice(0, n).join('')); if (spMap[k]) { keys.push(k); break; } if (n === 0) keys.push(tkey(m[1])); }
+      }
+      var found = '';
+      for (var i = 0; i < keys.length; i++) if (keys[i] && spMap[keys[i]]) { found = spMap[keys[i]]; break; }
+      spChoice = found ? String(found) : (keys.length ? 'etc' : '');
+      spShow();
+    }
+    if (spBox) {
+      try { spMap = JSON.parse(spBox.getAttribute('data-map') || '{}'); } catch (x) {}
+      if (spBox.getAttribute('data-cur')) { spChoice = spBox.getAttribute('data-cur'); spManual = spBox.getAttribute('data-src') === 'user'; spShow(); }
+      $$('#sppick button').forEach(function (b) { b.addEventListener('click', function () { spChoice = b.getAttribute('data-sp'); spManual = true; spShow(); }); });
+      $('#body').addEventListener('input', spAuto);
+      $$('.plpick button', wf).forEach(function (b) { b.addEventListener('click', function () { setTimeout(spAuto, 0); }); });
+      if ($('#newplantname')) $('#newplantname').addEventListener('input', spAuto);
+      if (!spBox.getAttribute('data-cur')) spAuto();
+    }
+
     wf.addEventListener('submit', function (e) {
       e.preventDefault();
       var body = $('#body').value.trim();
@@ -286,6 +336,7 @@
       var err = $('#werr'); err.style.display = 'none';
       var fd = new FormData();
       fd.append('body', body);
+      fd.append('species', spChoice || ''); fd.append('species_pick', spManual ? 'user' : 'auto');
       if (plantId === 'new') {
         var nm = $('#newplantname').value.trim();
         if (!nm) { err.textContent = '새 식물 이름을 적어 주세요.'; err.style.display = 'block'; return; }
@@ -293,7 +344,7 @@
       } else if (plantId) fd.append('plant_id', plantId);
       var btn = $('#wsubmit'); btn.disabled = true;
       if (editId) {
-        var o = { body: body }; if (plantId === 'new') o.new_plant = $('#newplantname').value.trim(); else if (plantId) o.plant_id = plantId;
+        var o = { body: body, species: spChoice || '', species_pick: spManual ? 'user' : 'auto' }; if (plantId === 'new') o.new_plant = $('#newplantname').value.trim(); else if (plantId) o.plant_id = plantId;
         btn.textContent = '저장하는 중…';
         api('/api/posts/' + editId + '/edit', o).then(function (r) {
           if (!r.ok) { btn.disabled = false; btn.textContent = '저장하기'; err.textContent = r.error; err.style.display = 'block'; return; }
@@ -372,7 +423,7 @@
   var cform = $('#certform');
   if (cform) cform.addEventListener('submit', function (e) {
     e.preventDefault();
-    var b = $('button', cform); b.disabled = true; b.textContent = '방주 장부에서 찾는 중…';
+    var b = $('button', cform); b.disabled = true; b.textContent = '보증서 확인 중…';
     api('/api/plants/' + cform.getAttribute('data-plant') + '/cert', { input: $('#certinput').value }).then(function (r) {
       b.disabled = false; b.textContent = '보증서 연결하기';
       if (!r.ok) return toast(r.error);

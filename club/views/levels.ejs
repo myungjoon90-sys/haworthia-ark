@@ -6,15 +6,13 @@
   <span class="i"><%= t.icon %></span>
   <div><b><%= t.name %></b><% if (mine) { %> <span class="chip on" style="padding:2px 8px;font-size:11px">지금 내 등급</span><% } %>
     <small><%= t.posts ? '게시물 ' + t.posts + '개 이상 + 댓글 ' + t.comments + '개 이상' : '가입하면 바로' %></small></div>
-  <% if (t.ark) { %><span class="arkok">방주 가입<br>요건 1개 ✓</span><% } %>
 </div>
 <% }); %>
 <div class="box">
   <h3>이렇게 셉니다</h3>
   <p>· 게시물: 내가 올린 글 (지운 글, 운영자가 숨긴 글은 빠짐)<br>
   · 댓글: <b>다른 회원의 글</b>에 단 댓글 (내 글에 단 댓글, 지우거나 숨겨진 댓글은 빠짐)<br>
-  · 💎 다이아가 되면 방주 가입 신청 때 「하월시아 클럽 활동」 요건을 고를 수 있고, 가입하신 휴대폰 번호로 자동 확인됩니다.</p>
+</p>
   <% if (me && me.act) { %><p style="margin-top:10px;color:var(--ink)">지금 나: 게시물 <b><%= me.act.posts %></b> · 댓글 <b><%= me.act.comments %></b></p><% } %>
-  <a class="btn line" style="margin-top:12px" href="<%= ARK_URL %>/about">방주 프로젝트 알아보기</a>
 </div>
 <%- include('_foot', { tab: '' }) %>

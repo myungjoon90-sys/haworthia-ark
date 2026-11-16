@@ -36,6 +36,22 @@
   <% }); %></table>
   <% } %>
 
+  <h2>🌿 종 (맨 위 칩)</h2>
+  <p class="hint" style="margin-bottom:8px">클럽 첫 화면 맨 위 칩 순서입니다. ETC 는 맨 끝에 항상 있고, 종이 정해지지 않은 글이 들어갑니다.</p>
+  <table><tr><th>종</th><th>글</th><th></th></tr>
+  <% spList.forEach(function (x, i) { %>
+    <tr><td><b><%= x.name %></b></td><td><%= x.n %></td>
+    <td style="white-space:nowrap">
+      <button class="btn line s" data-act="/api/admin/species" data-body='<%= JSON.stringify({ action: "move", id: x.id, dir: -1 }) %>' data-go="reload" <%= i === 0 ? 'disabled' : '' %>>▲</button>
+      <button class="btn line s" data-act="/api/admin/species" data-body='<%= JSON.stringify({ action: "move", id: x.id, dir: 1 }) %>' data-go="reload" <%= i === spList.length - 1 ? 'disabled' : '' %>>▼</button>
+      <button class="btn line s" data-act="/api/admin/species" data-body='<%= JSON.stringify({ action: "rename", id: x.id }) %>' data-prompt="새 이름" data-prompt-value="<%= x.name %>" data-prompt-key="name" data-go="reload">이름</button>
+      <button class="btn red s" data-act="/api/admin/species" data-body='<%= JSON.stringify({ action: "delete", id: x.id }) %>' data-confirm="「<%= x.name %>」을 지울까요? 이 종의 글은 ETC 로 갑니다." data-go="reload">지우기</button>
+    </td></tr>
+  <% }); %>
+    <tr><td><b>ETC</b> <small style="color:var(--sub)">(고정)</small></td><td><%= etcN %></td><td>
+      <button class="btn s" data-act="/api/admin/species" data-body='{"action":"add"}' data-prompt="새 종 이름 (예: 픽타)" data-prompt-key="name" data-go="reload">＋ 종 추가</button></td></tr>
+  </table>
+
   <h2>#️⃣ 태그 정리</h2>
   <% if (typos.length) { %>
   <p class="hint" style="margin-bottom:8px">한 글자만 다른 태그입니다. 오타면 [합치기]를 누르세요. 합친 뒤 옛 태그로 쓴 글도 새 태그로 모이고, 앞으로 옛 태그로 써도 자동으로 옮겨집니다.</p>
@@ -48,9 +64,14 @@
     <h3>직접 합치기</h3>
     <form id="mergeform" class="row2"><input class="in" name="from" placeholder="#잘못된태그"><span style="align-self:center">→</span><input class="in" name="to" placeholder="#맞는태그"><button class="btn s" type="submit">합치기</button></form>
   </div>
-  <table><tr><th>태그</th><th>글</th><th>대표</th><th></th></tr>
+  <p class="hint" style="margin:10px 0 6px">「종」 칸에서 품종마다 종을 한 번 골라 두면, 그 품종으로 올린 글이 맨 위 칩에서 그 종으로 모입니다. (글쓴이가 직접 고른 글은 그대로)</p>
+  <table><tr><th>태그</th><th>글</th><th>종</th><th>대표</th><th></th></tr>
   <% tagRows.slice(0, 200).forEach(function (t) { %>
     <tr><td><a href="<%= B %>/t/<%= encodeURIComponent(t.key) %>" style="font-weight:700">#<%= T.tagWord(t.label) %></a><br><small style="color:var(--sub)"><%= t.label %></small></td><td><%= t.n %></td>
+    <td><select class="in" style="width:auto;padding:5px 8px;font-size:12.5px" onchange="clubApi('/api/admin/tag-species',{tag:'<%= t.key %>',species:this.value}).then(function(r){clubToast(r.ok?('종 → '+r.name+' · 글 '+r.updated+'개 바뀜'):r.error);})">
+      <option value="" <%= !t.species ? 'selected' : '' %>>ETC</option>
+      <% spList.forEach(function (x) { %><option value="<%= x.id %>" <%= t.species === x.id ? 'selected' : '' %>><%= x.name %></option><% }); %>
+    </select></td>
     <td><%= t.pinned_post ? '📌 글 #' + t.pinned_post : '자동' %></td>
     <td><button class="btn line s" data-act="/api/admin/label" data-body='<%= JSON.stringify({ tag: t.key }) %>' data-prompt="보이는 이름 (띄어쓰기·대소문자만 바꿀 수 있어요)" data-prompt-value="<%= t.label %>" data-prompt-key="label" data-go="reload">이름</button>
       <% if (t.pinned_post) { %><button class="btn line s" data-act="/api/admin/pin" data-body='<%= JSON.stringify({ tag: t.key, post_id: null }) %>' data-go="reload">📌 풀기</button><% } %></td></tr>

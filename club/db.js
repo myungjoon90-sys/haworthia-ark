@@ -124,6 +124,25 @@ function openDb(dataDir) {
     CREATE INDEX IF NOT EXISTS ix_plants_cert ON plants(cert_key);
     CREATE INDEX IF NOT EXISTS ix_sms_phone ON sms_codes(phone, created_at);
   `);
+  // ---- 종(만상·옥선…) — 2026-11-16 추가. 예전 데이터베이스에도 칸을 붙인다 ----
+  db.exec(`CREATE TABLE IF NOT EXISTS species(
+      id INTEGER PRIMARY KEY,
+      name TEXT NOT NULL,
+      ord INTEGER DEFAULT 0,
+      created_at INTEGER NOT NULL
+    );`);
+  const addCol = (t, c, def) => {
+    const cols = db.prepare(`PRAGMA table_info(${t})`).all().map((x) => x.name);
+    if (!cols.includes(c)) db.exec(`ALTER TABLE ${t} ADD COLUMN ${c} ${def}`);
+  };
+  addCol('tags', 'species', 'INTEGER');          // 이 품종이 속한 종 (운영자가 정함)
+  addCol('posts', 'species', 'INTEGER');         // 이 글의 종 (없으면 ETC)
+  addCol('posts', 'species_src', "TEXT DEFAULT ''"); // 'user' = 글쓴이·운영자가 직접 고름, 그 밖 = 자동
+  db.exec('CREATE INDEX IF NOT EXISTS ix_posts_species ON posts(species)');
+  if (!db.prepare('SELECT COUNT(*) n FROM species').get().n) {
+    const ins = db.prepare('INSERT INTO species(name,ord,created_at) VALUES(?,?,?)');
+    ['만상', '옥선', '바디아', '스프링복스'].forEach((n, i) => ins.run(n, i + 1, Date.now()));
+  }
   return db;
 }
 

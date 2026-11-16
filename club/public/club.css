@@ -92,6 +92,39 @@ img{display:block;max-width:100%}
 .sec small{font-size:12px;color:var(--sub)}
 .sec a.r{margin-left:auto;font-size:12.5px;font-weight:700;color:var(--green2)}
 
+/* 사진 벽돌판 (핀터레스트형) */
+.masonry{column-count:2;column-gap:10px;margin-top:6px}
+.masonry.mjs{column-count:auto;display:flex;gap:10px;align-items:flex-start}
+.mcol{flex:1;min-width:0;display:flex;flex-direction:column;gap:12px}
+.pin{display:block;break-inside:avoid;margin-bottom:12px;color:var(--ink)}
+.mjs .pin{margin:0}
+.pim{position:relative;display:block;border-radius:14px;overflow:hidden;background:#E9E5D8}
+.pim img{width:100%;height:100%;object-fit:cover}
+.pim .multi{position:absolute;top:7px;right:7px;font-size:10.5px;font-weight:700;color:#fff;background:rgba(0,0,0,.42);padding:2px 7px;border-radius:999px}
+.pim .hidb{position:absolute;top:7px;left:7px;font-size:10.5px;font-weight:700;color:#fff;background:var(--red);padding:2px 7px;border-radius:6px}
+.ptxt{display:block;background:#fff;border-radius:14px;padding:14px 13px;font-size:13.5px;line-height:1.6;min-height:110px;border:1px solid var(--line);word-break:break-word}
+.pmeta{display:flex;align-items:center;gap:6px;padding:7px 3px 0;font-size:12.5px}
+.ptag{font-weight:700;color:var(--green2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1}
+.pintags{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pintags a{font-weight:700;color:var(--green2);margin-right:6px;padding:3px 0}
+.pintags a:active{opacity:.6}
+.adm td:nth-child(4){white-space:nowrap;font-size:12px}
+.pin .phrt{text-decoration:none}
+.sortbar .x{color:var(--sub);padding:2px 6px;font-weight:700}
+.phrt{color:var(--sub);font-weight:700;white-space:nowrap}
+.phrt.on{color:var(--red)}
+.puser{display:flex;align-items:center;gap:5px;padding:4px 3px 0;font-size:11.5px;color:var(--sub)}
+.puser .ava.s{width:18px;height:18px;font-size:9px}
+.puser .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.puser .cm{margin-left:auto;white-space:nowrap}
+.pinchips{padding-top:12px}
+.sortbar{display:flex;align-items:center;gap:4px;margin:6px 0 4px;font-size:12.5px}
+.sortbar .sp{flex:1}
+.sortbar a{font-weight:700;color:var(--sub);padding:4px 9px;border-radius:8px}
+.sortbar a.on{color:var(--ink);background:#EAE5D6}
+.sortbar .tlink{color:var(--green2);padding-left:0}
+@media (min-width:700px){.masonry{column-count:3}}
+
 /* 3칸 사진판 */
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;border-radius:12px;overflow:hidden}
 .grid a{position:relative;aspect-ratio:1/1;background:#E9E5D8;overflow:hidden}
@@ -184,6 +217,25 @@ img{display:block;max-width:100%}
 .tl .ims{display:flex;gap:6px;margin-top:6px;overflow-x:auto}
 .tl .ims img{width:110px;height:110px;object-fit:cover;border-radius:10px;flex-shrink:0}
 .tl p{font-size:13.5px;margin-top:6px}
+
+/* 밝은 교배 정보·보증서 카드 (방주 색을 쓰지 않음) */
+.pedl{background:#fff;border-radius:var(--r);padding:16px;margin:12px 0;border:1px solid var(--line)}
+.pedl .h{display:flex;align-items:center;font-size:13px;font-weight:800;color:var(--green)}
+.pedl .h b{margin-left:auto;font-size:11px;color:#8A6510;background:#FFF8E6;border:1px solid #E9D195;padding:2px 9px;border-radius:999px}
+.pedl .no{font-size:12.5px;margin-top:8px;color:var(--sub);font-family:Consolas,monospace;word-break:break-all}
+.pedl .nm{font-size:19px;font-weight:800;margin-top:2px}
+.pedl .tree .p{border:1px solid var(--line);background:#FBFAF6;color:var(--ink)}
+.pedl .tree .p small{color:var(--sub)}
+.pedl .tree .x{color:var(--sub)}
+.pedl .tree .down{border-left-color:var(--line)}
+.pedl .tree .me{border:1.5px solid var(--leaf);background:var(--soft);color:var(--green)}
+.pedl dl{display:grid;grid-template-columns:auto 1fr;gap:5px 14px;font-size:13px;margin-top:12px}
+.pedl dt{color:var(--sub)}
+.pedl .lk{display:inline-block;margin-top:12px;font-size:12.5px;font-weight:700;color:var(--green2);border-bottom:1px solid}
+/* 맨 아래 작은 글씨 (방주는 오른쪽 끝에 작게) */
+.sitefoot{display:flex;align-items:center;gap:12px;margin:34px 0 8px;padding-top:14px;border-top:1px solid var(--line);font-size:11px;color:#A39E8E}
+.sitefoot a{color:#A39E8E}
+.sitefoot .arklink{margin-left:auto}
 
 /* 상자·버튼·입력 */
 .box{background:#fff;border-radius:var(--r);padding:16px;margin:12px 0}

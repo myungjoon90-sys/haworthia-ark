@@ -17,7 +17,7 @@
     <% if (!full) { %></a><% } %>
     <% if (c.photos.length > 1) { %><div class="dots"><% c.photos.forEach(function (p, i) { %><i class="<%= i===0?'on':'' %>"></i><% }); %></div><span class="cnt"><%= c.photos.length %>장</span><% } %>
     <% if (c.plant) { %>
-      <a class="plantchip <%= c.plant.cert_status==='ok' ? 'c' : '' %>" href="<%= B %>/plant/<%= c.plant.id %>"><%= c.plant.cert_status==='ok' ? '🛡 정품' : '🌱' %> <%= c.plant.name %></a>
+      <a class="plantchip" href="<%= B %>/plant/<%= c.plant.id %>"><%= c.plant.cert_status==='ok' ? '🛡 정품' : '🌱' %> <%= c.plant.name %></a>
     <% } %>
   </div>
   <% } %>

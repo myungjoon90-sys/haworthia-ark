@@ -1,6 +1,16 @@
 <%- include('_head') %>
 <div style="padding-top:6px"></div>
 <%- include('_card', { c: c, full: true }) %>
+<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:-2px 2px 8px">
+  <a class="chip" href="<%= B %>/?s=<%= c.species || 'etc' %>" style="padding:5px 12px;font-size:12.5px">종 · <%= c.speciesName %></a>
+  <% if (isAdmin) { %>
+  <select class="in" style="width:auto;padding:6px 10px;font-size:13px" onchange="clubApi('/api/admin/post-species',{post_id:<%= c.id %>,species:this.value}).then(function(r){if(!r.ok)return clubToast(r.error);location.reload();})">
+    <option value="">종 고치기 (운영자)…</option>
+    <% spList.forEach(function (x) { %><option value="<%= x.id %>"><%= x.name %></option><% }); %>
+    <option value="etc">ETC</option><option value="auto">자동으로 되돌리기</option>
+  </select>
+  <% } %>
+</div>
 <% if (pins.length) { %>
 <div class="box" style="border:1.5px solid var(--gold2)">
   <h3>📌 태그 대표 사진 지정 <small style="font-weight:400;color:var(--sub)">(운영자만 보임)</small></h3>
@@ -39,4 +49,8 @@
     <button type="submit">등록</button>
   </form>
 </section>
+<% if (moreList.length) { %>
+<div class="sec"><h2>#<%= T.tagWord(moreTag.label) %> 사진 더 보기</h2><a class="r" href="<%= B %>/t/<%= encodeURIComponent(moreTag.key) %>">전체 →</a></div>
+<div class="masonry" id="morelist"><% moreList.forEach(function (x) { %><%- include('_pin', { c: x }) %><% }); %></div>
+<% } %>
 <%- include('_foot', { tab: '' }) %>

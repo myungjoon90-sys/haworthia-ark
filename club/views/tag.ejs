@@ -1,13 +1,13 @@
 <%- include('_head') %>
 <div class="taghd">
   <h1>#<%= word %></h1>
-  <% if (official) { %><div class="off">🛡 방주 등재 품종 · <%= official.maker %></div><% } %>
-  <div class="nums"><span><b><%= n %></b> 사진</span><span><b><%= growers %></b> 명이 키워요</span><% if (certN) { %><span><b><%= certN %></b> 정품 🛡</span><% } %></div>
+  <% if (tagSp) { %><a class="chip" href="<%= B %>/?s=<%= tagSp %>" style="display:inline-block;margin-top:8px;padding:4px 11px;font-size:12px">종 · <%= tagSpName %></a><% } %>
+  <div class="nums"><span><b><%= n %></b> 사진</span><span><b><%= growers %></b> 명이 키워요</span></div>
 </div>
 
 <% if (official && (official.모본 || official.부본)) { %>
-<div class="ped" style="padding:14px 16px">
-  <div class="h">PEDIGREE<b>방주 기록</b></div>
+<div class="pedl">
+  <div class="h">교배 정보</div>
   <div class="tree"><div class="p"><small>MOTHER 모본</small><%= official.모본 || '—' %></div><div class="x">×</div><div class="p"><small>FATHER 부본</small><%= official.부본 || '—' %></div><div class="down"></div><div class="me"><%= label %></div></div>
 </div>
 <% } %>
@@ -27,7 +27,7 @@
 <% if (!list.length) { %>
   <div class="empty-st"><i>🌱</i>아직 #<%= word %> 사진이 없어요.<br>첫 사진의 주인공이 되어 주세요.</div>
 <% } else { %>
-  <div class="grid" id="gridlist"><%- include('_gridcells', { list: list }) %></div>
+  <div class="masonry" id="gridlist"><% list.forEach(function (c) { %><%- include('_pin', { c: c }) %><% }); %></div>
   <% if (more) { %><button class="btn line moreb" data-more="<%= next %>" data-target="gridlist">더 보기</button><% } %>
 <% } %>
 <a class="btn gold" href="<%= B %>/write?tag=<%= encodeURIComponent(word) %>" style="margin:18px 0">＋ #<%= word %> 사진 올리기</a>

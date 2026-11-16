@@ -7,8 +7,8 @@
 </div>
 
 <% if (pl.cert_status === 'ok' && info) { %>
-<div class="ped">
-  <div class="h">ARK PROJECT · CERTIFIED<b>🛡 정품</b></div>
+<div class="pedl">
+  <div class="h">보증서 정보<b>🛡 정품</b></div>
   <div class="no"><%= info.고유번호 %></div>
   <div class="nm"><%= String(info.품종명 || pl.name).split('\n')[0] %></div>
   <% if (info.모본 || info.부본) { %>
@@ -30,7 +30,7 @@
 
 <% if (own && pl.cert_status !== 'ok' && pl.cert_status !== 'pending') { %>
 <form class="box" id="certform" data-plant="<%= pl.id %>">
-  <h3>🛡 방주 보증서 연결</h3>
+  <h3>🛡 보증서 연결</h3>
   <% if (pl.cert_status === 'rejected') { %><div class="err" style="display:block">지난 신청이 확인되지 않았습니다: <%= pl.cert_note %></div><% } %>
   <p>보증서를 받으셨으면 <b>문자로 받은 보증서 링크</b>를 그대로 붙여 넣으세요. 바로 🛡 정품이 붙습니다.<br>넘버만 넣으면 정품 등록 때 쓴 번호와 같을 때 바로, 아니면 운영자 확인 뒤 붙습니다.</p>
   <input class="in" id="certinput" style="margin-top:10px" placeholder="https://ark.haworthia.co.kr/certificate/…?k=…  또는  JY-…">

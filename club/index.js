@@ -17,7 +17,7 @@ const T = require('./text');
 
 const VIEWS = path.join(__dirname, 'views');
 const PUBLIC = path.join(__dirname, 'public');
-const VERSION = 'club-1';
+const VERSION = 'club-3';
 
 // ---- 활동 등급 (사장님 결정 2026-11-15 · 보석형) ----
 //  글 = 숨김·삭제 안 된 내 글 / 댓글 = 남의 글에 단 댓글 (내 글에 단 것·숨김·삭제 제외)
@@ -55,12 +55,19 @@ function mountClub(app, deps) {
 
   app.set('trust proxy', 1);
 
-  // ---- club. 주소로 들어오면 /club 아래로 ----
+  // ---- 커뮤니티 주소(community. / club.)로 들어오면 /club 아래로 ----
+  //  CLUB_HOSTS: 커뮤니티로 볼 주소 앞부분 (기본 community., club.)
+  //  CLUB_URL  : 대표 주소 (예: https://community.haworthia.co.kr). 넣으면 방주 주소의 /club 은 그리로 넘긴다
+  const CLUB_HOSTS = String(process.env.CLUB_HOSTS || 'community.,club.').split(',').map((x) => x.trim().toLowerCase()).filter(Boolean);
+  const CLUB_URL = String(process.env.CLUB_URL || '').replace(/\/$/, '');
   app.use((req, res, next) => {
     const host = String(req.headers.host || '').toLowerCase();
-    req.clubHost = host.startsWith('club.');
-    if (req.clubHost && !(req.url === '/club' || req.url.startsWith('/club/') || req.url.startsWith('/club?'))) {
+    req.clubHost = CLUB_HOSTS.some((p) => host.startsWith(p));
+    const inClub = req.url === '/club' || req.url.startsWith('/club/') || req.url.startsWith('/club?');
+    if (req.clubHost && !inClub) {
       req.url = '/club' + (req.url === '/' ? '' : req.url);
+    } else if (!req.clubHost && inClub && CLUB_URL && req.method === 'GET' && !req.url.startsWith('/club/media/') && !req.url.startsWith('/club/static/')) {
+      return res.redirect(301, CLUB_URL + (req.url.slice(5) || '/'));
     }
     next();
   });
@@ -223,7 +230,50 @@ function mountClub(app, deps) {
     for (const t of T.parseTags(body)) keys.add(ensureTag(t.key, t.label));
     if (plant && plant.tag_key) keys.add(ensureTag(plant.tag_key, plant.name));
     for (const k of keys) q('INSERT OR IGNORE INTO post_tags(post_id,tag_key) VALUES(?,?)').run(postId, k);
+    // 종: 글쓴이·운영자가 직접 고른 글이 아니면 품종 태그→종 연결로 자동
+    const row = q('SELECT species_src FROM posts WHERE id=?').get(postId);
+    if (!row || row.species_src !== 'user') {
+      q("UPDATE posts SET species=?, species_src='auto' WHERE id=?").run(autoSpecies([plant && plant.tag_key, ...keys]), postId);
+    }
     return [...keys];
+  }
+
+  // =============================================================
+  // 종 (만상·옥선·바디아·스프링복스 … + ETC) — 사장님 결정 2026-11-16
+  //  - 품종 태그마다 종을 운영자가 한 번 정해 두면 글의 종이 자동으로 정해진다
+  //  - 글쓴이가 직접 고를 수도 있다 (species_src='user' 는 자동으로 안 바뀜)
+  //  - 종이 없는 글 = ETC
+  // =============================================================
+  function speciesList() { return q('SELECT * FROM species ORDER BY ord, id').all(); }
+  function speciesName(id) { const x = id ? q('SELECT name FROM species WHERE id=?').get(id) : null; return x ? x.name : 'ETC'; }
+  function autoSpecies(keys) {
+    for (const k of keys) {
+      if (!k) continue;
+      const t = q('SELECT species FROM tags WHERE key=?').get(resolveTag(k));
+      if (t && t.species && q('SELECT 1 FROM species WHERE id=?').get(t.species)) return t.species;
+    }
+    return null;
+  }
+  function postTagKeys(postId) {
+    const p = q('SELECT plant_id FROM posts WHERE id=?').get(postId);
+    const pl = p && p.plant_id ? q('SELECT tag_key FROM plants WHERE id=?').get(p.plant_id) : null;
+    return [pl && pl.tag_key, ...q('SELECT tag_key FROM post_tags WHERE post_id=?').all(postId).map((x) => x.tag_key)];
+  }
+  // 글쓰기 화면에서 고른 종: species_pick='user' 일 때만 그대로 쓴다 ('auto' 면 서버가 다시 계산)
+  function applyPickedSpecies(postId, body) {
+    if (String(body.species_pick || '') !== 'user') return;
+    const v = String(body.species || '');
+    if (v === 'etc') return q("UPDATE posts SET species=NULL, species_src='user' WHERE id=?").run(postId);
+    const n = parseInt(v, 10);
+    if (n && q('SELECT 1 FROM species WHERE id=?').get(n)) q("UPDATE posts SET species=?, species_src='user' WHERE id=?").run(n, postId);
+  }
+  // 품종→종 연결을 바꾸면, 직접 고르지 않은 예전 글도 다시 계산
+  function recomputeSpeciesForTag(key) {
+    const ids = q("SELECT p.id FROM posts p JOIN post_tags pt ON pt.post_id=p.id WHERE pt.tag_key=? AND p.species_src<>'user' AND p.deleted=0").all(key).map((x) => x.id);
+    const viaPlant = q("SELECT p.id FROM posts p JOIN plants pl ON pl.id=p.plant_id WHERE pl.tag_key=? AND p.species_src<>'user' AND p.deleted=0").all(key).map((x) => x.id);
+    const all = [...new Set([...ids, ...viaPlant])];
+    for (const id of all) q("UPDATE posts SET species=?, species_src='auto' WHERE id=?").run(autoSpecies(postTagKeys(id)), id);
+    return all.length;
   }
 
   // 점수: 최근 30일 좋아요 1점 + 댓글 2점 (본인이 누른 것·단 것은 빼고)
@@ -336,6 +386,7 @@ function mountClub(app, deps) {
         liked: mine.some((x) => x.post_id === id),
         tags: tags.filter((x) => x.post_id === id),
         plant: pl && !pl.deleted ? pl : null,
+        species: p.species || null, speciesName: speciesName(p.species),
         mineOwn: !!(viewer && viewer.id === p.user_id),
       });
     }
@@ -350,23 +401,34 @@ function mountClub(app, deps) {
   r.get('/healthz', (req, res) => res.send('ok'));
   r.get('/certificate/:id', (req, res) => res.redirect(ARK_URL + '/certificate/' + encodeURIComponent(req.params.id) + (req.query.k ? '?k=' + encodeURIComponent(req.query.k) : '')));
 
-  // 피드
+  // 피드 — 핀터레스트형 사진 벽돌판 (사장님 결정 2026-11-16)
+  //  위 칩: 전체 + 인기 품종 → 누르면 그 품종만 (?t=열쇠) · 정렬 최신/인기(30일)
+  const PIN_PER = 30;
   r.get('/', async (req, res) => {
     await arkData(1500);
     const sort = ['new', 'hot', 'cert'].includes(req.query.sort) ? req.query.sort : 'new';
     const pg = Math.max(0, parseInt(req.query.page, 10) || 0);
-    let rows;
+    const tk = req.query.t ? resolveTag(T.tagKey(req.query.t)) : '';
+    const spList = speciesList();
+    const sq = String(req.query.s || '');
+    const sp = sq === 'etc' ? 'etc' : (spList.find((x) => String(x.id) === sq) ? parseInt(sq, 10) : '');
     const s = since30();
-    if (sort === 'hot') rows = q(`SELECT p.id, ${SCORE_SQL} sc FROM posts p WHERE ${VISIBLE} ORDER BY sc DESC, p.id DESC LIMIT ? OFFSET ?`).all(s, s, PER + 1, pg * PER);
-    else if (sort === 'cert') rows = q(`SELECT p.id FROM posts p JOIN plants pl ON pl.id=p.plant_id WHERE ${VISIBLE} AND pl.cert_status='ok' AND pl.deleted=0 ORDER BY p.id DESC LIMIT ? OFFSET ?`).all(PER + 1, pg * PER);
-    else rows = q(`SELECT p.id FROM posts p WHERE ${VISIBLE} ORDER BY p.id DESC LIMIT ? OFFSET ?`).all(PER + 1, pg * PER);
-    const more = rows.length > PER;
-    const list = cards(rows.slice(0, PER).map((x) => x.id), req.user);
-    if (req.query.frag) return page(res, '_cards', { list, more, next: `${req.B}/?sort=${sort}&page=${pg + 1}&frag=1` });
-    // 위쪽 인기 태그 줄
-    const hotTags = allTagReps().sort((a, b) => (b.s - a.s) || (b.n - a.n)).slice(0, 12);
-    const hotCards = cards(hotTags.map((t) => t.pid), req.user);
-    page(res, 'feed', { list, more, sort, next: `${req.B}/?sort=${sort}&page=${pg + 1}&frag=1`, hotTags, hotCards, title: '' });
+    const J = tk ? 'JOIN post_tags pt ON pt.post_id=p.id AND pt.tag_key=?' : '';
+    const jp = tk ? [tk] : [];
+    let W = '';
+    if (sp === 'etc') W = ' AND p.species IS NULL';
+    else if (sp) { W = ' AND p.species=?'; jp.push(sp); }
+    let rows;
+    if (sort === 'hot') rows = q(`SELECT p.id, ${SCORE_SQL} sc FROM posts p ${J} WHERE ${VISIBLE}${W} ORDER BY sc DESC, p.id DESC LIMIT ? OFFSET ?`).all(s, s, ...jp, PIN_PER + 1, pg * PIN_PER);
+    else if (sort === 'cert') rows = q(`SELECT p.id FROM posts p ${J} JOIN plants pl ON pl.id=p.plant_id WHERE ${VISIBLE}${W} AND pl.cert_status='ok' AND pl.deleted=0 ORDER BY p.id DESC LIMIT ? OFFSET ?`).all(...jp, PIN_PER + 1, pg * PIN_PER);
+    else rows = q(`SELECT p.id FROM posts p ${J} WHERE ${VISIBLE}${W} ORDER BY p.id DESC LIMIT ? OFFSET ?`).all(...jp, PIN_PER + 1, pg * PIN_PER);
+    const more = rows.length > PIN_PER;
+    const list = cards(rows.slice(0, PIN_PER).map((x) => x.id), req.user);
+    const qs = (o) => '?' + Object.entries(Object.assign({ sort, t: tk, s: sp }, o)).filter(([k, v]) => v !== '' && v != null && !(k === 'sort' && v === 'new')).map(([k, v]) => k + '=' + encodeURIComponent(v)).join('&');
+    const next = `${req.B}/${qs({ page: pg + 1, frag: 1 })}`;
+    if (req.query.frag) return page(res, '_pins', { list, more, next, target: 'feedlist' });
+    // 위 칩: 종 (만상·옥선…) + ETC
+    page(res, 'feed', { list, more, sort, tk, tkLabel: tk ? tagLabel(tk) : '', sp, spList, spName: sp === 'etc' ? 'ETC' : (sp ? speciesName(sp) : ''), next, title: '' });
   });
 
   // 글 하나
@@ -380,7 +442,15 @@ function mountClub(app, deps) {
     withTiers(ws).forEach((w) => { w.ref.tier = w.tier; });
     const pins = req.isAdmin ? c.tags.map((t) => ({ key: t.key, label: t.label, pinned: (q('SELECT pinned_post FROM tags WHERE key=?').get(t.key) || {}).pinned_post === id })) : [];
     const base = `${req.protocol}://${req.get('host')}`;
-    page(res, 'post', { c, cmts, pins, ogImage: c.photos[0] ? `${base}${req.B}/media/${c.photos[0].file}` : '', title: `${c.user.nick}님의 사진` });
+    // 아래에 같은 품종 사진 더 (핀터레스트의 「비슷한 사진」)
+    let moreTag = null, moreList = [];
+    if (c.tags.length) {
+      moreTag = c.tags[0];
+      const ids = q(`SELECT p.id FROM posts p JOIN post_tags pt ON pt.post_id=p.id WHERE pt.tag_key=? AND p.id<>? AND ${VISIBLE}
+                     AND EXISTS(SELECT 1 FROM photos ph WHERE ph.post_id=p.id) ORDER BY p.id DESC LIMIT 12`).all(moreTag.key, id).map((x) => x.id);
+      moreList = cards(ids, req.user);
+    }
+    page(res, 'post', { c, cmts, pins, moreTag, moreList, spList: speciesList(), ogImage: c.photos[0] ? `${base}${req.B}/media/${c.photos[0].file}` : '', title: `${c.user.nick}님의 사진` });
   });
 
   // 글쓰기
@@ -397,7 +467,10 @@ function mountClub(app, deps) {
       if (edit) edit.photos = q('SELECT * FROM photos WHERE post_id=? ORDER BY ord').all(edit.id);
     }
     const preTag = req.query.tag ? T.tagWord(tagLabel(T.tagKey(req.query.tag))) : '';
-    page(res, 'write', { plants, popular, pick: parseInt(req.query.plant, 10) || (edit ? edit.plant_id : 0), preTag, edit, title: edit ? '글 고치기' : '사진 올리기' });
+    const spMap = {};
+    for (const t of q('SELECT key, species FROM tags WHERE species IS NOT NULL').all()) spMap[t.key] = t.species;
+    for (const t of q("SELECT key, merged_into FROM tags WHERE merged_into<>''").all()) { const to = resolveTag(t.key); if (spMap[to]) spMap[t.key] = spMap[to]; }
+    page(res, 'write', { plants, popular, spList: speciesList(), spMap, pick: parseInt(req.query.plant, 10) || (edit ? edit.plant_id : 0), preTag, edit, title: edit ? '글 고치기' : '사진 올리기' });
   });
 
   // 태그 페이지
@@ -422,8 +495,9 @@ function mountClub(app, deps) {
     const certN = (q(`SELECT COUNT(DISTINCT pl.id) n FROM plants pl WHERE pl.tag_key=? AND pl.cert_status='ok' AND pl.deleted=0`).get(key) || {}).n || 0;
     const growers = (q(`SELECT COUNT(DISTINCT p.user_id) n FROM posts p JOIN post_tags pt ON pt.post_id=p.id WHERE pt.tag_key=? AND ${VISIBLE}`).get(key) || {}).n || 0;
     const label = tagLabel(key);
-    if (req.query.frag) return page(res, '_grid', { list, more, next: `${req.B}/t/${encodeURIComponent(key)}?sort=${sort}&page=${pg + 1}&frag=1` });
-    page(res, 'tag', { key, label, word: T.tagWord(label), n, list, more, sort, rep, repCard, official, certN, growers,
+    if (req.query.frag) return page(res, '_pins', { list, more, target: 'gridlist', next: `${req.B}/t/${encodeURIComponent(key)}?sort=${sort}&page=${pg + 1}&frag=1` });
+    const tagSp = (q('SELECT species FROM tags WHERE key=?').get(key) || {}).species || null;
+    page(res, 'tag', { key, label, word: T.tagWord(label), n, list, more, sort, rep, repCard, official, certN, growers, tagSp, tagSpName: tagSp ? speciesName(tagSp) : '',
       next: `${req.B}/t/${encodeURIComponent(key)}?sort=${sort}&page=${pg + 1}&frag=1`, title: '#' + T.tagWord(label) });
   });
 
@@ -436,16 +510,11 @@ function mountClub(app, deps) {
     const repIds = tags.map((t) => t.pid);
     const repCards = new Map(cards(repIds, req.user).map((c) => [c.id, c]));
     const have = new Set(tags.map((t) => t.key));
-    // 방주 등재 품종은 사진이 없어도 칸을 보여준다 (첫 사진을 기다리는 칸)
-    const official = [];
-    for (const [k, v] of ark.official) {
-      const t = tags.find((x) => x.key === k);
-      official.push({ key: k, label: v.name, maker: v.maker, n: t ? t.n : 0, rep: t ? repCards.get(t.pid) : null, why: t ? t.why : '' });
-    }
-    tags = tags.filter((t) => !ark.official.has(t.key)).map((t) => ({ ...t, rep: repCards.get(t.pid) }));
+    // (방주 등재 품종을 따로 앞세우지 않는다 — 일반 손님에게 방주를 강조하지 않기로 함)
+    tags = tags.map((t) => ({ ...t, rep: repCards.get(t.pid) }));
     const match = (x) => !qq || x.key.includes(qq);
     const sorter = sort === 'abc' ? (a, b) => String(a.label).localeCompare(String(b.label), 'ko') : (a, b) => (b.n - a.n) || String(a.label).localeCompare(String(b.label), 'ko');
-    page(res, 'dex', { official: official.filter(match).sort(sorter), tags: tags.filter(match).sort(sorter), qtext: req.query.q || '', sort, totalTags: have.size, title: '품종 도감' });
+    page(res, 'dex', { tags: tags.filter(match).sort(sorter), qtext: req.query.q || '', sort, totalTags: have.size, title: '품종 도감' });
   });
 
   // 내 온실 / 회원 온실
@@ -466,7 +535,7 @@ function mountClub(app, deps) {
     const list = cards(rows.slice(0, 30).map((x) => x.id), req.user);
     const more = rows.length > 30;
     const next = `${req.B}/u/${encodeURIComponent(u.nick)}?page=${pg + 1}&frag=1`;
-    if (req.query.frag) return page(res, '_grid', { list, more, next });
+    if (req.query.frag) return page(res, '_pins', { list, more, next, target: 'gridlist' });
     const stats = {
       posts: (q('SELECT COUNT(*) n FROM posts WHERE user_id=? AND hidden=0 AND deleted=0').get(u.id) || {}).n || 0,
       hearts: (q('SELECT COUNT(*) n FROM likes l JOIN posts p ON p.id=l.post_id WHERE p.user_id=? AND l.user_id<>p.user_id AND p.deleted=0').get(u.id) || {}).n || 0,
@@ -485,6 +554,24 @@ function mountClub(app, deps) {
     const list = cards(rows.map((x) => x.id), req.user);
     let info = null; try { info = pl.cert_info ? JSON.parse(pl.cert_info) : null; } catch (e) {}
     page(res, 'plant', { pl, u, own, list, info, tagWordStr: pl.tag_key ? T.tagWord(tagLabel(pl.tag_key)) : '', title: pl.name });
+  });
+
+  // 🛡 방주 안내방 (클럽 안 화면 — 버튼을 누를 때만 방주 사이트로)
+  r.get('/ark', async (req, res) => {
+    await arkData(1500);
+    let mine = [];
+    if (req.user) {
+      withTiers([req.user]);
+      mine = q(`SELECT pl.*, (SELECT ph.thumb FROM photos ph JOIN posts p ON p.id=ph.post_id WHERE p.plant_id=pl.id AND ${VISIBLE} ORDER BY p.id DESC, ph.ord LIMIT 1) cover
+                FROM plants pl WHERE pl.user_id=? AND pl.deleted=0 AND pl.cert_status IN ('ok','pending') ORDER BY pl.cert_status='ok' DESC, pl.id DESC`).all(req.user.id);
+    }
+    const certTotal = (q("SELECT COUNT(*) n FROM plants WHERE cert_status='ok' AND deleted=0").get() || {}).n || 0;
+    const official = [...ark.official.entries()].map(([k, v]) => {
+      const rep = tagRep(k);
+      const c = rep ? cards([rep.id], req.user)[0] : null;
+      return { key: k, name: v.name, maker: v.maker, thumb: c && c.photos[0] ? c.photos[0].thumb : '' };
+    });
+    page(res, 'ark', { mine, certTotal, official, TIERS, title: '방주' });
   });
 
   // 등급 안내
@@ -704,7 +791,9 @@ self.addEventListener('fetch',e=>{
         const used = new Set(idx.flatMap((i) => [full[i].filename, (thumb[i] || full[i]).filename]));
         dropFiles(files.filter((f) => !used.has(f.filename)));
         const tags = setPostTags(pid, body, plant);
-        return { id: pid, tags, plant: plant ? plant.id : null };
+        applyPickedSpecies(pid, req.body);
+        const sp = q('SELECT species FROM posts WHERE id=?').get(pid).species;
+        return { id: pid, tags, plant: plant ? plant.id : null, species: sp, speciesName: speciesName(sp) };
       });
       res.json({ ok: true, ...result, url: `${req.B}/p/${result.id}` });
     } catch (e) {
@@ -723,7 +812,9 @@ self.addEventListener('fetch',e=>{
       tx(db, () => {
         const plant = pickPlant(req, req.body);
         q('UPDATE posts SET body=?, plant_id=?, edited_at=? WHERE id=?').run(body, plant ? plant.id : null, now(), p.id);
+        if (String(req.body.species_pick || '') === 'auto') q("UPDATE posts SET species_src='auto' WHERE id=?").run(p.id);
         setPostTags(p.id, body, plant);
+        applyPickedSpecies(p.id, req.body);
       });
       res.json({ ok: true, url: `${req.B}/p/${p.id}` });
     } catch (e) { fail(res, 400, e.message); }
@@ -904,7 +995,7 @@ self.addEventListener('fetch',e=>{
       FROM plants pl JOIN users u ON u.id=pl.user_id WHERE pl.cert_status='pending' AND pl.deleted=0 ORDER BY pl.cert_at`).all();
     for (const p of pending) { try { p.info = JSON.parse(p.cert_info || '{}'); } catch (e) { p.info = {}; } }
     const reports = q(`SELECT rp.*, u.nick FROM reports rp LEFT JOIN users u ON u.id=rp.user_id WHERE rp.done=0 ORDER BY rp.id DESC LIMIT 100`).all();
-    const tagRows = q(`SELECT t.key, t.label, t.pinned_post, COUNT(p.id) n FROM tags t LEFT JOIN post_tags pt ON pt.tag_key=t.key LEFT JOIN posts p ON p.id=pt.post_id AND ${VISIBLE}
+    const tagRows = q(`SELECT t.key, t.label, t.pinned_post, t.species, COUNT(p.id) n FROM tags t LEFT JOIN post_tags pt ON pt.tag_key=t.key LEFT JOIN posts p ON p.id=pt.post_id AND ${VISIBLE}
                        WHERE t.merged_into='' GROUP BY t.key ORDER BY n DESC, t.label LIMIT 600`).all();
     const typos = [];
     for (let i = 0; i < tagRows.length && typos.length < 30; i++) for (let j = i + 1; j < tagRows.length && typos.length < 30; j++) {
@@ -923,7 +1014,9 @@ self.addEventListener('fetch',e=>{
       ark: q("SELECT COUNT(*) n FROM users WHERE ark_no<>''").get().n,
     };
     const users = q(`SELECT u.*, (SELECT COUNT(*) FROM posts p WHERE p.user_id=u.id AND p.deleted=0) n FROM users u ORDER BY u.id DESC LIMIT 200`).all();
-    page(res, 'admin', { pending, reports, tagRows, typos, hidden, stats, users, arkReady: ark.t > 0, arkOfficial: ark.official.size, arkNames: ark.names.size, title: '운영자' });
+    const spList = speciesList().map((x) => ({ ...x, n: q('SELECT COUNT(*) n FROM posts WHERE species=? AND deleted=0').get(x.id).n }));
+    const etcN = q('SELECT COUNT(*) n FROM posts WHERE species IS NULL AND deleted=0').get().n;
+    page(res, 'admin', { pending, reports, tagRows, typos, hidden, stats, users, spList, etcN, arkReady: ark.t > 0, arkOfficial: ark.official.size, arkNames: ark.names.size, title: '운영자' });
   });
   r.post('/admin/login', (req, res) => {
     if (limited('adm:' + req.ip, 10, 15 * 60 * 1000)) return page(res, 'admin_login', { error: '잠시 뒤에 다시 해 주세요.', title: '운영자' });
@@ -972,12 +1065,68 @@ self.addEventListener('fetch',e=>{
       for (const x of rows) q('INSERT OR IGNORE INTO post_tags(post_id,tag_key) VALUES(?,?)').run(x.post_id, to);
       q('DELETE FROM post_tags WHERE tag_key=?').run(from);
       q('UPDATE plants SET tag_key=? WHERE tag_key=?').run(to, from);
+      q('UPDATE tags SET species=COALESCE(species,(SELECT species FROM tags WHERE key=?)) WHERE key=?').run(from, to);
       q("UPDATE tags SET merged_into=?, pinned_post=NULL WHERE key=?").run(to, from);
       q("UPDATE tags SET merged_into=? WHERE merged_into=?").run(to, from);
       return rows.length;
     });
+    recomputeSpeciesForTag(to);
     res.json({ ok: true, moved, to });
   });
+  // 종 목록 고치기: add / rename / move / delete
+  r.post('/api/admin/species', (req, res) => {
+    if (!needAdmin(req, res)) return;
+    const a = String(req.body.action || '');
+    const id = parseInt(req.body.id, 10) || 0;
+    const name = String(req.body.name || req.body.value || '').trim().slice(0, 20);
+    if (a === 'add') {
+      if (!name) return fail(res, 400, '종 이름을 적어 주세요.');
+      if (/^etc$/i.test(name)) return fail(res, 400, 'ETC 는 따로 만들지 않아도 맨 끝에 항상 있습니다.');
+      if (q('SELECT 1 FROM species WHERE name=?').get(name)) return fail(res, 409, '이미 있는 종입니다.');
+      const mx = (q('SELECT MAX(ord) m FROM species').get() || {}).m || 0;
+      q('INSERT INTO species(name,ord,created_at) VALUES(?,?,?)').run(name, mx + 1, now());
+      return res.json({ ok: true });
+    }
+    const sp = q('SELECT * FROM species WHERE id=?').get(id);
+    if (!sp) return fail(res, 404, '없는 종입니다.');
+    if (a === 'rename') {
+      if (!name) return fail(res, 400, '이름을 적어 주세요.');
+      q('UPDATE species SET name=? WHERE id=?').run(name, id);
+    } else if (a === 'move') {
+      const list = speciesList(); const i = list.findIndex((x) => x.id === id); const j = i + (parseInt(req.body.dir, 10) < 0 ? -1 : 1);
+      if (j >= 0 && j < list.length) { [list[i], list[j]] = [list[j], list[i]]; list.forEach((x, k) => q('UPDATE species SET ord=? WHERE id=?').run(k + 1, x.id)); }
+    } else if (a === 'delete') {
+      tx(db, () => {
+        q('UPDATE tags SET species=NULL WHERE species=?').run(id);
+        q("UPDATE posts SET species=NULL WHERE species=?").run(id);
+        q('DELETE FROM species WHERE id=?').run(id);
+      });
+    } else return fail(res, 400, '알 수 없는 동작입니다.');
+    res.json({ ok: true });
+  });
+  // 품종 태그 → 종 연결 (직접 고르지 않은 예전 글도 함께 바뀜)
+  r.post('/api/admin/tag-species', (req, res) => {
+    if (!needAdmin(req, res)) return;
+    const key = resolveTag(T.tagKey(req.body.tag));
+    if (!q('SELECT 1 FROM tags WHERE key=?').get(key)) return fail(res, 404, '없는 태그입니다.');
+    const v = String(req.body.species || '');
+    const id = parseInt(v, 10) || null;
+    if (id && !q('SELECT 1 FROM species WHERE id=?').get(id)) return fail(res, 404, '없는 종입니다.');
+    q('UPDATE tags SET species=? WHERE key=?').run(id, key);
+    const n = recomputeSpeciesForTag(key);
+    res.json({ ok: true, updated: n, name: speciesName(id) });
+  });
+  // 글 하나의 종을 운영자가 고치기
+  r.post('/api/admin/post-species', (req, res) => {
+    if (!needAdmin(req, res)) return;
+    const pid = parseInt(req.body.post_id, 10);
+    if (!q('SELECT 1 FROM posts WHERE id=?').get(pid)) return fail(res, 404, '없는 글입니다.');
+    const v = String(req.body.species || '');
+    if (v === 'auto') { q("UPDATE posts SET species_src='auto' WHERE id=?").run(pid); q("UPDATE posts SET species=? WHERE id=?").run(autoSpecies(postTagKeys(pid)), pid); }
+    else applyPickedSpecies(pid, { species_pick: 'user', species: v });
+    res.json({ ok: true });
+  });
+
   r.post('/api/admin/label', (req, res) => {
     if (!needAdmin(req, res)) return;
     const key = resolveTag(T.tagKey(req.body.tag));

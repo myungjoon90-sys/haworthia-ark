@@ -17,12 +17,18 @@
   <label class="f">어떤 식물인가요? <span style="font-weight:400;color:var(--sub)">— 고르면 내 온실에 성장 기록으로 쌓여요</span></label>
   <div class="plpick">
     <button type="button" data-id="" class="<%= !pick ? 'on' : '' %>">고르지 않음</button>
-    <% plants.forEach(function (p) { %><button type="button" data-id="<%= p.id %>" class="<%= pick === p.id ? 'on' : '' %>"><%= p.cert_status === 'ok' ? '🛡' : '🌱' %> <%= p.name %></button><% }); %>
+    <% plants.forEach(function (p) { %><button type="button" data-id="<%= p.id %>" data-tag="<%= p.tag_key %>" class="<%= pick === p.id ? 'on' : '' %>"><%= p.cert_status === 'ok' ? '🛡' : '🌱' %> <%= p.name %></button><% }); %>
     <button type="button" data-id="new">＋ 새 식물</button>
   </div>
   <div id="newplant" style="display:none;margin-top:8px">
     <input class="in" id="newplantname" maxlength="40" placeholder="예: 미카엘의 심장 1호 · 콤포트 큰 촉">
-    <p class="hint" style="margin-top:5px">방주 보증서가 있는 식물이면 올린 뒤 식물 화면에서 「보증서 연결」을 누르세요.</p>
+    <p class="hint" style="margin-top:5px">보증서가 있는 식물이면 올린 뒤 식물 화면에서 「보증서 연결」을 누르세요.</p>
+  </div>
+
+  <label class="f">종 <span style="font-weight:400;color:var(--sub)">— #품종명을 쓰면 알아서 골라져요. 직접 바꿔도 돼요</span></label>
+  <div class="plpick" id="sppick" data-map='<%= JSON.stringify(spMap) %>' data-cur="<%= edit ? (edit.species || 'etc') : '' %>" data-src="<%= edit ? edit.species_src : '' %>">
+    <% spList.forEach(function (x) { %><button type="button" data-sp="<%= x.id %>"><%= x.name %></button><% }); %>
+    <button type="button" data-sp="etc">ETC</button>
   </div>
 
   <label class="f">글 <span style="font-weight:400;color:var(--sub)">— <b style="color:var(--green2)">#</b>을 치면 품종명이 떠요</span></label>

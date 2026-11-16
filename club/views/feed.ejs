@@ -1,29 +1,23 @@
 <%- include('_head') %>
 <div class="install" id="install"><span style="font-size:22px">🌿</span><div><b>홈 화면에 클럽 놓기</b><div class="how" style="font-size:12px;opacity:.85">앱처럼 바로 열 수 있어요</div></div><button class="go" type="button">설치</button><button class="x" type="button" aria-label="닫기">✕</button></div>
 
-<% if (hotTags.length) { %>
-<div class="sec"><h2>품종별 대표</h2><small>이번 달 가장 사랑받은 사진</small><a class="r" href="<%= B %>/dex">도감 →</a></div>
-<div class="hot">
-  <% hotTags.forEach(function (t) { var c = hotCards.find(function (x) { return x.id === t.pid; }); %>
-  <a href="<%= B %>/t/<%= encodeURIComponent(t.key) %>">
-    <div class="ring <%= t.why === 'pin' ? 'pin' : '' %>"><% if (c && c.photos.length) { %><img src="<%= B %>/media/<%= c.photos[0].thumb %>" alt=""><% } else { %><span>🌱</span><% } %></div>
-    <small>#<%= T.tagWord(t.label) %></small>
-  </a>
-  <% }); %>
+<% var sq = function (o) { var a = []; var v = Object.assign({ s: sp, t: tk, sort: sort }, o); if (v.s) a.push('s=' + v.s); if (v.t) a.push('t=' + encodeURIComponent(v.t)); if (v.sort && v.sort !== 'new') a.push('sort=' + v.sort); return B + '/' + (a.length ? '?' + a.join('&') : ''); }; %>
+<div class="chips pinchips">
+  <a class="chip <%= !sp && !tk ? 'on' : '' %>" href="<%= sq({ s: '', t: '' }) %>">전체</a>
+  <% spList.forEach(function (x) { %><a class="chip <%= sp === x.id ? 'on' : '' %>" href="<%= sq({ s: x.id, t: '' }) %>"><%= x.name %></a><% }); %>
+  <a class="chip <%= sp === 'etc' ? 'on' : '' %>" href="<%= sq({ s: 'etc', t: '' }) %>">ETC</a>
 </div>
-<% } %>
-
-<div class="chips">
-  <a class="chip <%= sort==='new'?'on':'' %>" href="<%= B %>/?sort=new">최신</a>
-  <a class="chip <%= sort==='hot'?'on':'' %>" href="<%= B %>/?sort=hot">🔥 인기 (30일)</a>
-  <a class="chip <%= sort==='cert'?'on':'' %>" href="<%= B %>/?sort=cert">🛡 정품만</a>
+<div class="sortbar">
+  <% if (tk) { %><a class="tlink" href="<%= B %>/t/<%= encodeURIComponent(tk) %>">#<%= T.tagWord(tkLabel) %> 품종 페이지 →</a><a class="x" href="<%= sq({ t: '' }) %>" aria-label="품종 풀기">✕</a><% } else { %><span class="hint"><%= sp ? spName + ' · ' : '' %><%= sort === 'hot' ? '최근 30일 반응 많은 순' : '새로 올라온 순' %></span><% } %>
+  <span class="sp"></span>
+  <a class="<%= sort === 'new' ? 'on' : '' %>" href="<%= sq({ sort: 'new' }) %>">최신</a>
+  <a class="<%= sort === 'hot' ? 'on' : '' %>" href="<%= sq({ sort: 'hot' }) %>">인기</a>
 </div>
 
-<div id="feedlist">
 <% if (!list.length) { %>
-  <div class="empty-st"><i>🪴</i><% if (sort === 'cert') { %>아직 방주 보증서가 연결된 사진이 없습니다.<br>내 온실에서 식물에 보증서를 연결해 보세요.<% } else { %>첫 사진을 기다리고 있어요.<br>키우는 하월시아를 #품종명 과 함께 올려 주세요.<% } %>
-    <div style="margin-top:16px"><a class="btn gold s" href="<%= B %>/write">＋ 사진 올리기</a></div></div>
+  <div class="empty-st"><i>🪴</i>첫 사진을 기다리고 있어요.<br>키우는 하월시아를 #품종명 과 함께 올려 주세요.
+    <div style="margin-top:16px"><a class="btn gold s" href="<%= B %>/write<%= tk ? '?tag=' + encodeURIComponent(tk) : '' %>">＋ 사진 올리기</a></div></div>
 <% } %>
-<%- include('_cards', { list: list, more: more, next: next }) %>
-</div>
-<%- include('_foot', { tab: 'feed' }) %>
+<div class="masonry" id="feedlist"><% list.forEach(function (c) { %><%- include('_pin', { c: c }) %><% }); %></div>
+<% if (more) { %><button class="btn line moreb" data-more="<%= next %>" data-target="feedlist">더 보기</button><% } %>
+<%- include('_foot', { tab: sort === 'hot' ? 'hot' : 'feed' }) %>
