@@ -44,6 +44,27 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'change-me';
 const PHOTO_DIR = process.env.PHOTO_DIR || (fs.existsSync('/data') ? '/data/photos' : path.join(__dirname, 'photos_local'));
 try { fs.mkdirSync(PHOTO_DIR, { recursive: true }); } catch (e) { console.warn('사진 폴더 생성 실패:', e.message); }
 
+// ---- 갤러리 사진: 시트가 쓰기를 막아도 서버에 먼저 저장해 바로 보이게 (v29.1) ----
+const { makeGalleryPending } = require('./lib/gallery_pending');
+const gallery = makeGalleryPending({ sheets, dataDir: fs.existsSync('/data') ? '/data' : path.join(PHOTO_DIR, '..') });
+const _arkListRaw = sheets.getArkList, _arkRowsRaw = sheets.listArkListRows, _arkSetRaw = sheets.setArkListPhoto, _arkAddRaw = sheets.addArkListRow;
+sheets.getArkList = async (...a) => gallery.applyGroups(await _arkListRaw.apply(sheets, a));
+const galleryFlush = () => gallery.flush((...a) => _arkRowsRaw.apply(sheets, a), (...a) => _arkSetRaw.apply(sheets, a), (...a) => _arkAddRaw.apply(sheets, a)).catch((e) => ({ error: e.message }));
+// 쓰기가 막혔을 때: 드라이브에 이유를 물어봄 (읽기만) → 「잠금」이면 푸는 방법을 알려 줌
+async function galleryWhy(err) {
+  let why = gallery.explain(err);
+  try {
+    const d = await sheets.diagnoseSheetWrite();
+    console.error('[갤러리] 시트 상태:', JSON.stringify(d));
+    if (d.locked) why = '시트 파일 「' + d.name + '」이(가) 구글 드라이브에서 「잠금」 상태예요 — 드라이브에서 파일을 오른쪽 클릭 → 「잠금 해제」' + (d.lockedBy ? ' (잠근 사람: ' + d.lockedBy + ')' : '');
+    else if (d.canEdit === false) why += ' · 서버 계정이 이 파일을 고칠 수 없는 상태예요 (공유에서 「편집자」인지 확인)';
+  } catch (e) { console.error('[갤러리] 시트 상태 확인 실패:', e.message); }
+  gallery.state.lastError = why;
+  return why;
+}
+setTimeout(galleryFlush, 60 * 1000).unref();
+setInterval(galleryFlush, 30 * 60 * 1000).unref();
+
 const upload = multer({
   storage: multer.diskStorage({
     destination: (req, file, cb) => cb(null, PHOTO_DIR),
@@ -187,11 +208,12 @@ app.get('/admin/new', requireLogin, (req, res) => {
 // ---- 갤러리 사진 (방주리스트 D열) — 시트를 직접 고치지 않고 품종 고르고 사진 올리기 (v29) ----
 app.get('/admin/gallery', requireLogin, async (req, res) => {
   try {
-    const rows = await sheets.listArkListRows();
-    res.render('gallery_admin', { rows, grades: Object.keys(sheets.GRADE_TABS), ok: String(req.query.ok || ''), error: String(req.query.err || '') || null });
+    const rows = gallery.applyRows(await _arkRowsRaw.apply(sheets));
+    res.render('gallery_admin', { rows, grades: Object.keys(sheets.GRADE_TABS), ok: String(req.query.ok || ''), error: String(req.query.err || '') || null,
+      pend: { n: gallery.list().length, why: (gallery.list().slice(-1)[0] || {}).why || gallery.state.lastError, lastTry: gallery.state.lastTry }, wait: req.query.wait === '1' });
   } catch (err) {
     console.error(err);
-    res.render('gallery_admin', { rows: [], grades: Object.keys(sheets.GRADE_TABS), ok: '', error: err.message });
+    res.render('gallery_admin', { rows: gallery.applyRows([]), grades: Object.keys(sheets.GRADE_TABS), ok: '', error: err.message, pend: { n: gallery.list().length, why: gallery.state.lastError, lastTry: gallery.state.lastTry }, wait: false });
   }
 });
 app.post('/admin/gallery/photo', requireLogin, upload.single('photo'), async (req, res) => {
@@ -200,14 +222,29 @@ app.post('/admin/gallery/photo', requireLogin, upload.single('photo'), async (re
     if (!req.file) throw new Error('사진을 골라 주세요.');
     if (!/^image\//.test(req.file.mimetype || '')) { fs.unlink(req.file.path, () => {}); throw new Error('사진 파일만 올릴 수 있습니다.'); }
     const url = photoUrl(req, req.file.filename);
-    await sheets.setArkListPhoto(req.body.row, req.body.name, url);
-    if (wantJson) return res.json({ ok: true, url });
-    res.redirect('/admin/gallery?ok=' + encodeURIComponent(req.body.name || '') + '#r' + encodeURIComponent(req.body.row || ''));
+    let pending = false, why = '';
+    try {
+      if (!(parseInt(req.body.row, 10) >= 2)) throw Object.assign(new Error('시트에 아직 없는 줄'), { pendingOnly: true });
+      await _arkSetRaw.call(sheets, req.body.row, req.body.name, url);
+      // 시트에 적혔으면 서버 쪽 대기 기록은 정리
+      gallery.flush((...a) => _arkRowsRaw.apply(sheets, a), (...a) => _arkSetRaw.apply(sheets, a), (...a) => _arkAddRaw.apply(sheets, a)).catch(() => {});
+    } catch (e) {
+      if (gallery.isRowMismatch(e)) throw e;
+      why = e.pendingOnly ? '시트로 옮기기를 기다리는 새 품종' : await galleryWhy(e);
+      gallery.put({ maker: req.body.maker, name: req.body.name, url, why, isNew: !!e.pendingOnly });
+      pending = true;
+    }
+    if (wantJson) return res.json({ ok: true, url, pending, why });
+    res.redirect('/admin/gallery?ok=' + encodeURIComponent(req.body.name || '') + (pending ? '&wait=1' : '') + '#r' + encodeURIComponent(req.body.row || ''));
   } catch (err) {
     if (req.file && req.file.path) fs.unlink(req.file.path, () => {});
     if (wantJson) return res.json({ ok: false, error: err.message });
     res.redirect('/admin/gallery?err=' + encodeURIComponent(err.message));
   }
+});
+app.post('/admin/gallery/flush', requireLogin, async (req, res) => {
+  const r = await galleryFlush();
+  res.redirect('/admin/gallery' + (r && r.left ? '?err=' + encodeURIComponent('아직 시트가 막혀 있어요: ' + (r.error || '')) : '?ok=' + encodeURIComponent('서버에 기다리던 사진을 시트로 옮겼습니다')));
 });
 app.post('/admin/gallery/add', requireLogin, upload.single('photo'), async (req, res) => {
   try {
@@ -216,8 +253,15 @@ app.post('/admin/gallery/add', requireLogin, upload.single('photo'), async (req,
       if (!/^image\//.test(req.file.mimetype || '')) { fs.unlink(req.file.path, () => {}); throw new Error('사진 파일만 올릴 수 있습니다.'); }
       url = photoUrl(req, req.file.filename);
     }
-    await sheets.addArkListRow({ 작출자: req.body.maker, 품종명: req.body.name, 설명: req.body.desc, 사진URL: url });
-    res.redirect('/admin/gallery?ok=' + encodeURIComponent(req.body.name || ''));
+    let wait = '';
+    try {
+      await _arkAddRaw.call(sheets, { 작출자: req.body.maker, 품종명: req.body.name, 설명: req.body.desc, 사진URL: url });
+    } catch (e) {
+      if (/이미 방주리스트에|품종명을/.test(String(e.message))) throw e;
+      gallery.put({ maker: req.body.maker || '지양하월시아', name: String(req.body.name || '').trim(), desc: req.body.desc, url, why: await galleryWhy(e), isNew: true });
+      wait = '&wait=1';
+    }
+    res.redirect('/admin/gallery?ok=' + encodeURIComponent(req.body.name || '') + wait);
   } catch (err) {
     if (req.file && req.file.path) fs.unlink(req.file.path, () => {});
     res.redirect('/admin/gallery?err=' + encodeURIComponent(err.message));

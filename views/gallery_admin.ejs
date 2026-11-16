@@ -17,6 +17,8 @@
     .err, .okm { margin-bottom:14px; padding:12px 15px; border-radius:10px; font-size:13.5px; }
     .err { background:rgba(180,50,50,0.18); border:1px solid rgba(220,100,100,0.5); color:#ffd9d9; }
     .okm { background:rgba(80,160,90,0.18); border:1px solid rgba(120,200,130,0.5); color:#dfffe2; }
+    .wait { margin-bottom:14px; padding:12px 15px; border-radius:10px; font-size:13px; line-height:1.7; background:rgba(230,160,60,0.15); border:1px solid rgba(240,180,90,0.5); color:#ffe9c9; }
+    .v .st.pend { color:#ffcf8a; }
     .tools { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:12px; }
     .tools input { flex:1; min-width:200px; background:rgba(0,0,0,0.3); border:1px solid var(--line); border-radius:10px; padding:11px 13px; color:#fff; font-size:14px; }
     .chip { font-size:12.5px; padding:8px 13px; border-radius:999px; border:1px solid var(--line); color:var(--gold-soft); background:none; cursor:pointer; }
@@ -54,7 +56,10 @@
       사진은 올리기 전에 1600px 로 줄여서 갤러리가 빨리 열립니다.
     </div>
     <% if (error) { %><div class="err">⚠️ <%= error %></div><% } %>
-    <% if (ok) { %><div class="okm">✓ 「<%= ok %>」 반영했습니다. 갤러리에는 1분 안에 보입니다.</div><% } %>
+    <% if (ok) { %><div class="okm">✓ 「<%= ok %>」 <%= wait ? '올렸습니다. 갤러리에는 바로 보이고, 시트에는 막힘이 풀리면 자동으로 들어갑니다.' : '반영했습니다. 갤러리에는 1분 안에 보입니다.' %></div><% } %>
+    <% if (pend.n) { %><div class="wait">⏳ 사진 <b><%= pend.n %></b>개가 <b>서버에 먼저 저장</b>돼 있어요 — 공개 갤러리에는 이미 보입니다.<br>
+      구글 시트가 쓰기를 막고 있어서예요<% if (pend.why) { %>: <%= pend.why %><% } %>. 30분마다 자동으로 다시 시트에 옮깁니다.
+      <form method="post" action="/admin/gallery/flush" style="display:inline"><button class="btn line" type="submit" style="margin-left:6px;padding:6px 10px">지금 다시 해 보기</button></form></div><% } %>
 
     <div class="tools">
       <input id="q" type="search" placeholder="품종 · 작출자 찾기" autocomplete="off" />
@@ -73,11 +78,12 @@
               data-name="<%= x.품종명 %>" data-maker="<%= x.작출자 %>" data-has="<%= x.사진URL ? 1 : 0 %>">
           <input type="hidden" name="row" value="<%= x.row %>" />
           <input type="hidden" name="name" value="<%= x.품종명 %>" />
+          <input type="hidden" name="maker" value="<%= x.작출자 %>" />
           <input type="hidden" name="plantId" value="gallery-<%= x.row %>" />
           <div class="thumb"><% if (x.사진URL) { %><img src="<%= x.사진URL %>" alt="" loading="lazy" onerror="this.replaceWith(document.createTextNode('깨진 주소'))" /><% } else { %>사진 없음<% } %><span class="spin">올리는 중…</span></div>
           <div style="min-width:0">
             <div class="nm"><%= x.품종명 %></div>
-            <div class="st <%= x.사진URL ? '' : 'none' %>"><%= x.사진URL ? '사진 있음' : '사진 없음' %> · <%= x.row %>번째 줄</div>
+            <div class="st <%= x.pending ? 'pend' : x.사진URL ? '' : 'none' %>"><% if (x.pending) { %>⏳ 서버에 저장 · 시트 대기<% } else { %><%= x.사진URL ? '사진 있음' : '사진 없음' %> · <%= x.row %>번째 줄<% } %></div>
           </div>
           <label class="btn up">📷 <%= x.사진URL ? '바꾸기' : '사진 올리기' %><input type="file" name="photo" accept="image/*" /></label>
         </form>
@@ -129,7 +135,7 @@
         form.classList.remove('busy');
         if (!r || !r.ok) { alert((r && r.error) || '올리지 못했습니다.'); return; }
         var th = form.querySelector('.thumb'); th.innerHTML = '<img src="' + r.url + '" alt=""><span class="spin">올리는 중…</span>';
-        var st = form.querySelector('.st'); st.textContent = '방금 올림 ✓'; st.classList.remove('none');
+        var st = form.querySelector('.st'); st.textContent = r.pending ? '방금 올림 ✓ · 갤러리에 보임 (시트 대기)' : '방금 올림 ✓'; st.classList.remove('none'); if (r.pending) st.classList.add('pend');
         form.setAttribute('data-has', '1'); form.classList.add('hi');
         form.querySelector('label.up').firstChild.textContent = '📷 바꾸기';
       }).catch(function () { form.classList.remove('busy'); alert('인터넷 연결을 확인해 주세요.'); });
