@@ -1,2 +1,2 @@
 <% list.forEach(function (c) { %><%- include('_pin', { c: c }) %><% }); %>
-<% if (more) { %><button class="btn line moreb" data-more="<%= next %>" data-target="<%= target %>">더 보기</button><% } %>
+<% if (more) { %><button class="btn line moreb" data-more="<%= next %>" data-target="<%= target %>"><%= t('더 보기') %></button><% } %>

@@ -20,6 +20,7 @@ img{display:block;max-width:100%}
 .logo b{white-space:nowrap;font-family:'Playfair Display',Georgia,serif;font-size:19px;letter-spacing:2.5px;color:var(--green);font-weight:700}
 .logo i{font-style:normal;font-family:'Playfair Display',Georgia,serif;font-size:9.5px;letter-spacing:3px;color:var(--gold);margin-top:3px}
 .top .sp{flex:1}
+.top .btn-w{white-space:nowrap;font-size:13px;font-weight:800;color:#fff;background:linear-gradient(180deg,#D3B05A,var(--gold));padding:8px 13px;border-radius:999px}
 .top .btn-s{white-space:nowrap;font-size:13px;font-weight:700;color:#fff;background:var(--green);padding:8px 13px;border-radius:999px}
 .top .me{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700}
 .ava{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--leaf),var(--green));color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
@@ -31,7 +32,8 @@ img{display:block;max-width:100%}
 .tabs a{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;color:var(--sub);font-weight:600}
 .tabs a .ic{font-size:21px;line-height:1;filter:grayscale(1);opacity:.75}
 .tabs a.on{color:var(--green)} .tabs a.on .ic{filter:none;opacity:1}
-.tabs a.plus .ic{width:48px;height:48px;border-radius:50%;background:linear-gradient(180deg,#D8B65C,var(--gold));color:#fff;display:flex;align-items:center;justify-content:center;font-size:28px;filter:none;opacity:1;margin-top:-22px;box-shadow:0 4px 14px rgba(184,145,58,.45);border:3px solid #fff}
+.tabs a.plus{color:#8A6510}
+.tabs a.plus .ic{width:48px;height:48px;border-radius:50%;background:linear-gradient(180deg,#D8B65C,var(--gold));color:#fff;display:flex;align-items:center;justify-content:center;font-size:28px;filter:none;opacity:1;margin-top:-24px;margin-bottom:1px;box-shadow:0 4px 14px rgba(184,145,58,.45);border:3px solid #fff}
 .tabs a.ark .ic{filter:none;opacity:1}
 
 /* 칩·배지 */
@@ -88,7 +90,7 @@ img{display:block;max-width:100%}
 .hot .ring.pin{background:conic-gradient(var(--green),var(--green2),var(--green))}
 .hot small{display:block;font-size:11.5px;font-weight:600;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sec{display:flex;align-items:baseline;gap:8px;margin:20px 0 6px}
-.sec h2{font-size:16px;font-weight:800}
+.sec h2{font-size:16px;font-weight:800;flex-shrink:0;white-space:nowrap}
 .sec small{font-size:12px;color:var(--sub)}
 .sec a.r{margin-left:auto;font-size:12.5px;font-weight:700;color:var(--green2)}
 
@@ -346,3 +348,65 @@ label.f{display:block;font-size:13px;font-weight:700;margin:14px 0 6px}
   .dex{grid-template-columns:repeat(4,1fr)}
   .plants{grid-template-columns:repeat(3,1fr)}
 }
+
+/* ---------- 성장일기 (같은 사람 · 같은 품종) ---------- */
+.diary{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 0 12px;margin:0 0 12px}
+.diary .dhd{display:flex;align-items:center;gap:8px;padding:0 14px}
+.diary .dhd b{font-size:14.5px;font-weight:800}
+.diary .dtag{font-size:13.5px;font-weight:800;color:var(--green2)}
+.diary .dhd .r{margin-left:auto;font-size:12.5px;font-weight:700;color:var(--green2);white-space:nowrap}
+.diary .dsub{font-size:12px;color:var(--sub);padding:3px 14px 0;line-height:1.5}
+.dstrip{display:flex;gap:8px;overflow-x:auto;padding:10px 14px 2px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.dstrip::-webkit-scrollbar{display:none}
+.ditem{flex:0 0 auto;width:86px;scroll-snap-align:start;text-align:center;color:var(--ink)}
+.ditem .dim{position:relative;display:block;width:86px;height:86px;border-radius:12px;overflow:hidden;background:#eef0e8;border:2px solid transparent}
+.ditem .dim img{width:100%;height:100%;object-fit:cover;display:block}
+.ditem .multi{position:absolute;top:4px;right:4px;font-size:9.5px;font-weight:700;color:#fff;background:rgba(0,0,0,.42);padding:1px 5px;border-radius:999px}
+.ditem b{display:block;font-size:12px;font-weight:800;margin-top:5px}
+.ditem small{display:block;font-size:10.5px;color:var(--sub)}
+.ditem.cur .dim{border-color:var(--gold2);box-shadow:0 0 0 2px rgba(201,162,74,.25)}
+.ditem.cur b{color:var(--gold, #a8842f)}
+.ditem .dnow{position:absolute;left:0;right:0;bottom:0;font-size:10px;font-weight:800;color:#fff;background:rgba(31,61,43,.78);padding:2px 0}
+.ditem.dadd .dim{display:flex;align-items:center;justify-content:center;border:2px dashed var(--line);background:#fafaf6}
+.ditem.dadd i{font-style:normal;font-size:26px;color:var(--green2)}
+.pim .dbad{position:absolute;left:7px;bottom:7px;font-size:10.5px;font-weight:800;color:#fff;background:rgba(31,61,43,.72);padding:2px 7px;border-radius:999px}
+.dlist{display:flex;flex-direction:column;gap:8px}
+.dlist a{display:flex;gap:12px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:14px;padding:8px;color:var(--ink)}
+.dlist .dim{flex:0 0 auto;width:58px;height:58px;border-radius:10px;overflow:hidden;background:#eef0e8}
+.dlist .dim img{width:100%;height:100%;object-fit:cover;display:block}
+.dlist .tx{display:flex;flex-direction:column;min-width:0}
+.dlist .tx b{font-size:14.5px;color:var(--green2)}
+.dlist .tx small{font-size:12px;color:var(--sub)}
+.dhero{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;margin:12px 0}
+.dhero .who{display:flex;align-items:center;gap:8px;color:var(--ink);font-size:13.5px}
+.dhero h1{font-size:20px;margin-top:10px;line-height:1.35}
+.dhero h1 a{color:var(--green2)}
+.dstat{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:12px;text-align:center}
+.dstat div{background:#f6f6ef;border-radius:10px;padding:8px 2px}
+.dstat b{display:block;font-size:14px;font-weight:800}
+.dstat small{font-size:11px;color:var(--sub)}
+.dvs{display:flex;align-items:center;gap:8px;margin-top:12px}
+.dvs a{flex:1;position:relative;border-radius:12px;overflow:hidden;aspect-ratio:1/1;background:#eef0e8}
+.dvs img{width:100%;height:100%;object-fit:cover;display:block}
+.dvs span{position:absolute;left:6px;top:6px;font-size:11.5px;font-weight:800;color:#fff;background:rgba(31,61,43,.78);padding:2px 8px;border-radius:999px}
+.dvs i{font-style:normal;font-size:18px;color:var(--sub)}
+.dord{display:flex;align-items:center;gap:6px;margin:4px 0 10px}
+.dtline{position:relative;padding-left:0}
+.dtl{display:grid;grid-template-columns:62px 1fr;gap:10px;position:relative;padding-bottom:16px}
+.dtl::before{content:'';position:absolute;left:30px;top:26px;bottom:0;width:2px;background:#dfe3d4}
+.dtl:last-child::before{display:none}
+.dtld{text-align:center;position:relative;z-index:1}
+.dtld b{display:inline-block;font-size:12.5px;font-weight:800;color:#fff;background:var(--green2);padding:3px 8px;border-radius:999px}
+.dtld small{display:block;font-size:10.5px;color:var(--sub);margin-top:3px;background:var(--bg)}
+.dtld .gap{color:var(--gold, #a8842f);font-weight:700}
+.dtlc{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.dtli{position:relative;display:block;background:#eef0e8}
+.dtli img{width:100%;height:100%;object-fit:cover;display:block}
+.dtli .multi{position:absolute;top:8px;right:8px;font-size:11px;font-weight:700;color:#fff;background:rgba(0,0,0,.42);padding:2px 8px;border-radius:999px}
+.dtlb{font-size:13.5px;line-height:1.6;padding:10px 12px 0;word-break:break-word}
+.dtlm{display:block;font-size:12px;color:var(--sub);padding:8px 12px 10px}
+/* 언어 고르기 (바닥) */
+.langbar{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.langbar a{font-size:11.5px;color:var(--sub);padding:2px 6px;border-radius:6px}
+.langbar a.on{color:var(--ink);font-weight:800;background:#ebeadf}
+.dtli .hidb{position:absolute;top:8px;left:8px;font-size:11px;font-weight:700;color:#fff;background:var(--red);padding:2px 8px;border-radius:999px}

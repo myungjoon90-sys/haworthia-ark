@@ -1,15 +1,15 @@
 <%- include('_head') %>
-<div style="padding:16px 0 0"><h1 style="font-size:20px">품종 도감</h1><p class="hint">회원들이 #품종명으로 올린 사진이 품종별로 모입니다. 칸마다 이번 달 대표 사진이 보여요.</p></div>
-<form class="search" method="get" action="<%= B %>/dex"><input name="q" value="<%= qtext %>" placeholder="품종 찾기 (예: 미카엘)"><% if (sort === 'abc') { %><input type="hidden" name="sort" value="abc"><% } %></form>
-<div class="chips"><a class="chip <%= sort==='many'?'on':'' %>" href="<%= B %>/dex<%= qtext ? '?q=' + encodeURIComponent(qtext) : '' %>">사진 많은 순</a><a class="chip <%= sort==='abc'?'on':'' %>" href="<%= B %>/dex?sort=abc<%= qtext ? '&q=' + encodeURIComponent(qtext) : '' %>">가나다순</a></div>
+<div style="padding:16px 0 0"><h1 style="font-size:20px"><%= t('품종 도감') %></h1><p class="hint"><%= t('회원들이 #품종명으로 올린 사진이 품종별로 모입니다. 칸마다 이번 달 대표 사진이 보여요.') %></p></div>
+<form class="search" method="get" action="<%= B %>/dex"><input name="q" value="<%= qtext %>" placeholder="<%= t('품종 찾기 (예: 미카엘)') %>"><% if (sort === 'abc') { %><input type="hidden" name="sort" value="abc"><% } %></form>
+<div class="chips"><a class="chip <%= sort==='many'?'on':'' %>" href="<%= B %>/dex<%= qtext ? '?q=' + encodeURIComponent(qtext) : '' %>"><%= t('사진 많은 순') %></a><a class="chip <%= sort==='abc'?'on':'' %>" href="<%= B %>/dex?sort=abc<%= qtext ? '&q=' + encodeURIComponent(qtext) : '' %>"><%= t('가나다순') %></a></div>
 
-<div class="sec"><h2>품종</h2><small><%= tags.length %>종</small></div>
-<% if (!tags.length) { %><div class="empty-st" style="padding:30px"><i>📖</i><%= qtext ? '찾는 품종이 없어요.' : '아직 올라온 품종이 없어요.' %></div><% } %>
+<div class="sec"><h2><%= t('품종') %></h2><small><%= t('{n}종', { n: tags.length }) %></small></div>
+<% if (!tags.length) { %><div class="empty-st" style="padding:30px"><i>📖</i><%= qtext ? t('찾는 품종이 없어요.') : t('아직 올라온 품종이 없어요.') %></div><% } %>
 <div class="dex">
-  <% tags.forEach(function (t) { %>
-  <a href="<%= B %>/t/<%= encodeURIComponent(t.key) %>">
-    <div class="im"><% if (t.rep && t.rep.photos.length) { %><img src="<%= B %>/media/<%= t.rep.photos[0].thumb %>" loading="lazy" alt=""><% if (t.why === 'pin') { %><span class="pin">📌</span><% } %><% } else { %><span class="empty"><i>✎</i>글만 있음</span><% } %></div>
-    <b>#<%= T.tagWord(t.label) %></b><small><%= t.n %>장</small>
+  <% tags.forEach(function (x) { %>
+  <a href="<%= B %>/t/<%= encodeURIComponent(x.key) %>">
+    <div class="im"><% if (x.rep && x.rep.photos.length) { %><img src="<%= B %>/media/<%= x.rep.photos[0].thumb %>" loading="lazy" alt=""><% if (x.why === 'pin') { %><span class="pin">📌</span><% } %><% } else { %><span class="empty"><i>✎</i><%= t('글만 있음') %></span><% } %></div>
+    <b>#<%= T.tagWord(x.label) %></b><small><%= t('{n}장', { n: x.n }) %></small>
   </a>
   <% }); %>
 </div>

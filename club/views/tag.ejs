@@ -1,34 +1,34 @@
 <%- include('_head') %>
 <div class="taghd">
   <h1>#<%= word %></h1>
-  <% if (tagSp) { %><a class="chip" href="<%= B %>/?s=<%= tagSp %>" style="display:inline-block;margin-top:8px;padding:4px 11px;font-size:12px">종 · <%= tagSpName %></a><% } %>
-  <div class="nums"><span><b><%= n %></b> 사진</span><span><b><%= growers %></b> 명이 키워요</span></div>
+  <% if (tagSp) { %><a class="chip" href="<%= B %>/?s=<%= tagSp %>" style="display:inline-block;margin-top:8px;padding:4px 11px;font-size:12px"><%= t('종') %> · <%= tagSpName %></a><% } %>
+  <div class="nums"><span><%- t('<b>{n}</b> 사진', { n: n }) %></span><span><%- t('<b>{n}</b> 명이 키워요', { n: growers }) %></span></div>
 </div>
 
 <% if (official && (official.모본 || official.부본)) { %>
 <div class="pedl">
-  <div class="h">교배 정보</div>
-  <div class="tree"><div class="p"><small>MOTHER 모본</small><%= official.모본 || '—' %></div><div class="x">×</div><div class="p"><small>FATHER 부본</small><%= official.부본 || '—' %></div><div class="down"></div><div class="me"><%= label %></div></div>
+  <div class="h"><%= t('교배 정보') %></div>
+  <div class="tree"><div class="p"><small>MOTHER <%= t('모본') %></small><%= official.모본 || '—' %></div><div class="x">×</div><div class="p"><small>FATHER <%= t('부본') %></small><%= official.부본 || '—' %></div><div class="down"></div><div class="me"><%= label %></div></div>
 </div>
 <% } %>
 
 <% if (repCard) { %>
 <a class="rep" href="<%= B %>/p/<%= repCard.id %>">
   <% if (repCard.photos.length) { %><img src="<%= B %>/media/<%= repCard.photos[0].file %>" alt=""><% } else { %><div style="aspect-ratio:4/3;padding:30px;font-size:15px"><%= String(repCard.body).slice(0,120) %></div><% } %>
-  <span class="lab <%= rep.why === 'pin' ? 'pin' : '' %>"><%= rep.why === 'pin' ? '📌 운영자 추천' : rep.why === 'hot' ? '⭐ 이번 달 대표' : '🆕 최신 사진' %></span>
-  <div class="info"><b><%= repCard.user.nick %></b> <%- include('_badges', { u: repCard.user }) %><small>♥ <%= repCard.likes %> · 💬 <%= repCard.comments %><% if (rep.why === 'hot') { %> · 최근 30일 반응 1위<% } %></small></div>
+  <span class="lab <%= rep.why === 'pin' ? 'pin' : '' %>"><%= rep.why === 'pin' ? '📌 ' + t('운영자 추천') : rep.why === 'hot' ? '⭐ ' + t('이번 달 대표') : '🆕 ' + t('최신 사진') %></span>
+  <div class="info"><b><%= repCard.user.nick %></b> <%- include('_badges', { u: repCard.user }) %><small>♥ <%= repCard.likes %> · 💬 <%= repCard.comments %><% if (rep.why === 'hot') { %> · <%= t('최근 30일 반응 1위') %><% } %></small></div>
 </a>
 <% } %>
 
 <div class="seg">
-  <a class="<%= sort==='new'?'on':'' %>" href="<%= B %>/t/<%= encodeURIComponent(key) %>">최신순</a>
-  <a class="<%= sort==='hot'?'on':'' %>" href="<%= B %>/t/<%= encodeURIComponent(key) %>?sort=hot">인기순 (30일)</a>
+  <a class="<%= sort==='new'?'on':'' %>" href="<%= B %>/t/<%= encodeURIComponent(key) %>"><%= t('최신순') %></a>
+  <a class="<%= sort==='hot'?'on':'' %>" href="<%= B %>/t/<%= encodeURIComponent(key) %>?sort=hot"><%= t('인기순 (30일)') %></a>
 </div>
 <% if (!list.length) { %>
-  <div class="empty-st"><i>🌱</i>아직 #<%= word %> 사진이 없어요.<br>첫 사진의 주인공이 되어 주세요.</div>
+  <div class="empty-st"><i>🌱</i><%= t('아직 #{tag} 사진이 없어요.', { tag: word }) %><br><%= t('첫 사진의 주인공이 되어 주세요.') %></div>
 <% } else { %>
   <div class="masonry" id="gridlist"><% list.forEach(function (c) { %><%- include('_pin', { c: c }) %><% }); %></div>
-  <% if (more) { %><button class="btn line moreb" data-more="<%= next %>" data-target="gridlist">더 보기</button><% } %>
+  <% if (more) { %><button class="btn line moreb" data-more="<%= next %>" data-target="gridlist"><%= t('더 보기') %></button><% } %>
 <% } %>
-<a class="btn gold" href="<%= B %>/write?tag=<%= encodeURIComponent(word) %>" style="margin:18px 0">＋ #<%= word %> 사진 올리기</a>
+<a class="btn gold" href="<%= B %>/write?tag=<%= encodeURIComponent(word) %>" style="margin:18px 0">＋ <%= t('#{tag} 사진 올리기', { tag: word }) %></a>
 <%- include('_foot', { tab: 'dex' }) %>

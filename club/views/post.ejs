@@ -2,7 +2,7 @@
 <div style="padding-top:6px"></div>
 <%- include('_card', { c: c, full: true }) %>
 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:-2px 2px 8px">
-  <a class="chip" href="<%= B %>/?s=<%= c.species || 'etc' %>" style="padding:5px 12px;font-size:12.5px">종 · <%= c.speciesName %></a>
+  <a class="chip" href="<%= B %>/?s=<%= c.species || 'etc' %>" style="padding:5px 12px;font-size:12.5px"><%= t('종') %> · <%= c.speciesLabel %></a>
   <% if (isAdmin) { %>
   <select class="in" style="width:auto;padding:6px 10px;font-size:13px" onchange="clubApi('/api/admin/post-species',{post_id:<%= c.id %>,species:this.value}).then(function(r){if(!r.ok)return clubToast(r.error);location.reload();})">
     <option value="">종 고치기 (운영자)…</option>
@@ -11,6 +11,24 @@
   </select>
   <% } %>
 </div>
+<% diaries.forEach(function (d) { var first = d.entries[0], last = d.entries[d.entries.length - 1]; %>
+<section class="diary" data-cur="<%= d.cur %>">
+  <div class="dhd">
+    <b>🌱 <%= t('성장일기') %></b><a class="dtag" href="<%= B %>/t/<%= encodeURIComponent(d.key) %>">#<%= T.tagWord(d.label) %></a>
+    <a class="r" href="<%= B %>/u/<%= encodeURIComponent(c.user.nick) %>/d/<%= encodeURIComponent(d.key) %>"><%= t('전체 보기 →') %></a>
+  </div>
+  <p class="dsub"><%= t('{nick}님이 같은 품종으로 올린 기록 {n}개', { nick: c.user.nick, n: d.entries.length }) %> · <%= T.ymd(first.created_at) %> ~ <%= T.ymd(last.created_at) %> (D+<%= last.day %>)</p>
+  <div class="dstrip">
+    <% d.entries.forEach(function (e, i) { var ph = e.photos[0]; %>
+    <a class="ditem <%= i === d.cur ? 'cur' : '' %>" href="<%= B %>/p/<%= e.id %>"<%= i === d.cur ? ' aria-current=page' : '' %>>
+      <span class="dim"><img src="<%= B %>/media/<%= ph.thumb %>" loading="lazy" alt=""><% if (e.photos.length > 1) { %><span class="multi">❐ <%= e.photos.length %></span><% } %><% if (i === d.cur) { %><span class="dnow"><%= t('지금 글') %></span><% } %></span>
+      <b>D+<%= e.day %></b><small><%= T.ymd(e.created_at).slice(2) %></small>
+    </a>
+    <% }); %>
+    <% if (me && me.id === c.user.id) { %><a class="ditem dadd" href="<%= B %>/write?tag=<%= encodeURIComponent(T.tagWord(d.label)) %><%= c.plant ? '&plant=' + c.plant.id : '' %>"><span class="dim"><i>＋</i></span><b><%= t('오늘 기록') %></b><small>&nbsp;</small></a><% } %>
+  </div>
+</section>
+<% }); %>
 <% if (pins.length) { %>
 <div class="box" style="border:1.5px solid var(--gold2)">
   <h3>📌 태그 대표 사진 지정 <small style="font-weight:400;color:var(--sub)">(운영자만 보임)</small></h3>
@@ -27,17 +45,17 @@
 </div>
 <% } %>
 <section class="card" id="cmts">
-  <div style="padding:14px 14px 4px;font-weight:800">댓글 <%= cmts.filter(function (x) { return !x.hidden; }).length %></div>
+  <div style="padding:14px 14px 4px;font-weight:800"><%= t('댓글') %> <%= cmts.filter(function (x) { return !x.hidden; }).length %></div>
   <div class="cmts">
-    <% if (!cmts.length) { %><div class="hint" style="padding:8px 0 4px">첫 댓글을 남겨 주세요.</div><% } %>
+    <% if (!cmts.length) { %><div class="hint" style="padding:8px 0 4px"><%= t('첫 댓글을 남겨 주세요.') %></div><% } %>
     <% cmts.forEach(function (m) { %>
     <div class="cmt <%= m.hidden ? 'hid' : '' %>">
       <a class="ava" href="<%= B %>/u/<%= encodeURIComponent(m.nick || '') %>"><%= String(m.nick || '?').slice(0,1) %></a>
-      <div class="tx"><b><a href="<%= B %>/u/<%= encodeURIComponent(m.nick || '') %>"><%= m.nick || '(탈퇴)' %></a></b><%- include('_badges', { u: { tier: m.tier, ark_no: m.ark_no } }) %>
+      <div class="tx"><b><a href="<%= B %>/u/<%= encodeURIComponent(m.nick || '') %>"><%= m.nick || t('(탈퇴)') %></a></b><%- include('_badges', { u: { tier: m.tier, ark_no: m.ark_no } }) %>
         <div><%- T.renderBody(m.body, B) %></div>
-        <small><%= T.timeAgo(m.created_at) %>
-          <% if (me && me.id === m.user_id) { %><button data-act="/api/comments/<%= m.id %>/delete" data-confirm="댓글을 지울까요?" data-go="reload">지우기</button>
-          <% } else if (me) { %><button data-act="/api/report" data-body='{"comment_id":<%= m.id %>}' data-prompt="신고하는 까닭" data-prompt-key="reason" data-done="신고가 접수되었습니다.">신고</button><% } %>
+        <small><%= ago(m.created_at) %>
+          <% if (me && me.id === m.user_id) { %><button data-act="/api/comments/<%= m.id %>/delete" data-confirm="<%= t('댓글을 지울까요?') %>" data-go="reload"><%= t('지우기') %></button>
+          <% } else if (me) { %><button data-act="/api/report" data-body='{"comment_id":<%= m.id %>}' data-prompt="<%= t('신고하는 까닭') %>" data-prompt-key="reason" data-done="<%= t('신고가 접수되었습니다.') %>"><%= t('신고') %></button><% } %>
           <% if (isAdmin) { %><button data-act="/api/admin/comment-hide" data-body='{"comment_id":<%= m.id %>,"hidden":<%= m.hidden ? 0 : 1 %>}' data-go="reload"><%= m.hidden ? '숨김 풀기' : '숨기기' %></button><% } %>
         </small>
       </div>
@@ -45,12 +63,12 @@
     <% }); %>
   </div>
   <form class="cform" id="cform" data-post="<%= c.id %>">
-    <input type="text" maxlength="500" placeholder="<%= me ? '댓글 달기… (#품종명도 돼요)' : '로그인하고 댓글 달기' %>" <%= me ? '' : 'readonly' %>>
-    <button type="submit">등록</button>
+    <input type="text" maxlength="500" placeholder="<%= me ? t('댓글 달기… (#품종명도 돼요)') : t('로그인하고 댓글 달기') %>" <%= me ? '' : 'readonly' %>>
+    <button type="submit"><%= t('등록') %></button>
   </form>
 </section>
 <% if (moreList.length) { %>
-<div class="sec"><h2>#<%= T.tagWord(moreTag.label) %> 사진 더 보기</h2><a class="r" href="<%= B %>/t/<%= encodeURIComponent(moreTag.key) %>">전체 →</a></div>
+<div class="sec"><h2><%= t('#{tag} 사진 더 보기', { tag: T.tagWord(moreTag.label) }) %></h2><a class="r" href="<%= B %>/t/<%= encodeURIComponent(moreTag.key) %>"><%= t('전체 →') %></a></div>
 <div class="masonry" id="morelist"><% moreList.forEach(function (x) { %><%- include('_pin', { c: x }) %><% }); %></div>
 <% } %>
 <%- include('_foot', { tab: '' }) %>

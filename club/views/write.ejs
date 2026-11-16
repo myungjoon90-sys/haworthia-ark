@@ -1,46 +1,46 @@
 <%- include('_head') %>
 <form id="writeform" data-plant="<%= pick || '' %>" <% if (edit) { %>data-edit="<%= edit.id %>"<% } %>>
-  <div style="padding:16px 0 4px;display:flex;align-items:center"><h1 style="font-size:20px"><%= edit ? '글 고치기' : '사진 올리기' %></h1><span id="photocount" style="margin-left:auto;font-size:13px;color:var(--sub)"></span></div>
+  <div style="padding:16px 0 4px;display:flex;align-items:center"><h1 style="font-size:20px"><%= edit ? t('글 고치기') : t('사진 올리기') %></h1><span id="photocount" style="margin-left:auto;font-size:13px;color:var(--sub)"></span></div>
 
   <% if (!edit) { %>
   <div class="pick">
-    <label><input type="file" accept="image/*" capture="environment"><span>📷</span>사진 찍기</label>
-    <label><input type="file" accept="image/*" multiple><span>🖼️</span>갤러리에서 (10장까지)</label>
+    <label><input type="file" accept="image/*" capture="environment"><span>📷</span><%= t('사진 찍기') %></label>
+    <label><input type="file" accept="image/*" multiple><span>🖼️</span><%= t('갤러리에서 (10장까지)') %></label>
   </div>
   <div class="thumbs" id="thumbs"></div>
-  <p class="hint" style="margin-top:6px">첫 번째 사진이 대표 사진이 됩니다. 폰에서 크기를 줄여서 올리니 빨라요.</p>
+  <p class="hint" style="margin-top:6px"><%= t('첫 번째 사진이 대표 사진이 됩니다. 폰에서 크기를 줄여서 올리니 빨라요.') %></p>
   <% } else { %>
   <div class="thumbs"><% edit.photos.forEach(function (p) { %><div class="t"><img src="<%= B %>/media/<%= p.thumb %>" alt=""></div><% }); %></div>
-  <p class="hint">사진은 바꿀 수 없어요. 글과 식물만 고칠 수 있습니다.</p>
+  <p class="hint"><%= t('사진은 바꿀 수 없어요. 글과 식물만 고칠 수 있습니다.') %></p>
   <% } %>
 
-  <label class="f">어떤 식물인가요? <span style="font-weight:400;color:var(--sub)">— 고르면 내 온실에 성장 기록으로 쌓여요</span></label>
+  <label class="f"><%= t('어떤 식물인가요?') %> <span style="font-weight:400;color:var(--sub)">— <%= t('고르면 내 온실에 성장 기록으로 쌓여요') %></span></label>
   <div class="plpick">
-    <button type="button" data-id="" class="<%= !pick ? 'on' : '' %>">고르지 않음</button>
+    <button type="button" data-id="" class="<%= !pick ? 'on' : '' %>"><%= t('고르지 않음') %></button>
     <% plants.forEach(function (p) { %><button type="button" data-id="<%= p.id %>" data-tag="<%= p.tag_key %>" class="<%= pick === p.id ? 'on' : '' %>"><%= p.cert_status === 'ok' ? '🛡' : '🌱' %> <%= p.name %></button><% }); %>
-    <button type="button" data-id="new">＋ 새 식물</button>
+    <button type="button" data-id="new">＋ <%= t('새 식물') %></button>
   </div>
   <div id="newplant" style="display:none;margin-top:8px">
-    <input class="in" id="newplantname" maxlength="40" placeholder="예: 미카엘의 심장 1호 · 콤포트 큰 촉">
-    <p class="hint" style="margin-top:5px">보증서가 있는 식물이면 올린 뒤 식물 화면에서 「보증서 연결」을 누르세요.</p>
+    <input class="in" id="newplantname" maxlength="40" placeholder="<%= t('예: 미카엘의 심장 1호 · 콤포트 큰 촉') %>">
+    <p class="hint" style="margin-top:5px"><%= t('보증서가 있는 식물이면 올린 뒤 식물 화면에서 「보증서 연결」을 누르세요.') %></p>
   </div>
 
-  <label class="f">종 <span style="font-weight:400;color:var(--sub)">— #품종명을 쓰면 알아서 골라져요. 직접 바꿔도 돼요</span></label>
+  <label class="f"><%= t('종') %> <span style="font-weight:400;color:var(--sub)">— <%= t('#품종명을 쓰면 알아서 골라져요. 직접 바꿔도 돼요') %></span></label>
   <div class="plpick" id="sppick" data-map='<%= JSON.stringify(spMap) %>' data-cur="<%= edit ? (edit.species || 'etc') : '' %>" data-src="<%= edit ? edit.species_src : '' %>">
-    <% spList.forEach(function (x) { %><button type="button" data-sp="<%= x.id %>"><%= x.name %></button><% }); %>
-    <button type="button" data-sp="etc">ETC</button>
+    <% spList.forEach(function (x) { %><button type="button" data-sp="<%= x.id %>"><%= spLabel(x) %></button><% }); %>
+    <button type="button" data-sp="etc"><%= t('ETC') %></button>
   </div>
 
-  <label class="f">글 <span style="font-weight:400;color:var(--sub)">— <b style="color:var(--green2)">#</b>을 치면 품종명이 떠요</span></label>
+  <label class="f"><%= t('글') %> <span style="font-weight:400;color:var(--sub)">— <%= t('#을 치면 품종명이 떠요') %></span></label>
   <div class="acwrap">
-    <textarea class="in" id="body" data-tags maxlength="2000" placeholder="#미카엘의심장 3달 키운 모습이에요. 창이 많이 맑아졌어요."><%= edit ? edit.body : (preTag ? '#' + preTag + ' ' : '') %></textarea>
+    <textarea class="in" id="body" data-tags maxlength="2000" placeholder="<%= t('#미카엘의심장 3달 키운 모습이에요. 창이 많이 맑아졌어요.') %>"><%= edit ? edit.body : (preTag ? '#' + preTag + ' ' : '') %></textarea>
   </div>
   <% if (popular.length) { %>
-  <div class="taghint"><% popular.forEach(function (t) { %><button type="button" data-addtag="<%= T.tagWord(t.label) %>">#<%= T.tagWord(t.label) %></button><% }); %></div>
+  <div class="taghint"><% popular.forEach(function (x) { %><button type="button" data-addtag="<%= T.tagWord(x.label) %>">#<%= T.tagWord(x.label) %></button><% }); %></div>
   <% } %>
-  <p class="hint" style="margin-top:8px">띄어쓰기는 붙여서 써도, 띄워서 써도 같은 품종으로 묶여요. (#미카엘의심장 = #미카엘의 심장)</p>
+  <p class="hint" style="margin-top:8px"><%= t('띄어쓰기는 붙여서 써도, 띄워서 써도 같은 품종으로 묶여요. (#미카엘의심장 = #미카엘의 심장)') %></p>
 
   <div class="err" id="werr"></div>
-  <button class="btn gold" id="wsubmit" type="submit" style="margin:18px 0 10px"><%= edit ? '저장하기' : '올리기' %></button>
+  <button class="btn gold" id="wsubmit" type="submit" style="margin:18px 0 10px"><%= edit ? t('저장하기') : t('올리기') %></button>
 </form>
 <%- include('_foot', { tab: '' }) %>

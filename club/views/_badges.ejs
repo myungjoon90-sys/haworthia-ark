@@ -1,1 +1,1 @@
-<% /* u: 회원 (tier 가 붙어 있음) */ %><% if (u && u.tier) { %><span class="tier t-<%= u.tier.key %>"><%= u.tier.icon %><%= u.tier.name %></span><% } %>
+<% /* u: 회원 (tier 가 붙어 있음) */ %><% if (u && u.tier) { %><span class="tier t-<%= u.tier.key %>"><%= u.tier.icon %><%= t(u.tier.name) %></span><% } %>

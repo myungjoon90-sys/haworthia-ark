@@ -4,9 +4,9 @@
     <a href="<%= B %>/u/<%= encodeURIComponent(c.user.nick) %>" class="ava"><%= String(c.user.nick).slice(0,1) %></a>
     <div class="who">
       <b><a href="<%= B %>/u/<%= encodeURIComponent(c.user.nick) %>"><%= c.user.nick %></a> <%- include('_badges', { u: c.user }) %></b>
-      <small><%= T.timeAgo(c.created_at) %><% if (c.hidden) { %> · <span style="color:var(--red)">숨김(운영자)</span><% } %></small>
+      <small><%= ago(c.created_at) %><% if (c.hidden) { %> · <span style="color:var(--red)"><%= t('숨김(운영자)') %></span><% } %></small>
     </div>
-    <button class="more" data-menu="p<%= c.id %>" aria-label="메뉴">⋯</button>
+    <button class="more" data-menu="p<%= c.id %>" aria-label="<%= t('메뉴') %>">⋯</button>
   </div>
   <% if (c.photos.length) { %>
   <div class="ph" data-post="<%= c.id %>">
@@ -15,9 +15,9 @@
       <% c.photos.forEach(function (p, i) { %><img src="<%= B %>/media/<%= full ? p.file : (i === 0 ? p.file : p.thumb) %>" <%= i ? 'loading=lazy' : '' %> alt="" <% if (p.w && p.h) { %>width="<%= p.w %>" height="<%= p.h %>"<% } %>><% }); %>
     </div>
     <% if (!full) { %></a><% } %>
-    <% if (c.photos.length > 1) { %><div class="dots"><% c.photos.forEach(function (p, i) { %><i class="<%= i===0?'on':'' %>"></i><% }); %></div><span class="cnt"><%= c.photos.length %>장</span><% } %>
+    <% if (c.photos.length > 1) { %><div class="dots"><% c.photos.forEach(function (p, i) { %><i class="<%= i===0?'on':'' %>"></i><% }); %></div><span class="cnt"><%= t('{n}장', { n: c.photos.length }) %></span><% } %>
     <% if (c.plant) { %>
-      <a class="plantchip" href="<%= B %>/plant/<%= c.plant.id %>"><%= c.plant.cert_status==='ok' ? '🛡 정품' : '🌱' %> <%= c.plant.name %></a>
+      <a class="plantchip" href="<%= B %>/plant/<%= c.plant.id %>"><%= c.plant.cert_status==='ok' ? '🛡 ' + t('정품') : '🌱' %> <%= c.plant.name %></a>
     <% } %>
   </div>
   <% } %>
@@ -25,25 +25,25 @@
     <button data-like="<%= c.id %>" class="<%= c.liked ? 'liked' : '' %>"><span class="heart"><%= c.liked ? '♥' : '♡' %></span><span class="n"><%= c.likes %></span></button>
     <a href="<%= B %>/p/<%= c.id %>#cmts"><span style="font-size:19px">💬</span><span><%= c.comments %></span></a>
     <span class="sp"></span>
-    <button class="share" data-share="<%= B %>/p/<%= c.id %>">공유</button>
+    <button class="share" data-share="<%= B %>/p/<%= c.id %>"><%= t('공유') %></button>
   </div>
   <% if (c.body) { %>
   <div class="body <%= full ? '' : 'clamp' %>"><%- T.renderBody(c.body, B) %></div>
   <% } %>
-  <% var bk = T.parseTags(c.body).map(function (t) { return t.key; }); var extra = c.tags.filter(function (t) { return bk.indexOf(t.key) === -1; }); %>
-  <% if (!c.photos.length && c.plant) { %><div class="ptags"><a href="<%= B %>/plant/<%= c.plant.id %>"><%= c.plant.cert_status==='ok' ? '🛡 정품' : '🌱' %> <%= c.plant.name %></a></div><% } %>
-  <% if (extra.length) { %><div class="ptags"><% extra.forEach(function (t) { %><a href="<%= B %>/t/<%= encodeURIComponent(t.key) %>">#<%= T.tagWord(t.label) %></a><% }); %></div><% } %>
+  <% var bk = T.parseTags(c.body).map(function (x) { return x.key; }); var extra = c.tags.filter(function (x) { return bk.indexOf(x.key) === -1; }); %>
+  <% if (!c.photos.length && c.plant) { %><div class="ptags"><a href="<%= B %>/plant/<%= c.plant.id %>"><%= c.plant.cert_status==='ok' ? '🛡 ' + t('정품') : '🌱' %> <%= c.plant.name %></a></div><% } %>
+  <% if (extra.length) { %><div class="ptags"><% extra.forEach(function (x) { %><a href="<%= B %>/t/<%= encodeURIComponent(x.key) %>">#<%= T.tagWord(x.label) %></a><% }); %></div><% } %>
   <div class="sheet" id="sheet-p<%= c.id %>"><div class="in">
-    <a href="<%= B %>/p/<%= c.id %>">글 보기</a>
+    <a href="<%= B %>/p/<%= c.id %>"><%= t('글 보기') %></a>
     <% if (c.mineOwn) { %>
-      <a href="<%= B %>/write?edit=<%= c.id %>">글 고치기</a>
-      <button class="dng" data-act="/api/posts/<%= c.id %>/delete" data-confirm="이 글을 지울까요?" data-go="/me">글 지우기</button>
+      <a href="<%= B %>/write?edit=<%= c.id %>"><%= t('글 고치기') %></a>
+      <button class="dng" data-act="/api/posts/<%= c.id %>/delete" data-confirm="<%= t('이 글을 지울까요?') %>" data-go="/me"><%= t('글 지우기') %></button>
     <% } else { %>
-      <button class="dng" data-login data-act="/api/report" data-body='{"post_id":<%= c.id %>}' data-prompt="신고하는 까닭을 적어 주세요 (예: 광고, 남의 사진, 욕설)" data-prompt-key="reason" data-done="신고가 접수되었습니다.">🚩 신고하기</button>
+      <button class="dng" data-login data-act="/api/report" data-body='{"post_id":<%= c.id %>}' data-prompt="<%= t('신고하는 까닭을 적어 주세요 (예: 광고, 남의 사진, 욕설)') %>" data-prompt-key="reason" data-done="<%= t('신고가 접수되었습니다.') %>">🚩 <%= t('신고하기') %></button>
     <% } %>
     <% if (isAdmin) { %>
       <button class="gold" data-act="/api/admin/hide" data-body='{"post_id":<%= c.id %>,"hidden":<%= c.hidden ? 0 : 1 %>}' data-go="reload"><%= c.hidden ? '숨김 풀기 (운영자)' : '숨기기 (운영자)' %></button>
     <% } %>
-    <button data-close>닫기</button>
+    <button data-close><%= t('닫기') %></button>
   </div></div>
 </article>

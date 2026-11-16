@@ -1,18 +1,17 @@
 <%- include('_head') %>
-<div style="padding:18px 0 6px"><h1 style="font-size:20px">클럽 등급</h1>
-<p class="hint" style="margin-top:4px">게시물과 댓글이 둘 다 기준을 넘으면 다음 등급이 됩니다.</p></div>
-<% TIERS.forEach(function (t) { var mine = me && me.tier && me.tier.key === t.key; %>
+<div style="padding:18px 0 6px"><h1 style="font-size:20px"><%= t('클럽 등급') %></h1>
+<p class="hint" style="margin-top:4px"><%= t('게시물과 댓글이 둘 다 기준을 넘으면 다음 등급이 됩니다.') %></p></div>
+<% TIERS.forEach(function (tr) { var mine = me && me.tier && me.tier.key === tr.key; %>
 <div class="lv <%= mine ? 'me' : '' %>">
-  <span class="i"><%= t.icon %></span>
-  <div><b><%= t.name %></b><% if (mine) { %> <span class="chip on" style="padding:2px 8px;font-size:11px">지금 내 등급</span><% } %>
-    <small><%= t.posts ? '게시물 ' + t.posts + '개 이상 + 댓글 ' + t.comments + '개 이상' : '가입하면 바로' %></small></div>
+  <span class="i"><%= tr.icon %></span>
+  <div><b><%= t(tr.name) %></b><% if (mine) { %> <span class="chip on" style="padding:2px 8px;font-size:11px"><%= t('지금 내 등급') %></span><% } %>
+    <small><%= tr.posts ? t('게시물 {p}개 이상 + 댓글 {c}개 이상', { p: tr.posts, c: tr.comments }) : t('가입하면 바로') %></small></div>
 </div>
 <% }); %>
 <div class="box">
-  <h3>이렇게 셉니다</h3>
-  <p>· 게시물: 내가 올린 글 (지운 글, 운영자가 숨긴 글은 빠짐)<br>
-  · 댓글: <b>다른 회원의 글</b>에 단 댓글 (내 글에 단 댓글, 지우거나 숨겨진 댓글은 빠짐)<br>
-</p>
-  <% if (me && me.act) { %><p style="margin-top:10px;color:var(--ink)">지금 나: 게시물 <b><%= me.act.posts %></b> · 댓글 <b><%= me.act.comments %></b></p><% } %>
+  <h3><%= t('이렇게 셉니다') %></h3>
+  <p>· <%= t('게시물: 내가 올린 글 (지운 글, 운영자가 숨긴 글은 빠짐)') %><br>
+  · <%- t('댓글: <b>다른 회원의 글</b>에 단 댓글 (내 글에 단 댓글, 지우거나 숨겨진 댓글은 빠짐)') %></p>
+  <% if (me && me.act) { %><p style="margin-top:10px;color:var(--ink)"><%- t('지금 나: 게시물 <b>{p}</b> · 댓글 <b>{c}</b>', { p: me.act.posts, c: me.act.comments }) %></p><% } %>
 </div>
 <%- include('_foot', { tab: '' }) %>

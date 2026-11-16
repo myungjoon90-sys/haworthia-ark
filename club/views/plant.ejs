@@ -1,50 +1,50 @@
 <%- include('_head') %>
 <div class="prof" style="padding-bottom:0">
   <div style="min-width:0">
-    <h1><%= pl.name %> <% if (pl.cert_status === 'ok') { %><span class="certb">🛡 정품</span><% } %></h1>
-    <p><a href="<%= B %>/u/<%= encodeURIComponent(u.nick) %>" style="font-weight:700;color:var(--ink)"><%= u.nick %></a>님의 온실<% if (tagWordStr) { %> · <a class="htag" href="<%= B %>/t/<%= encodeURIComponent(pl.tag_key) %>">#<%= tagWordStr %></a><% } %></p>
+    <h1><%= pl.name %> <% if (pl.cert_status === 'ok') { %><span class="certb">🛡 <%= t('정품') %></span><% } %></h1>
+    <p><%- t('{nick}님의 온실', { nick: '<a href="' + B + '/u/' + encodeURIComponent(u.nick) + '" style="font-weight:700;color:var(--ink)">' + T.esc(u.nick) + '</a>' }) %><% if (tagWordStr) { %> · <a class="htag" href="<%= B %>/t/<%= encodeURIComponent(pl.tag_key) %>">#<%= tagWordStr %></a><% } %></p>
   </div>
 </div>
 
 <% if (pl.cert_status === 'ok' && info) { %>
 <div class="pedl">
-  <div class="h">보증서 정보<b>🛡 정품</b></div>
+  <div class="h"><%= t('보증서 정보') %><b>🛡 <%= t('정품') %></b></div>
   <div class="no"><%= info.고유번호 %></div>
   <div class="nm"><%= String(info.품종명 || pl.name).split('\n')[0] %></div>
   <% if (info.모본 || info.부본) { %>
-  <div class="tree"><div class="p"><small>MOTHER 모본</small><%= info.모본 || '—' %></div><div class="x">×</div><div class="p"><small>FATHER 부본</small><%= info.부본 || '—' %></div><div class="down"></div><div class="me"><%= pl.name %></div></div>
+  <div class="tree"><div class="p"><small>MOTHER <%= t('모본') %></small><%= info.모본 || '—' %></div><div class="x">×</div><div class="p"><small>FATHER <%= t('부본') %></small><%= info.부본 || '—' %></div><div class="down"></div><div class="me"><%= pl.name %></div></div>
   <% } %>
   <dl>
-    <% if (info.등급) { %><dt>등급</dt><dd><%= ({녹박:'그린',적박:'레드',골드:'골드',로얄:'로얄'})[info.등급] || info.등급 %></dd><% } %>
-    <% if (info.육종가) { %><dt>육종가</dt><dd><%= info.육종가 %></dd><% } %>
-    <% if (info.육종연도) { %><dt>육종연도</dt><dd><%= info.육종연도 %></dd><% } %>
-    <dt>현재 보유</dt><dd><%= u.nick %> <small style="opacity:.7">(클럽 확인 · <%= pl.cert_note || '정품' %>)</small></dd>
-    <% if (info.이력수) { %><dt>소유 이력</dt><dd><%= info.이력수 %>건 <small style="opacity:.7">— 구매자 전용 보증서에서 확인</small></dd><% } %>
+    <% if (info.등급) { %><dt><%= t('등급') %></dt><dd><%= t(({녹박:'그린',적박:'레드',골드:'골드',로얄:'로얄'})[info.등급] || info.등급) %></dd><% } %>
+    <% if (info.육종가) { %><dt><%= t('육종가') %></dt><dd><%= info.육종가 %></dd><% } %>
+    <% if (info.육종연도) { %><dt><%= t('육종연도') %></dt><dd><%= info.육종연도 %></dd><% } %>
+    <dt><%= t('현재 보유') %></dt><dd><%= u.nick %> <small style="opacity:.7">(<%= t('클럽 확인') %>)</small></dd>
+    <% if (info.이력수) { %><dt><%= t('소유 이력') %></dt><dd><%= t('{n}건', { n: info.이력수 }) %> <small style="opacity:.7">— <%= t('구매자 전용 보증서에서 확인') %></small></dd><% } %>
   </dl>
-  <a class="lk" href="<%= ARK_URL %>/certificate/<%= encodeURIComponent(info.고유번호) %>" target="_blank">공개 보증서 보기 ↗</a>
+  <a class="lk" href="<%= ARK_URL %>/certificate/<%= encodeURIComponent(info.고유번호) %>" target="_blank"><%= t('공개 보증서 보기') %> ↗</a>
 </div>
 <% } else if (pl.cert_status === 'pending') { %>
-<div class="box" style="border:1.5px dashed var(--gold2)"><h3>⏳ 보증서 확인 중</h3><p>넘버 <b><%= pl.cert_no %></b> 연결을 운영자가 확인하고 있어요. 확인되면 🛡 정품 배지와 족보가 붙습니다.</p>
-  <% if (own) { %><button class="btn line s" style="margin-top:10px" data-act="/api/plants/<%= pl.id %>/cert/remove" data-confirm="연결 신청을 취소할까요?" data-go="reload">신청 취소</button><% } %></div>
+<div class="box" style="border:1.5px dashed var(--gold2)"><h3>⏳ <%= t('보증서 확인 중') %></h3><p><%- t('넘버 <b>{no}</b> 연결을 운영자가 확인하고 있어요. 확인되면 🛡 정품 배지와 족보가 붙습니다.', { no: T.esc(pl.cert_no) }) %></p>
+  <% if (own) { %><button class="btn line s" style="margin-top:10px" data-act="/api/plants/<%= pl.id %>/cert/remove" data-confirm="<%= t('연결 신청을 취소할까요?') %>" data-go="reload"><%= t('신청 취소') %></button><% } %></div>
 <% } %>
 
 <% if (own && pl.cert_status !== 'ok' && pl.cert_status !== 'pending') { %>
 <form class="box" id="certform" data-plant="<%= pl.id %>">
-  <h3>🛡 보증서 연결</h3>
-  <% if (pl.cert_status === 'rejected') { %><div class="err" style="display:block">지난 신청이 확인되지 않았습니다: <%= pl.cert_note %></div><% } %>
-  <p>보증서를 받으셨으면 <b>문자로 받은 보증서 링크</b>를 그대로 붙여 넣으세요. 바로 🛡 정품이 붙습니다.<br>넘버만 넣으면 정품 등록 때 쓴 번호와 같을 때 바로, 아니면 운영자 확인 뒤 붙습니다.</p>
-  <input class="in" id="certinput" style="margin-top:10px" placeholder="https://ark.haworthia.co.kr/certificate/…?k=…  또는  JY-…">
-  <button class="btn" type="submit" style="margin-top:10px">보증서 연결하기</button>
+  <h3>🛡 <%= t('보증서 연결') %></h3>
+  <% if (pl.cert_status === 'rejected') { %><div class="err" style="display:block"><%= t('지난 신청이 확인되지 않았습니다:') %> <%= pl.cert_note %></div><% } %>
+  <p><%- t('보증서를 받으셨으면 <b>문자로 받은 보증서 링크</b>를 그대로 붙여 넣으세요. 바로 🛡 정품이 붙습니다.') %><br><%= t('넘버만 넣으면 정품 등록 때 쓴 번호와 같을 때 바로, 아니면 운영자 확인 뒤 붙습니다.') %></p>
+  <input class="in" id="certinput" style="margin-top:10px" placeholder="https://ark.haworthia.co.kr/certificate/…?k=…  <%= t('또는') %>  JY-…">
+  <button class="btn" type="submit" style="margin-top:10px"><%= t('보증서 연결하기') %></button>
 </form>
 <% } %>
 
-<div class="sec"><h2>🌱 성장 기록</h2><small><%= list.length %>개</small><% if (own) { %><a class="r" href="<%= B %>/write?plant=<%= pl.id %>">＋ 기록 올리기</a><% } %></div>
-<% if (!list.length) { %><div class="empty-st" style="padding:26px"><i>📷</i>아직 기록이 없어요.<% if (own) { %><div style="margin-top:14px"><a class="btn gold s" href="<%= B %>/write?plant=<%= pl.id %>">첫 기록 올리기</a></div><% } %></div><% } %>
+<div class="sec"><h2>🌱 <%= t('성장 기록') %></h2><small><%= t('{n}개', { n: list.length }) %></small><% if (own) { %><a class="r" href="<%= B %>/write?plant=<%= pl.id %>">＋ <%= t('기록 올리기') %></a><% } %></div>
+<% if (!list.length) { %><div class="empty-st" style="padding:26px"><i>📷</i><%= t('아직 기록이 없어요.') %><% if (own) { %><div style="margin-top:14px"><a class="btn gold s" href="<%= B %>/write?plant=<%= pl.id %>"><%= t('첫 기록 올리기') %></a></div><% } %></div><% } %>
 <div class="tl">
   <% var first = list.length ? list[0].created_at : 0; list.slice().reverse().forEach(function (c) { var dd = Math.floor((c.created_at - first) / 86400000); %>
   <div class="it">
     <a href="<%= B %>/p/<%= c.id %>">
-      <div class="d"><%= T.ymd(c.created_at) %><small><%= dd === 0 ? '첫 기록' : 'D+' + dd %> · ♥ <%= c.likes %></small></div>
+      <div class="d"><%= T.ymd(c.created_at) %><small><%= dd === 0 ? t('첫 기록') : 'D+' + dd %> · ♥ <%= c.likes %></small></div>
       <% if (c.photos.length) { %><div class="ims"><% c.photos.forEach(function (p) { %><img src="<%= B %>/media/<%= p.thumb %>" loading="lazy" alt=""><% }); %></div><% } %>
       <% if (c.body) { %><p><%= String(c.body).slice(0, 140) %></p><% } %>
     </a>
@@ -54,8 +54,8 @@
 
 <% if (own) { %>
 <div style="display:flex;gap:8px;margin:20px 0">
-  <button class="btn line s" data-act="/api/plants/<%= pl.id %>/edit" data-prompt="식물 이름" data-prompt-value="<%= pl.name %>" data-prompt-key="name" data-go="reload">이름 바꾸기</button>
-  <button class="btn red s" data-act="/api/plants/<%= pl.id %>/delete" data-confirm="이 식물을 지울까요? (올린 사진은 남고 식물 연결만 풀립니다)">식물 지우기</button>
+  <button class="btn line s" data-act="/api/plants/<%= pl.id %>/edit" data-prompt="<%= t('식물 이름') %>" data-prompt-value="<%= pl.name %>" data-prompt-key="name" data-go="reload"><%= t('이름 바꾸기') %></button>
+  <button class="btn red s" data-act="/api/plants/<%= pl.id %>/delete" data-confirm="<%= t('이 식물을 지울까요? (올린 사진은 남고 식물 연결만 풀립니다)') %>"><%= t('식물 지우기') %></button>
 </div>
 <% } %>
 <%- include('_foot', { tab: own ? 'me' : '' }) %>

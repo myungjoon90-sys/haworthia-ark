@@ -1,0 +1,36 @@
+<%- include('_head') %>
+<div class="dhero">
+  <a class="who" href="<%= B %>/u/<%= encodeURIComponent(u.nick) %>"><span class="ava"><%= u.nick.slice(0,1) %></span><span><b><%= u.nick %></b><%- include('_badges', { u: u }) %></span></a>
+  <h1>🌱 <a href="<%= B %>/t/<%= encodeURIComponent(key) %>">#<%= word %></a> <%= t('성장일기') %></h1>
+  <div class="dstat">
+    <div><b><%= total %></b><small><%= t('기록') %></small></div>
+    <div><b>D+<%= span %></b><small><%= t('키운 기간') %></small></div>
+    <div><b><%= T.ymd(first.created_at).slice(2) %></b><small><%= t('첫 기록') %></small></div>
+    <div><b><%= T.ymd(last.created_at).slice(2) %></b><small><%= t('최근 기록') %></small></div>
+  </div>
+  <% if (total >= 2) { var a = first.photos[0], z = last.photos[0]; %>
+  <div class="dvs">
+    <a href="<%= B %>/p/<%= first.id %>"><img src="<%= B %>/media/<%= a.thumb %>" alt=""><span>D+0</span></a>
+    <i>→</i>
+    <a href="<%= B %>/p/<%= last.id %>"><img src="<%= B %>/media/<%= z.thumb %>" alt=""><span>D+<%= span %></span></a>
+  </div>
+  <% } %>
+</div>
+<div class="dord">
+  <a class="chip <%= order === 'old' ? 'on' : '' %>" href="?order=old"><%= t('처음부터') %></a>
+  <a class="chip <%= order === 'new' ? 'on' : '' %>" href="?order=new"><%= t('최근부터') %></a>
+  <% if (own) { %><a class="btn gold s" style="margin-left:auto" href="<%= B %>/write?tag=<%= encodeURIComponent(word) %>">＋ <%= t('오늘 기록 올리기') %></a><% } %>
+</div>
+<div class="dtline">
+  <% entries.forEach(function (e) { var ph = e.photos[0]; %>
+  <article class="dtl">
+    <div class="dtld"><b>D+<%= e.day %></b><small><%= T.ymd(e.created_at) %></small><% if (e.gap !== null && order === 'old') { %><small class="gap"><%= t('+{n}일', { n: e.gap }) %></small><% } %></div>
+    <div class="dtlc">
+      <a class="dtli" href="<%= B %>/p/<%= e.id %>" style="aspect-ratio:<%= ph.w && ph.h ? ph.w + '/' + Math.round(Math.min(ph.h, ph.w * 1.35)) : '1/1' %>"><img src="<%= B %>/media/<%= ph.file %>" loading="lazy" alt=""><% if (e.photos.length > 1) { %><span class="multi">❐ <%= e.photos.length %></span><% } %><% if (e.hidden) { %><span class="hidb"><%= t('숨김') %></span><% } %></a>
+      <% if (e.body) { %><div class="dtlb"><%- T.renderBody(String(e.body).length > 220 ? String(e.body).slice(0, 220) + '…' : e.body, B) %></div><% } %>
+      <a class="dtlm" href="<%= B %>/p/<%= e.id %>">♡ <%= e.likes %> · 💬 <%= e.comments %> · <%= t('글 보기 →') %></a>
+    </div>
+  </article>
+  <% }); %>
+</div>
+<%- include('_foot', { tab: own ? 'me' : '' }) %>

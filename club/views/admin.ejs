@@ -40,11 +40,13 @@
   <p class="hint" style="margin-bottom:8px">클럽 첫 화면 맨 위 칩 순서입니다. ETC 는 맨 끝에 항상 있고, 종이 정해지지 않은 글이 들어갑니다.</p>
   <table><tr><th>종</th><th>글</th><th></th></tr>
   <% spList.forEach(function (x, i) { %>
-    <tr><td><b><%= x.name %></b></td><td><%= x.n %></td>
+    <% var fx = [x.name_en, x.name_zhs, x.name_zht].map(function (v) { return v || ''; }); %>
+    <tr><td><b><%= x.name %></b><br><small style="color:var(--sub)"><%= fx.some(Boolean) ? fx.join(' · ') : '외국어 이름 없음 (한국어로 보임)' %></small></td><td><%= x.n %></td>
     <td style="white-space:nowrap">
       <button class="btn line s" data-act="/api/admin/species" data-body='<%= JSON.stringify({ action: "move", id: x.id, dir: -1 }) %>' data-go="reload" <%= i === 0 ? 'disabled' : '' %>>▲</button>
       <button class="btn line s" data-act="/api/admin/species" data-body='<%= JSON.stringify({ action: "move", id: x.id, dir: 1 }) %>' data-go="reload" <%= i === spList.length - 1 ? 'disabled' : '' %>>▼</button>
       <button class="btn line s" data-act="/api/admin/species" data-body='<%= JSON.stringify({ action: "rename", id: x.id }) %>' data-prompt="새 이름" data-prompt-value="<%= x.name %>" data-prompt-key="name" data-go="reload">이름</button>
+      <button class="btn line s" data-act="/api/admin/species" data-body='<%= JSON.stringify({ action: "i18n", id: x.id }) %>' data-prompt="외국어 이름 — English / 简体 / 繁體 (/ 로 나눠 적기)" data-prompt-value="<%= fx.join(' / ') %>" data-prompt-key="value" data-go="reload">🌐 외국어</button>
       <button class="btn red s" data-act="/api/admin/species" data-body='<%= JSON.stringify({ action: "delete", id: x.id }) %>' data-confirm="「<%= x.name %>」을 지울까요? 이 종의 글은 ETC 로 갑니다." data-go="reload">지우기</button>
     </td></tr>
   <% }); %>

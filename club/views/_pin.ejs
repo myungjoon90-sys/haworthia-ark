@@ -1,10 +1,10 @@
 <% /* 핀 하나 (사진 벽돌판) — c: 카드. 사진 → 글, #품종 → 그 품종만 모아 보기, 닉네임 → 온실 */ var ph = c.photos[0]; var ar = ph && ph.w && ph.h ? (ph.h / ph.w) : 1; ar = Math.max(0.6, Math.min(1.6, ar)); %>
 <div class="pin" data-ar="<%= ph ? ar.toFixed(3) : '0.75' %>">
   <% if (ph) { %>
-  <a class="pim" href="<%= B %>/p/<%= c.id %>" style="aspect-ratio:<%= ph.w && ph.h ? (ph.w + '/' + Math.round(ph.w * ar)) : '1/1' %>"><img src="<%= B %>/media/<%= ph.thumb %>" loading="lazy" alt=""><% if (c.photos.length > 1) { %><span class="multi">❐ <%= c.photos.length %></span><% } %><% if (c.hidden) { %><span class="hidb">숨김</span><% } %></a>
+  <a class="pim" href="<%= B %>/p/<%= c.id %>" style="aspect-ratio:<%= ph.w && ph.h ? (ph.w + '/' + Math.round(ph.w * ar)) : '1/1' %>"><img src="<%= B %>/media/<%= ph.thumb %>" loading="lazy" alt=""><% if (c.photos.length > 1) { %><span class="multi">❐ <%= c.photos.length %></span><% } %><% if (c.hidden) { %><span class="hidb"><%= t('숨김') %></span><% } %><% if (c.diaryN >= 2) { %><span class="dbad" title="<%= t('성장일기') %>">🌱 <%= c.diaryN %></span><% } %></a>
   <% } else { %>
   <a class="ptxt" href="<%= B %>/p/<%= c.id %>"><%= String(c.body || '').slice(0, 110) %></a>
   <% } %>
-  <div class="pmeta"><span class="pintags"><% c.tags.slice(0, 2).forEach(function (t) { %><a href="<%= B %>/t/<%= encodeURIComponent(t.key) %>">#<%= T.tagWord(t.label) %></a><% }); %><% if (!c.tags.length && c.plant) { %><span style="color:var(--sub)">🌱 <%= c.plant.name %></span><% } %></span><a class="phrt <%= c.liked ? 'on' : '' %>" href="<%= B %>/p/<%= c.id %>"><%= c.liked ? '♥' : '♡' %> <%= c.likes %></a></div>
+  <div class="pmeta"><span class="pintags"><% c.tags.slice(0, 2).forEach(function (x) { %><a href="<%= B %>/t/<%= encodeURIComponent(x.key) %>">#<%= T.tagWord(x.label) %></a><% }); %><% if (!c.tags.length && c.plant) { %><span style="color:var(--sub)">🌱 <%= c.plant.name %></span><% } %></span><a class="phrt <%= c.liked ? 'on' : '' %>" href="<%= B %>/p/<%= c.id %>"><%= c.liked ? '♥' : '♡' %> <%= c.likes %></a></div>
   <a class="puser" href="<%= B %>/u/<%= encodeURIComponent(c.user.nick) %>"><span class="ava s"><%= String(c.user.nick).slice(0,1) %></span><span class="nm"><%= c.user.nick %></span><% if (c.comments) { %><span class="cm">💬 <%= c.comments %></span><% } %></a>
 </div>

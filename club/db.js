@@ -139,9 +139,25 @@ function openDb(dataDir) {
   addCol('posts', 'species', 'INTEGER');         // 이 글의 종 (없으면 ETC)
   addCol('posts', 'species_src', "TEXT DEFAULT ''"); // 'user' = 글쓴이·운영자가 직접 고름, 그 밖 = 자동
   db.exec('CREATE INDEX IF NOT EXISTS ix_posts_species ON posts(species)');
+  // 종 이름 외국어 (English / 简体 / 繁體) — 2026-11-16
+  // 닉네임 마지막으로 바꾼 때 (3개월에 한 번만 — 2026-11-16 사장님 결정). 가입할 때 정한 건 셈하지 않음
+  addCol('users', 'nick_changed_at', 'INTEGER DEFAULT 0');
+  addCol('species', 'name_en', "TEXT DEFAULT ''");
+  addCol('species', 'name_zhs', "TEXT DEFAULT ''");
+  addCol('species', 'name_zht', "TEXT DEFAULT ''");
   if (!db.prepare('SELECT COUNT(*) n FROM species').get().n) {
     const ins = db.prepare('INSERT INTO species(name,ord,created_at) VALUES(?,?,?)');
     ['만상', '옥선', '바디아', '스프링복스'].forEach((n, i) => ins.run(n, i + 1, Date.now()));
+  }
+  // 처음 넣어 둔 종의 외국어 이름 (비어 있을 때만 — 운영자 화면에서 고칠 수 있음)
+  const SP_I18N = {
+    '만상': ['Maughanii', '万象', '萬象'],
+    '옥선': ['Truncata', '玉扇', '玉扇'],
+    '바디아': ['Badia', 'Badia', 'Badia'],
+    '스프링복스': ['Springbokvlakensis', 'Springbokvlakensis', 'Springbokvlakensis'],
+  };
+  for (const [n, v] of Object.entries(SP_I18N)) {
+    db.prepare("UPDATE species SET name_en=?, name_zhs=?, name_zht=? WHERE name=? AND COALESCE(name_en,'')='' AND COALESCE(name_zhs,'')='' AND COALESCE(name_zht,'')=''").run(v[0], v[1], v[2], n);
   }
   return db;
 }

@@ -3,6 +3,9 @@
   var B = document.documentElement.getAttribute('data-b') || '';
   var LOGGED = document.documentElement.getAttribute('data-me') === '1';
 
+  // 화면 언어 (서버가 window.CLUB_I18N 에 번역을 넣어 줌. 없으면 한국어 그대로)
+  var I18 = window.CLUB_I18N || {};
+  function L(s, v) { var o = I18[s] || s; if (v) o = o.replace(/\{(\w+)\}/g, function (m, k) { return v[k] !== undefined ? v[k] : m; }); return o; }
   function $(s, el) { return (el || document).querySelector(s); }
   function $$(s, el) { return Array.prototype.slice.call((el || document).querySelectorAll(s)); }
   function toast(msg) {
@@ -15,7 +18,7 @@
     return fetch(B + url, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body || {}), credentials: 'same-origin',
-    }).then(function (r) { return r.json().catch(function () { return { ok: false, error: '서버 응답 오류' }; }); });
+    }).then(function (r) { return r.json().catch(function () { return { ok: false, error: L('서버 응답 오류') }; }); });
   }
   window.clubApi = api;
   function needLogin() {
@@ -69,7 +72,7 @@
     e.preventDefault();
     var url = location.origin + b.getAttribute('data-share');
     if (navigator.share) navigator.share({ title: '하월시아 클럽', url: url }).catch(function () {});
-    else if (navigator.clipboard) navigator.clipboard.writeText(url).then(function () { toast('주소를 복사했습니다.'); });
+    else if (navigator.clipboard) navigator.clipboard.writeText(url).then(function () { toast(L('주소를 복사했습니다.')); });
   });
 
   // ---- … 메뉴 ----
@@ -101,7 +104,7 @@
     b.disabled = true;
     api(b.getAttribute('data-act'), body).then(function (r) {
       b.disabled = false;
-      if (!r.ok) return toast(r.error || '실패했습니다.');
+      if (!r.ok) return toast(r.error || L('실패했습니다.'));
       if (b.getAttribute('data-done')) toast(b.getAttribute('data-done'));
       var go = b.getAttribute('data-go');
       if (go === 'reload') setTimeout(function () { location.reload(); }, 350);
@@ -152,7 +155,7 @@
     var b = e.target.closest('[data-more]');
     if (!b) return;
     e.preventDefault();
-    b.disabled = true; b.textContent = '불러오는 중…';
+    b.disabled = true; b.textContent = L('불러오는 중…');
     fetch(b.getAttribute('data-more'), { credentials: 'same-origin' }).then(function (r) { return r.text(); }).then(function (html) {
       var tmp = document.createElement('div'); tmp.innerHTML = html;
       var target = document.getElementById(b.getAttribute('data-target'));
@@ -162,7 +165,7 @@
       if (target._m) masonryAdd(target, $$('.pin', holder));
       else while (holder.firstChild) target.appendChild(holder.firstChild);
       bindStrips(target);
-      if (nb) { b.setAttribute('data-more', nb.getAttribute('data-more')); b.disabled = false; b.textContent = '더 보기'; }
+      if (nb) { b.setAttribute('data-more', nb.getAttribute('data-more')); b.disabled = false; b.textContent = L('더 보기'); }
       else b.parentNode.removeChild(b);
     });
   });
@@ -184,7 +187,7 @@
       if (!items.length) return hide();
       box.innerHTML = items.map(function (it, i) {
         return '<div data-i="' + i + '" class="' + (i === sel ? 'on' : '') + '"><b>#' + esc(it.word) + '</b>' +
-          '<small>' + (it.fresh ? '새 태그로 쓰기' : it.n ? it.n + '개 글' : '품종명') + '</small></div>';
+          '<small>' + (it.fresh ? L('새 태그로 쓰기') : it.n ? L('{n}개 글', { n: it.n }) : L('품종명')) + '</small></div>';
       }).join('');
       box.style.display = 'block';
     }
@@ -247,11 +250,11 @@
       thumbs.innerHTML = '';
       shots.forEach(function (s, i) {
         var d = document.createElement('div'); d.className = 't';
-        d.innerHTML = '<img src="' + s.url + '" alt="">' + (i === 0 ? '<span class="one">대표</span>' : '') + '<button type="button" aria-label="빼기">✕</button>';
+        d.innerHTML = '<img src="' + s.url + '" alt="">' + (i === 0 ? '<span class="one">' + L('대표') + '</span>' : '') + '<button type="button" aria-label="' + L('빼기') + '">✕</button>';
         d.querySelector('button').onclick = function () { URL.revokeObjectURL(s.url); shots.splice(i, 1); drawThumbs(); };
         thumbs.appendChild(d);
       });
-      var c = $('#photocount'); if (c) c.textContent = shots.length ? shots.length + '/10장' : '';
+      var c = $('#photocount'); if (c) c.textContent = shots.length ? L('{n}/10장', { n: shots.length }) : '';
     }
     function loadImg(file) {
       if (window.createImageBitmap) {
@@ -267,7 +270,7 @@
     }
     function addFiles(list) {
       var files = Array.prototype.slice.call(list || []);
-      if (shots.length + files.length > 10) { toast('사진은 10장까지 올릴 수 있습니다.'); files = files.slice(0, 10 - shots.length); }
+      if (shots.length + files.length > 10) { toast(L('사진은 10장까지 올릴 수 있습니다.')); files = files.slice(0, 10 - shots.length); }
       var chain = Promise.resolve();
       files.forEach(function (f) {
         chain = chain.then(function () {
@@ -339,20 +342,20 @@
       fd.append('species', spChoice || ''); fd.append('species_pick', spManual ? 'user' : 'auto');
       if (plantId === 'new') {
         var nm = $('#newplantname').value.trim();
-        if (!nm) { err.textContent = '새 식물 이름을 적어 주세요.'; err.style.display = 'block'; return; }
+        if (!nm) { err.textContent = L('새 식물 이름을 적어 주세요.'); err.style.display = 'block'; return; }
         fd.append('new_plant', nm);
       } else if (plantId) fd.append('plant_id', plantId);
       var btn = $('#wsubmit'); btn.disabled = true;
       if (editId) {
         var o = { body: body, species: spChoice || '', species_pick: spManual ? 'user' : 'auto' }; if (plantId === 'new') o.new_plant = $('#newplantname').value.trim(); else if (plantId) o.plant_id = plantId;
-        btn.textContent = '저장하는 중…';
+        btn.textContent = L('저장하는 중…');
         api('/api/posts/' + editId + '/edit', o).then(function (r) {
-          if (!r.ok) { btn.disabled = false; btn.textContent = '저장하기'; err.textContent = r.error; err.style.display = 'block'; return; }
+          if (!r.ok) { btn.disabled = false; btn.textContent = L('저장하기'); err.textContent = r.error; err.style.display = 'block'; return; }
           location.href = r.url;
         });
         return;
       }
-      if (!shots.length && !body) { btn.disabled = false; err.textContent = '사진이나 글을 넣어 주세요.'; err.style.display = 'block'; return; }
+      if (!shots.length && !body) { btn.disabled = false; err.textContent = L('사진이나 글을 넣어 주세요.'); err.style.display = 'block'; return; }
       shots.forEach(function (s, i) {
         fd.append('f' + i, s.full, 'p' + i + '.jpg');
         fd.append('t' + i, s.thumb, 't' + i + '.jpg');
@@ -360,14 +363,14 @@
       });
       var xhr = new XMLHttpRequest();
       xhr.open('POST', B + '/api/posts');
-      xhr.upload.onprogress = function (ev) { if (ev.lengthComputable) btn.textContent = '올리는 중… ' + Math.round(ev.loaded / ev.total * 100) + '%'; };
+      xhr.upload.onprogress = function (ev) { if (ev.lengthComputable) btn.textContent = L('올리는 중… {p}%', { p: Math.round(ev.loaded / ev.total * 100) }); };
       xhr.onload = function () {
-        var r = {}; try { r = JSON.parse(xhr.responseText); } catch (x) { r = { ok: false, error: '서버 응답 오류' }; }
-        if (!r.ok) { btn.disabled = false; btn.textContent = '올리기'; err.textContent = r.error; err.style.display = 'block'; return; }
+        var r = {}; try { r = JSON.parse(xhr.responseText); } catch (x) { r = { ok: false, error: L('서버 응답 오류') }; }
+        if (!r.ok) { btn.disabled = false; btn.textContent = L('올리기'); err.textContent = r.error; err.style.display = 'block'; return; }
         location.href = r.url;
       };
-      xhr.onerror = function () { btn.disabled = false; btn.textContent = '올리기'; err.textContent = '인터넷 연결을 확인해 주세요.'; err.style.display = 'block'; };
-      btn.textContent = '올리는 중…';
+      xhr.onerror = function () { btn.disabled = false; btn.textContent = L('올리기'); err.textContent = L('인터넷 연결을 확인해 주세요.'); err.style.display = 'block'; };
+      btn.textContent = L('올리는 중…');
       xhr.send(fd);
     });
   }
@@ -383,21 +386,28 @@
     function show(step) { $$('[data-step]', lg).forEach(function (x) { x.style.display = x.getAttribute('data-step') === step ? 'block' : 'none'; }); }
     function bad(m) { e1.textContent = m; e1.style.display = 'block'; }
     function good() { e1.style.display = 'none'; }
+    var cty = $('#country');
+    function country() { return cty ? (cty.value || '82') : '82'; }
+    if (cty) cty.onchange = function () {
+      var h = $('#intlhint'); if (h) h.style.display = cty.value === '82' ? 'none' : 'block';
+      $('#phone').placeholder = cty.value === '82' ? '010-1234-5678' : L('휴대폰 번호');
+    };
     $('#sendbtn').onclick = function () {
       phone = $('#phone').value; good();
-      var b = this; b.disabled = true; b.textContent = '보내는 중…';
-      api('/api/auth/send', { phone: phone }).then(function (r) {
-        b.disabled = false; b.textContent = '인증번호 받기';
+      if (cty && !cty.value) return bad(L('나라를 먼저 골라 주세요.'));
+      var b = this; b.disabled = true; b.textContent = L('보내는 중…');
+      api('/api/auth/send', { phone: phone, country: country() }).then(function (r) {
+        b.disabled = false; b.textContent = L('인증번호 받기');
         if (!r.ok) return bad(r.error);
         show('code'); $('#code').focus();
-        $('#sentto').textContent = phone;
-        if (r.dev_code) { $('#code').value = r.dev_code; toast('시험 모드: 인증번호 ' + r.dev_code); }
+        $('#sentto').textContent = r.sent_to || ((country() === '82' ? '' : '+' + country() + ' ') + phone);
+        if (r.dev_code) { $('#code').value = r.dev_code; toast(L('시험 모드: 인증번호 {code}', { code: r.dev_code })); }
       });
     };
     $('#resend').onclick = function (e) { e.preventDefault(); show('phone'); };
     $('#codebtn').onclick = function () {
       good(); var b = this; b.disabled = true;
-      api('/api/auth/verify', { phone: phone, code: $('#code').value }).then(function (r) {
+      api('/api/auth/verify', { phone: phone, country: country(), code: $('#code').value }).then(function (r) {
         b.disabled = false;
         if (!r.ok) return bad(r.error);
         if (r.signup) { signup = r.signup; show('nick'); $('#nick').focus(); return; }
@@ -409,7 +419,7 @@
       api('/api/auth/signup', { signup: signup, nick: $('#nick').value, agree: $('#agree').checked }).then(function (r) {
         b.disabled = false;
         if (!r.ok) return bad(r.error);
-        if (r.ark) toast('방주 멤버로 확인되었습니다 ✦');
+        if (r.ark) toast(L('방주 멤버로 확인되었습니다 ✦'));
         setTimeout(function () { location.href = next; }, r.ark ? 900 : 0);
       });
     };
@@ -423,11 +433,11 @@
   var cform = $('#certform');
   if (cform) cform.addEventListener('submit', function (e) {
     e.preventDefault();
-    var b = $('button', cform); b.disabled = true; b.textContent = '보증서 확인 중…';
+    var b = $('button', cform); b.disabled = true; b.textContent = L('보증서 확인 중…');
     api('/api/plants/' + cform.getAttribute('data-plant') + '/cert', { input: $('#certinput').value }).then(function (r) {
-      b.disabled = false; b.textContent = '보증서 연결하기';
+      b.disabled = false; b.textContent = L('보증서 연결하기');
       if (!r.ok) return toast(r.error);
-      toast(r.status === 'ok' ? '🛡 정품으로 연결되었습니다 (' + r.how + ')' : '연결 신청이 접수되었습니다. 운영자 확인 후 🛡 배지가 붙습니다.');
+      toast(r.status === 'ok' ? L('🛡 정품으로 연결되었습니다 ({how})', { how: L(r.how) }) : L('연결 신청이 접수되었습니다. 운영자 확인 후 🛡 배지가 붙습니다.'));
       setTimeout(function () { location.reload(); }, 1100);
     });
   });
@@ -442,7 +452,7 @@
     if (bar && !dismissed() && !standalone) bar.classList.add('on');
   });
   if (bar && !standalone && !dismissed() && /iphone|ipad|ipod/i.test(navigator.userAgent)) {
-    $('.how', bar).textContent = '아래 공유 버튼 → 「홈 화면에 추가」';
+    $('.how', bar).textContent = L('아래 공유 버튼 → 「홈 화면에 추가」');
     $('button.go', bar).style.display = 'none';
     bar.classList.add('on');
   }
@@ -453,4 +463,9 @@
   if ('serviceWorker' in navigator) navigator.serviceWorker.register(B + '/sw.js', { scope: B + '/' }).catch(function () {});
 
   bindStrips(document);
+  // 성장일기 줄 — 지금 보는 글이 가운데 오도록 (세로 스크롤은 건드리지 않음)
+  $$('.diary').forEach(function (d) {
+    var st = $('.dstrip', d), cur = $('.ditem.cur', d);
+    if (st && cur) st.scrollLeft = Math.max(0, cur.offsetLeft - st.offsetLeft - (st.clientWidth - cur.clientWidth) / 2);
+  });
 })();

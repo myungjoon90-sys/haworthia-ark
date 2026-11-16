@@ -91,6 +91,7 @@ function normPhone(s) {
   return /^01[016789]\d{7,8}$/.test(d) ? d : '';
 }
 function maskPhone(p) {
+  if (String(p || '').startsWith('+')) { const s = String(p); return s.slice(0, Math.min(5, s.length - 4)) + '-****-' + s.slice(-4); }
   const d = digits(p);
   if (d.length < 8) return d;
   return d.slice(0, 3) + '-****-' + d.slice(-4);

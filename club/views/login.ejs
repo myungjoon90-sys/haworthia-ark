@@ -2,27 +2,34 @@
 <div id="login" data-next="<%= next %>" style="padding-top:28px">
   <div style="text-align:center;margin-bottom:20px">
     <div style="font-size:42px">🌿</div>
-    <h1 style="font-size:21px;margin-top:6px">하월시아 클럽</h1>
-    <p class="hint" style="margin-top:6px">휴대폰 번호로 바로 가입·로그인합니다.<br>비밀번호는 없어요.</p>
+    <h1 style="font-size:21px;margin-top:6px"><%= t('하월시아 클럽') %></h1>
+    <p class="hint" style="margin-top:6px"><%= t('휴대폰 번호로 바로 가입·로그인합니다.') %><br><%= t('비밀번호는 없어요.') %></p>
   </div>
   <div class="box">
     <div data-step="phone">
-      <label class="f" style="margin-top:0">휴대폰 번호</label>
-      <input class="in" id="phone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="010-1234-5678">
-      <button class="btn" id="sendbtn" type="button" style="margin-top:12px">인증번호 받기</button>
+      <label class="f" style="margin-top:0"><%= t('휴대폰 번호') %></label>
+      <div class="row2">
+        <select class="in" id="country" style="width:auto;max-width:42%;padding-right:6px">
+          <% if (!defCountry) { %><option value="" selected disabled><%= t('나라 선택') %></option><% } %>
+          <% COUNTRIES.forEach(function (c) { %><option value="<%= c.code %>" <%= c.code === defCountry ? 'selected' : '' %>><%= c.flag %> +<%= c.code %> <%= t(c.name) %></option><% }); %>
+        </select>
+        <input class="in" id="phone" type="tel" inputmode="numeric" autocomplete="tel-national" placeholder="<%= defCountry === '82' ? '010-1234-5678' : t('휴대폰 번호') %>">
+      </div>
+      <button class="btn" id="sendbtn" type="button" style="margin-top:12px"><%= t('인증번호 받기') %></button>
+      <p class="hint" id="intlhint" style="margin-top:10px;<%= defCountry === '82' ? 'display:none' : '' %>"><%= t('해외 번호는 보낸 사람이 「NURIGO」 또는 다른 번호로 표시될 수 있어요. 문자가 안 오면 잠시 뒤 다시 해 주세요.') %></p>
     </div>
     <div data-step="code" style="display:none">
-      <label class="f" style="margin-top:0"><span id="sentto"></span> 로 보낸 6자리</label>
+      <label class="f" style="margin-top:0"><%- t('{phone} 로 보낸 6자리', { phone: '<span id="sentto"></span>' }) %></label>
       <input class="in" id="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000" style="letter-spacing:6px;font-size:22px;text-align:center">
-      <button class="btn" id="codebtn" type="button" style="margin-top:12px">확인</button>
-      <p class="hint" style="margin-top:10px">문자가 안 오면 <a href="#" id="resend" style="text-decoration:underline">번호 다시 넣기</a></p>
+      <button class="btn" id="codebtn" type="button" style="margin-top:12px"><%= t('확인') %></button>
+      <p class="hint" style="margin-top:10px"><%= t('문자가 안 오면') %> <a href="#" id="resend" style="text-decoration:underline"><%= t('번호 다시 넣기') %></a></p>
     </div>
     <div data-step="nick" style="display:none">
-      <label class="f" style="margin-top:0">처음 오셨네요! 클럽에서 쓸 닉네임</label>
-      <input class="in" id="nick" maxlength="16" placeholder="2~16자, 띄어쓰기 없이">
+      <label class="f" style="margin-top:0"><%= t('처음 오셨네요! 클럽에서 쓸 닉네임') %></label>
+      <input class="in" id="nick" maxlength="16" placeholder="<%= t('2~16자, 띄어쓰기 없이') %>">
       <label style="display:flex;gap:8px;align-items:flex-start;margin-top:14px;font-size:13px;color:var(--sub)"><input type="checkbox" id="agree" style="margin-top:3px;width:18px;height:18px">
-        <span>[필수] 개인정보 수집·이용 동의 — 휴대폰 번호는 로그인·본인 확인에만 쓰며, 다른 회원에게 보이지 않습니다. 탈퇴를 원하시면 운영자에게 알려 주세요.</span></label>
-      <button class="btn gold" id="nickbtn" type="button" style="margin-top:14px">가입하고 시작하기</button>
+        <span><%= t('[필수] 개인정보 수집·이용 동의 — 휴대폰 번호는 로그인·본인 확인에만 쓰며, 다른 회원에게 보이지 않습니다. 탈퇴를 원하시면 운영자에게 알려 주세요.') %></span></label>
+      <button class="btn gold" id="nickbtn" type="button" style="margin-top:14px"><%= t('가입하고 시작하기') %></button>
     </div>
     <div class="err" id="lerr"></div>
   </div>
