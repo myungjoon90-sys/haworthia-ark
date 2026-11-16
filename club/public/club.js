@@ -246,12 +246,16 @@
   if (wf) {
     var shots = [];
     var thumbs = $('#thumbs');
+    var rq = Promise.resolve();   // 다시 자른 사진 만들기 차례 (올리기 전에 끝날 때까지 기다림)
     function drawThumbs() {
       thumbs.innerHTML = '';
       shots.forEach(function (s, i) {
         var d = document.createElement('div'); d.className = 't';
-        d.innerHTML = '<img src="' + s.url + '" alt="">' + (i === 0 ? '<span class="one">' + L('대표') + '</span>' : '') + '<button type="button" aria-label="' + L('빼기') + '">✕</button>';
-        d.querySelector('button').onclick = function () { URL.revokeObjectURL(s.url); shots.splice(i, 1); drawThumbs(); };
+        d.innerHTML = '<img src="' + s.url + '" alt="">' + (i === 0 ? '<span class="one">' + L('대표') + '</span>' : '') +
+          '<button type="button" class="rm" aria-label="' + L('빼기') + '">✕</button>' +
+          (s.src ? '<button type="button" class="cut" aria-label="' + L('자르기') + '">✂</button>' : '');
+        d.querySelector('.rm').onclick = function () { URL.revokeObjectURL(s.url); shots.splice(i, 1); drawThumbs(); };
+        if (s.src) d.querySelector('.cut').onclick = function () { cropOpen([s]); };
         thumbs.appendChild(d);
       });
       var c = $('#photocount'); if (c) c.textContent = shots.length ? L('{n}/10장', { n: shots.length }) : '';
@@ -268,24 +272,153 @@
       c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
       return new Promise(function (ok) { c.toBlob(function (b) { ok({ blob: b, w: c.width, h: c.height }); }, 'image/jpeg', q); });
     }
+
+    // ---- 정사각형 자르기 (2026-11-16 사장님 A안: 정사각형 안에서 보일 부분·크기를 손님이 고름) ----
+    // 사진마다 src(긴 쪽 2000px 이하 사본)와 crop{x,y,s}(src 기준 정사각형)를 갖고, 올릴 사진·작은 사진은 crop 으로 만든다
+    function centerCrop(w, h) { var m = Math.min(w, h); return { x: (w - m) / 2, y: (h - m) / 2, s: m }; }
+    function cutSquare(img, c, k, size, q) {
+      var n = Math.max(1, Math.round(Math.min(size, c.s * k)));
+      var cv = document.createElement('canvas'); cv.width = n; cv.height = n;
+      var g = cv.getContext('2d'); g.imageSmoothingQuality = 'high';
+      g.drawImage(img, c.x * k, c.y * k, c.s * k, c.s * k, 0, 0, n, n);
+      return new Promise(function (ok) { cv.toBlob(function (b) { ok({ blob: b, n: n }); }, 'image/jpeg', q); });
+    }
+    function render(s, img, k) {   // k = img 크기 / src 크기
+      return Promise.all([cutSquare(img, s.crop, k, 1600, 0.86), cutSquare(img, s.crop, k, 520, 0.8)]).then(function (r) {
+        if (s.url) URL.revokeObjectURL(s.url);
+        s.full = r[0].blob; s.thumb = r[1].blob; s.w = r[0].n; s.h = r[0].n; s.url = URL.createObjectURL(r[1].blob);
+      });
+    }
+    function rerender(s) {
+      rq = rq.then(function () {
+        return loadImg(s.src).then(function (im) { return render(s, im, im.width / s.sw).then(function () { if (im.close) im.close(); drawThumbs(); }); });
+      }).catch(function () {});
+    }
     function addFiles(list) {
       var files = Array.prototype.slice.call(list || []);
       if (shots.length + files.length > 10) { toast(L('사진은 10장까지 올릴 수 있습니다.')); files = files.slice(0, 10 - shots.length); }
+      var added = [];
       var chain = Promise.resolve();
       files.forEach(function (f) {
         chain = chain.then(function () {
           return loadImg(f).then(function (img) {
-            return Promise.all([shrink(img, 1600, 0.86), shrink(img, 520, 0.8)]).then(function (r) {
-              shots.push({ full: r[0].blob, thumb: r[1].blob, w: r[0].w, h: r[0].h, url: URL.createObjectURL(r[1].blob) });
-              drawThumbs();
+            return shrink(img, 2000, 0.9).then(function (r) {
+              var s = { src: r.blob, sw: r.w, sh: r.h, crop: centerCrop(r.w, r.h) };
+              return render(s, img, img.width / r.w).then(function () { if (img.close) img.close(); shots.push(s); added.push(s); drawThumbs(); });
             });
           }).catch(function () {
-            // 줄이기를 못 하는 사진(일부 HEIC 등)은 원본 그대로
+            // 줄이기를 못 하는 사진(일부 HEIC 등)은 원본 그대로 (자르기 없음)
             shots.push({ full: f, thumb: f, w: 0, h: 0, url: URL.createObjectURL(f) }); drawThumbs();
           });
         });
       });
+      // 사진을 고르면 자르기 화면이 바로 한 장씩 열림 — 그대로 두려면 「완료」만
+      chain.then(function () { if (added.length) cropOpen(added); });
     }
+
+    var ck = null;
+    function cropOpen(list) {
+      if (ck || !list.length) return;
+      var touch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+      var el = document.createElement('div'); el.className = 'ck'; el.setAttribute('role', 'dialog');
+      el.innerHTML = '<div class="ck-bar"><button type="button" class="ck-x" aria-label="' + L('닫기') + '">✕</button><b class="ck-t"></b><button type="button" class="ck-ok"></button></div>' +
+        '<div class="ck-stage"><img class="ck-img" alt="" draggable="false"><div class="ck-fr"><i class="v1"></i><i class="v2"></i><i class="h1"></i><i class="h2"></i></div>' +
+        '<div class="ck-hint">' + L(touch ? '끌어서 위치 · 두 손가락으로 크기' : '끌어서 위치 · 휠로 크기') + '</div></div>' +
+        '<div class="ck-tools"><button type="button" class="ck-reset">↺ ' + L('원래대로') + '</button></div><div class="ck-strip"></div>';
+      document.body.appendChild(el);
+      document.documentElement.classList.add('ck-open');
+      ck = { el: el, list: list, i: -1, img: el.querySelector('.ck-img'), fr: el.querySelector('.ck-fr'), stage: el.querySelector('.ck-stage'),
+        url: '', k: 1, kmin: 1, tx: 0, ty: 0, F: 0, fx: 0, fy: 0, ptrs: {}, g: null, pushed: false, ready: false };
+      try { history.pushState({ ck: 1 }, ''); ck.pushed = true; } catch (x) {}
+      var st = ck.stage;
+      st.addEventListener('pointerdown', function (e) {
+        if (!ck || !ck.ready) return;
+        try { st.setPointerCapture(e.pointerId); } catch (x) {}
+        ck.ptrs[e.pointerId] = { x: e.clientX, y: e.clientY }; ck.g = null; e.preventDefault();
+      });
+      st.addEventListener('pointermove', function (e) {
+        if (!ck) return;
+        var p = ck.ptrs[e.pointerId]; if (!p) return;
+        var ids = Object.keys(ck.ptrs);
+        if (ids.length === 1) { ck.tx += e.clientX - p.x; ck.ty += e.clientY - p.y; p.x = e.clientX; p.y = e.clientY; ckApply(); return; }
+        p.x = e.clientX; p.y = e.clientY;
+        var a = ck.ptrs[ids[0]], b = ck.ptrs[ids[1]], r = st.getBoundingClientRect();
+        var d = Math.max(1, Math.hypot(a.x - b.x, a.y - b.y)), mx = (a.x + b.x) / 2 - r.left, my = (a.y + b.y) / 2 - r.top;
+        if (ck.g) { ckZoom(ck.k * d / ck.g.d, ck.g.mx, ck.g.my); ck.tx += mx - ck.g.mx; ck.ty += my - ck.g.my; ckApply(); }
+        ck.g = { d: d, mx: mx, my: my };
+      });
+      function up(e) { if (ck) { delete ck.ptrs[e.pointerId]; ck.g = null; } }
+      st.addEventListener('pointerup', up); st.addEventListener('pointercancel', up);
+      st.addEventListener('wheel', function (e) {
+        if (!ck || !ck.ready) return; e.preventDefault();
+        var r = st.getBoundingClientRect(); ckZoom(ck.k * Math.exp(-e.deltaY * 0.0015), e.clientX - r.left, e.clientY - r.top); ckApply();
+      }, { passive: false });
+      el.querySelector('.ck-x').onclick = function () { ckClose(); };
+      el.querySelector('.ck-ok').onclick = function () { ckSave(); if (ck.i < ck.list.length - 1) ckShow(ck.i + 1); else ckClose(); };
+      el.querySelector('.ck-reset').onclick = function () { var s = ck.list[ck.i]; ckFrom(centerCrop(s.sw, s.sh)); };
+      ck.img.onload = function () { if (!ck) return; ck.ready = true; ckLayout(); ck.img.style.visibility = 'visible'; };
+      ckShow(0);
+    }
+    function ckShow(i) {
+      ck.i = i; ck.ready = false; ck.ptrs = {}; ck.g = null;
+      var s = ck.list[i], n = ck.list.length;
+      ck.el.querySelector('.ck-t').textContent = n > 1 ? L('사진 자르기 {i}/{n}', { i: i + 1, n: n }) : L('자르기');
+      ck.el.querySelector('.ck-ok').textContent = i < n - 1 ? L('다음') : L('완료');
+      var sp = ck.el.querySelector('.ck-strip'); sp.innerHTML = '';
+      if (n > 1) ck.list.forEach(function (x, j) {
+        var b = document.createElement('button'); b.type = 'button'; b.className = j === i ? 'on' : '';
+        b.innerHTML = '<img src="' + x.url + '" alt="">'; b.onclick = function () { if (j !== ck.i) { ckSave(); ckShow(j); } };
+        sp.appendChild(b);
+      });
+      if (ck.url) URL.revokeObjectURL(ck.url);
+      ck.url = URL.createObjectURL(s.src);
+      ck.img.style.visibility = 'hidden'; ck.img.style.width = s.sw + 'px'; ck.img.style.height = s.sh + 'px';
+      ck.img.src = ck.url;
+    }
+    function ckLayout(resized) {   // 틀 크기 — 사진을 열 때는 그 사진의 crop, 화면이 돌아갈 때는 지금 고른 부분 그대로
+      var s = ck.list[ck.i], keep = resized ? ckCrop() : s.crop;
+      var W = ck.stage.clientWidth, H = ck.stage.clientHeight;
+      ck.F = Math.max(120, Math.min(W - 32, H - 64, 560)); ck.fx = (W - ck.F) / 2; ck.fy = (H - ck.F) / 2;
+      var f = ck.fr.style; f.left = ck.fx + 'px'; f.top = ck.fy + 'px'; f.width = ck.F + 'px'; f.height = ck.F + 'px';
+      ck.kmin = ck.F / Math.min(s.sw, s.sh);
+      ckFrom(keep);
+    }
+    function ckFrom(c) { ck.k = ck.F / c.s; ck.tx = ck.fx - c.x * ck.k; ck.ty = ck.fy - c.y * ck.k; ckApply(); }
+    function ckZoom(nk, px, py) {
+      nk = Math.min(ck.kmin * 5, Math.max(ck.kmin, nk));
+      ck.tx = px - (px - ck.tx) * nk / ck.k; ck.ty = py - (py - ck.ty) * nk / ck.k; ck.k = nk;
+    }
+    function ckApply() {
+      var s = ck.list[ck.i];
+      ck.k = Math.min(ck.kmin * 5, Math.max(ck.kmin, ck.k));
+      ck.tx = Math.min(ck.fx, Math.max(ck.fx + ck.F - s.sw * ck.k, ck.tx));
+      ck.ty = Math.min(ck.fy, Math.max(ck.fy + ck.F - s.sh * ck.k, ck.ty));
+      ck.img.style.transform = 'translate(' + ck.tx + 'px,' + ck.ty + 'px) scale(' + ck.k + ')';
+    }
+    function ckCrop() {
+      var s = ck.list[ck.i], m = Math.min(s.sw, s.sh), z = Math.min(m, ck.F / ck.k);
+      return { x: Math.min(s.sw - z, Math.max(0, (ck.fx - ck.tx) / ck.k)), y: Math.min(s.sh - z, Math.max(0, (ck.fy - ck.ty) / ck.k)), s: z };
+    }
+    function ckSave() {
+      if (!ck || !ck.ready) return;
+      var s = ck.list[ck.i], c = ckCrop(), o = s.crop;
+      if (Math.abs(c.x - o.x) + Math.abs(c.y - o.y) + Math.abs(c.s - o.s) < 1) return;
+      s.crop = c; rerender(s);
+    }
+    function ckClose(fromBack) {   // ✕ = 지금 사진의 바꾼 것은 버리고 닫기 (앞에서 「다음」 누른 것은 남음)
+      if (!ck) return;
+      var c = ck; ck = null;
+      if (c.url) URL.revokeObjectURL(c.url);
+      c.el.remove(); document.documentElement.classList.remove('ck-open');
+      if (c.pushed && !fromBack) history.back();
+    }
+    window.addEventListener('popstate', function () { if (ck) ckClose(true); });   // 폰 「뒤로」 = 닫기 (글쓰기 화면은 그대로)
+    window.addEventListener('resize', function () { if (ck && ck.ready) ckLayout(true); });
+    document.addEventListener('keydown', function (e) {
+      if (!ck) return;
+      if (e.key === 'Escape') ckClose();
+      else if (e.key === 'Enter') { e.preventDefault(); ck.el.querySelector('.ck-ok').click(); }
+    });
     $$('input[type=file]', wf).forEach(function (inp) {
       inp.addEventListener('change', function () { addFiles(inp.files); inp.value = ''; });
     });
@@ -356,6 +489,7 @@
         return;
       }
       if (!shots.length && !body) { btn.disabled = false; err.textContent = L('사진이나 글을 넣어 주세요.'); err.style.display = 'block'; return; }
+      rq.then(function () {
       shots.forEach(function (s, i) {
         fd.append('f' + i, s.full, 'p' + i + '.jpg');
         fd.append('t' + i, s.thumb, 't' + i + '.jpg');
@@ -372,6 +506,7 @@
       xhr.onerror = function () { btn.disabled = false; btn.textContent = L('올리기'); err.textContent = L('인터넷 연결을 확인해 주세요.'); err.style.display = 'block'; };
       btn.textContent = L('올리는 중…');
       xhr.send(fd);
+      });
     });
   }
 

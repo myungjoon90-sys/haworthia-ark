@@ -478,3 +478,26 @@ body.noscroll{overflow:hidden}
 .shopcard .tx small{font-size:12.5px;color:var(--sub)}
 .shopcard .go{font-size:12.5px;font-weight:800;color:var(--green2);white-space:nowrap}
 .shopcard .smore{display:block;width:100%;border:0;border-top:1px solid var(--line);background:#fff;padding:10px 0;font-size:13px;font-weight:700;color:var(--green2);cursor:pointer}
+
+/* ---- 사진 자르기 (정사각형 안에서 보일 부분·크기 고르기, 2026-11-16 A안) ---- */
+html.ck-open,html.ck-open body{overflow:hidden;overscroll-behavior:none}
+.ck{position:fixed;inset:0;z-index:150;background:#0d0f0d;color:#fff;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:var(--safe-b);user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.ck-bar{flex:0 0 auto;height:56px;display:flex;align-items:center;padding:0 10px;gap:8px}
+.ck-bar b{flex:1;text-align:center;font-size:16px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ck-x{flex:0 0 auto;width:44px;height:44px;border:0;background:none;color:#fff;font-size:22px;cursor:pointer}
+.ck-ok{flex:0 0 auto;border:0;border-radius:999px;padding:9px 18px;min-width:72px;font-weight:800;font-size:14px;color:#1F4129;background:linear-gradient(135deg,#E2C27A,#C9A24E);cursor:pointer}
+.ck-stage{flex:1 1 auto;position:relative;overflow:hidden;touch-action:none;cursor:grab}
+.ck-stage:active{cursor:grabbing}
+.ck-img{position:absolute;left:0;top:0;transform-origin:0 0;max-width:none;pointer-events:none;visibility:hidden}
+.ck-fr{position:absolute;border:2px solid #fff;box-shadow:0 0 0 4000px rgba(0,0,0,.62);pointer-events:none}
+.ck-fr i{position:absolute;background:rgba(255,255,255,.35)}
+.ck-fr .v1{left:33.33%;top:0;bottom:0;width:1px}.ck-fr .v2{left:66.66%;top:0;bottom:0;width:1px}
+.ck-fr .h1{top:33.33%;left:0;right:0;height:1px}.ck-fr .h2{top:66.66%;left:0;right:0;height:1px}
+.ck-hint{position:absolute;left:0;right:0;bottom:12px;text-align:center;font-size:12.5px;color:rgba(255,255,255,.75);pointer-events:none}
+.ck-tools{flex:0 0 auto;display:flex;justify-content:center;padding:12px 14px 4px}
+.ck-reset{background:none;border:1.5px dashed rgba(255,255,255,.4);color:rgba(255,255,255,.9);border-radius:999px;padding:7px 16px;font-size:13px;font-weight:700;cursor:pointer}
+.ck-strip{flex:0 0 auto;display:flex;justify-content:center;gap:8px;padding:10px 10px 14px;overflow-x:auto;min-height:14px}
+.ck-strip button{flex:0 0 auto;width:46px;height:46px;padding:0;border-radius:9px;overflow:hidden;border:2px solid transparent;opacity:.55;background:#222;cursor:pointer}
+.ck-strip button.on{border-color:#E2C27A;opacity:1}
+.ck-strip img{width:100%;height:100%;object-fit:cover;display:block}
+.thumbs .t .cut{top:auto;bottom:4px;font-size:12px}
