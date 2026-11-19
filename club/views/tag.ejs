@@ -2,7 +2,7 @@
 <div class="taghd">
   <h1>#<%= word %></h1>
   <% if (tagSp) { %><a class="chip" href="<%= B %>/?s=<%= tagSp %>" style="display:inline-block;margin-top:8px;padding:4px 11px;font-size:12px"><%= t('종') %> · <%= tagSpName %></a><% } %>
-  <div class="nums"><span><%- t('<b>{n}</b> 사진', { n: n }) %></span><span><%- t('<b>{n}</b> 명이 키워요', { n: growers }) %></span></div>
+  <div class="nums"><span><%- t('<b>{n}</b> 사진', { n: n }) %></span><span><%- t('<b>{n}</b>명이 키우는 중', { n: growers }) %></span></div>
 </div>
 
 <% if (official && (official.모본 || official.부본)) { %>
@@ -25,12 +25,12 @@
   <a class="<%= sort==='hot'?'on':'' %>" href="<%= B %>/t/<%= encodeURIComponent(key) %>?sort=hot"><%= t('인기순 (30일)') %></a>
 </div>
 <% if (!list.length) { %>
-  <div class="empty-st"><i>🌱</i><%= t('아직 #{tag} 사진이 없어요.', { tag: word }) %><br><%= t('첫 사진의 주인공이 되어 주세요.') %></div>
+  <div class="empty-st"><i>🌱</i><%= t('#{tag} 사진이 없습니다.', { tag: word }) %><br><%= t('첫 사진을 등록해 주세요.') %></div>
 <% } else { %>
   <div class="masonry" id="gridlist"><% list.forEach(function (c) { %><%- include('_pin', { c: c }) %><% }); %></div>
   <% if (more) { %><button class="btn line moreb" data-more="<%= next %>" data-target="gridlist"><%= t('더 보기') %></button><% } %>
 <% } %>
-<a class="btn gold" href="<%= B %>/write?tag=<%= encodeURIComponent(word) %>" style="margin:18px 0">＋ <%= t('#{tag} 사진 올리기', { tag: word }) %></a>
+<a class="btn gold" href="<%= B %>/write?tag=<%= encodeURIComponent(word) %>" style="margin:18px 0">＋ <%= t('#{tag} 사진 등록', { tag: word }) %></a>
 <% if (forSale.n) { %>
 <div class="shopcard" id="shopcard">
   <div class="sh"><b>🌿 <%= t('지양하월시아에서 판매 중') %></b><small><%= t('#{tag} · {n}개', { tag: word, n: forSale.n }) %></small></div>
@@ -38,7 +38,7 @@
   <a class="srow<%= i >= 3 ? ' more' : '' %>" href="<%= x.url %>" target="_blank" rel="noopener">
     <span class="im"><% if (x.img) { %><img src="<%= x.img %>" alt="" loading="lazy"><% } %></span>
     <span class="tx"><b><%= x.name %></b><small>₩<%= Number(x.price).toLocaleString('ko-KR') %></small></span>
-    <span class="go"><%= t('보러 가기') %> ›</span>
+    <span class="go"><%= t('바로가기') %> ›</span>
   </a>
   <% }); %>
   <% if (forSale.list.length > 3) { %><button class="smore" type="button" onclick="document.getElementById('shopcard').classList.add('open');this.remove()"><%= t('{n}개 더 보기', { n: forSale.list.length - 3 }) %></button><% } %>

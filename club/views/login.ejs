@@ -1,10 +1,17 @@
 <%- include('_head') %>
-<div id="login" data-next="<%= next %>" style="padding-top:28px">
+<div id="login" data-next="<%= next %>" data-kakao="<%= kakaoTok %>" style="padding-top:28px">
   <div style="text-align:center;margin-bottom:20px">
     <div style="font-size:42px">🌿</div>
     <h1 style="font-size:21px;margin-top:6px"><%= t('하월시아 클럽') %></h1>
-    <p class="hint" style="margin-top:6px"><%= t('휴대폰 번호로 바로 가입·로그인합니다.') %><br><%= t('비밀번호는 없어요.') %></p>
+    <p class="hint" style="margin-top:6px"><%= t('휴대폰 번호로 가입 및 로그인합니다.') %><br><%= t('비밀번호는 필요하지 않습니다.') %></p>
   </div>
+  <% if (kerr === 'cancel') { %><div class="okmsg warn"><%= t('카카오 로그인이 취소되었습니다.') %></div><% } else if (kerr === 'fail') { %><div class="okmsg warn"><%= t('카카오 로그인에 실패했습니다. 잠시 후 다시 시도해 주세요.') %></div><% } %>
+  <% if (kakaoTok) { %>
+  <div class="okmsg kk"><b><%= t('카카오 계정이 확인되었습니다.') %></b><br><%= t('처음 한 번만 휴대폰 번호 인증이 필요합니다. 다음부터는 카카오로 로그인할 수 있습니다.') %></div>
+  <% } else if (kakaoOn) { %>
+  <a class="kakaobtn" href="<%= B %>/auth/kakao?next=<%= encodeURIComponent(next) %>"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="#000" d="M12 3C6.48 3 2 6.58 2 11c0 2.86 1.88 5.37 4.7 6.78-.2.74-.74 2.7-.85 3.12-.13.52.19.51.4.37.17-.11 2.66-1.8 3.74-2.53.65.09 1.32.14 2.01.14 5.52 0 10-3.58 10-8s-4.48-8-10-8z"/></svg><%= t('카카오로 로그인') %></a>
+  <div class="ordiv"><span><%= t('또는 휴대폰 번호로 로그인') %></span></div>
+  <% } %>
   <div class="box">
     <div data-step="phone">
       <label class="f" style="margin-top:0"><%= t('휴대폰 번호') %></label>
@@ -16,20 +23,20 @@
         <input class="in" id="phone" type="tel" inputmode="numeric" autocomplete="tel-national" placeholder="<%= defCountry === '82' ? '010-1234-5678' : t('휴대폰 번호') %>">
       </div>
       <button class="btn" id="sendbtn" type="button" style="margin-top:12px"><%= t('인증번호 받기') %></button>
-      <p class="hint" id="intlhint" style="margin-top:10px;<%= defCountry === '82' ? 'display:none' : '' %>"><%= t('해외 번호는 보낸 사람이 「NURIGO」 또는 다른 번호로 표시될 수 있어요. 문자가 안 오면 잠시 뒤 다시 해 주세요.') %></p>
+      <p class="hint" id="intlhint" style="margin-top:10px;<%= defCountry === '82' ? 'display:none' : '' %>"><%= t('해외 번호는 발신자가 「NURIGO」 또는 다른 번호로 표시될 수 있습니다. 문자가 오지 않으면 잠시 후 다시 시도해 주세요.') %></p>
     </div>
     <div data-step="code" style="display:none">
       <label class="f" style="margin-top:0"><%- t('{phone} 로 보낸 6자리', { phone: '<span id="sentto"></span>' }) %></label>
       <input class="in" id="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000" style="letter-spacing:6px;font-size:22px;text-align:center">
       <button class="btn" id="codebtn" type="button" style="margin-top:12px"><%= t('확인') %></button>
-      <p class="hint" style="margin-top:10px"><%= t('문자가 안 오면') %> <a href="#" id="resend" style="text-decoration:underline"><%= t('번호 다시 넣기') %></a></p>
+      <p class="hint" style="margin-top:10px"><%= t('문자가 오지 않으면') %> <a href="#" id="resend" style="text-decoration:underline"><%= t('번호 다시 입력') %></a></p>
     </div>
     <div data-step="nick" style="display:none">
-      <label class="f" style="margin-top:0"><%= t('처음 오셨네요! 클럽에서 쓸 닉네임') %></label>
+      <label class="f" style="margin-top:0"><%= t('클럽에서 사용할 닉네임을 정해 주세요') %></label>
       <input class="in" id="nick" maxlength="16" placeholder="<%= t('2~16자, 띄어쓰기 없이') %>">
       <label style="display:flex;gap:8px;align-items:flex-start;margin-top:14px;font-size:13px;color:var(--sub)"><input type="checkbox" id="agree" style="margin-top:3px;width:18px;height:18px">
-        <span><%= t('[필수] 개인정보 수집·이용 동의 — 휴대폰 번호는 로그인·본인 확인에만 쓰며, 다른 회원에게 보이지 않습니다. 탈퇴를 원하시면 운영자에게 알려 주세요.') %></span></label>
-      <button class="btn gold" id="nickbtn" type="button" style="margin-top:14px"><%= t('가입하고 시작하기') %></button>
+        <span><%= t('[필수] 만 14세 이상이며, 개인정보 수집·이용에 동의합니다 — 휴대폰 번호는 로그인·본인 확인에만 쓰며, 다른 회원에게 보이지 않습니다.') %> <a href="<%= B %>/privacy" target="_blank" style="text-decoration:underline"><%= t('개인정보처리방침') %></a></span></label>
+      <button class="btn gold" id="nickbtn" type="button" style="margin-top:14px"><%= t('가입하기') %></button>
     </div>
     <div class="err" id="lerr"></div>
   </div>

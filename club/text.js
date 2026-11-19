@@ -106,9 +106,9 @@ function maskName(n) {
 // 닉네임: 2~16자, 글자·숫자·_ . 만
 function checkNick(n) {
   const s = String(n || '').normalize('NFC').trim();
-  if (s.length < 2 || s.length > 16) return { error: '닉네임은 2~16자로 정해 주세요.' };
-  if (!/^[\p{L}\p{N}_.]+$/u.test(s)) return { error: '닉네임에는 글자·숫자·_ . 만 쓸 수 있습니다. (띄어쓰기 안 됨)' };
-  if (/^(admin|관리자|운영자|지양|jiyang|방주|ark)/i.test(s)) return { error: '운영자로 오해될 수 있는 닉네임은 쓸 수 없습니다.' };
+  if (s.length < 2 || s.length > 16) return { error: '닉네임은 2~16자로 입력해 주세요.' };
+  if (!/^[\p{L}\p{N}_.]+$/u.test(s)) return { error: '닉네임에는 문자·숫자·_ . 만 사용할 수 있습니다. (띄어쓰기 불가)' };
+  if (/^(admin|관리자|운영자|지양|jiyang|방주|ark)/i.test(s)) return { error: '운영자로 오해될 수 있는 닉네임은 사용할 수 없습니다.' };
   return { nick: s, key: s.toLowerCase() };
 }
 

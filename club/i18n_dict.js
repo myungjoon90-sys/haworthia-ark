@@ -1,12 +1,22 @@
 // 하월시아 클럽 번역표 — 열쇠: 한국어 원문 / 값: [English, 简体中文, 繁體中文]
 // 새 문장을 화면에 넣으면 여기에도 한 줄 넣는다 (빠지면 한국어로 나옴)
 module.exports = {
- "닉네임은 3개월에 한 번만 바꿀 수 있습니다. {date} 부터 다시 바꿀 수 있어요.": [
+ "이전 사진": [
+  "Previous photo",
+  "上一张",
+  "上一張"
+ ],
+ "다음 사진": [
+  "Next photo",
+  "下一张",
+  "下一張"
+ ],
+ "닉네임은 3개월에 한 번만 변경할 수 있습니다. {date}부터 다시 변경할 수 있습니다.": [
   "You can change your nickname once every 3 months. You can change it again from {date}.",
   "昵称每3个月只能修改一次，{date} 起可以再次修改。",
   "暱稱每3個月只能修改一次，{date} 起可以再次修改。"
  ],
- "{date} 부터 바꿀 수 있어요": [
+ "{date}부터 변경 가능": [
   "You can change it from {date}",
   "{date} 起可以修改",
   "{date} 起可以修改"
@@ -16,7 +26,7 @@ module.exports = {
   "{date} 起",
   "{date} 起"
  ],
- "새 닉네임 (2~16자, 띄어쓰기 없이) — 바꾸면 3개월 동안 다시 못 바꿔요": [
+ "새 닉네임 (2~16자, 띄어쓰기 없이) — 변경 후 3개월 동안 다시 변경할 수 없습니다": [
   "New nickname (2–16 characters, no spaces) — once changed, you can't change it again for 3 months",
   "新昵称（2–16个字，不含空格）— 修改后3个月内不能再改",
   "新暱稱（2–16個字，不含空格）— 修改後3個月內不能再改"
@@ -66,27 +76,27 @@ module.exports = {
   "分享",
   "分享"
  ],
- "글 보기": [
+ "게시물 보기": [
   "View post",
   "查看帖子",
   "查看貼文"
  ],
- "글 고치기": [
+ "게시물 수정": [
   "Edit post",
   "编辑帖子",
   "編輯貼文"
  ],
- "이 글을 지울까요?": [
+ "이 게시물을 삭제하시겠습니까?": [
   "Delete this post?",
   "要删除这条帖子吗？",
   "要刪除這則貼文嗎？"
  ],
- "글 지우기": [
+ "게시물 삭제": [
   "Delete post",
   "删除帖子",
   "刪除貼文"
  ],
- "신고하는 까닭을 적어 주세요 (예: 광고, 남의 사진, 욕설)": [
+ "신고 사유를 입력해 주세요 (예: 광고, 타인의 사진, 욕설)": [
   "Tell us why you are reporting this (e.g. spam, someone else's photo, abuse)",
   "请写下举报原因（例如：广告、盗用他人照片、辱骂）",
   "請寫下檢舉原因（例如：廣告、盜用他人照片、辱罵）"
@@ -176,7 +186,7 @@ module.exports = {
   "记录真品植株血统与所有权的<br>数字证书",
   "記錄真品植株血統與所有權的<br>數位證書"
  ],
- "가치를 인정받은 하월시아에 고유 넘버와 보증서를 붙이고, 모본·부본과 소유 이력을 이어서 기록합니다. 클럽에서 내 식물에 보증서를 연결하면 사진마다 정품 배지와 족보가 붙어요.": [
+ "가치를 인정받은 하월시아에 고유 넘버와 보증서를 부여하고, 모본·부본과 소유 이력을 이어서 기록합니다. 클럽에서 내 식물에 보증서를 연결하면 사진마다 정품 배지와 족보가 표시됩니다.": [
   "Recognised Haworthia receive a unique number and certificate, with seed parent, pollen parent and ownership history recorded over time. Link a certificate to your plant in the Club and every photo shows a genuine badge and its lineage.",
   "受认可的 Haworthia 会获得专属编号和证书，并持续记录母本、父本及所有权变更。在俱乐部把证书连接到你的植物后，每张照片都会显示正品徽章和谱系。",
   "受認可的 Haworthia 會獲得專屬編號與證書，並持續記錄母本、父本及所有權變更。在俱樂部把證書連結到你的植物後，每張照片都會顯示正品徽章與譜系。"
@@ -201,7 +211,7 @@ module.exports = {
   "编号真伪查询",
   "編號真偽查詢"
  ],
- "라벨이나 보증서에 적힌 넘버를 넣으면 방주 장부에서 정품인지 바로 확인합니다. (개인정보는 보이지 않아요)": [
+ "라벨이나 보증서에 적힌 넘버를 입력하면 방주 장부에서 정품 여부를 바로 확인합니다. (개인정보는 표시되지 않습니다)": [
   "Enter the number on the label or certificate to check it against the Ark register. (No personal details are shown.)",
   "输入标签或证书上的编号，即可在方舟登记册中确认是否为正品。（不会显示个人信息）",
   "輸入標籤或證書上的編號，即可在方舟登記冊中確認是否為正品。（不會顯示個人資料）"
@@ -221,7 +231,7 @@ module.exports = {
   "审核中",
   "審核中"
  ],
- "아직 보증서가 연결된 식물이 없어요. <a href=\"{href}\" style=\"color:var(--green2);font-weight:700;text-decoration:underline\">내 온실</a>에서 식물을 고르고 「보증서 연결」을 누르세요.": [
+ "보증서가 연결된 식물이 없습니다. <a href=\"{href}\" style=\"color:var(--green2);font-weight:700;text-decoration:underline\">내 온실</a>에서 식물을 선택한 뒤 「보증서 연결」을 눌러 주세요.": [
   "No plants with a linked certificate yet. Pick a plant in <a href=\"{href}\" style=\"color:var(--green2);font-weight:700;text-decoration:underline\">My greenhouse</a> and tap “Link certificate”.",
   "还没有连接证书的植物。请在<a href=\"{href}\" style=\"color:var(--green2);font-weight:700;text-decoration:underline\">我的温室</a>选择植物，然后点「连接证书」。",
   "還沒有連結證書的植物。請在<a href=\"{href}\" style=\"color:var(--green2);font-weight:700;text-decoration:underline\">我的溫室</a>選擇植物，然後點「連結證書」。"
@@ -246,12 +256,12 @@ module.exports = {
   "评论",
   "留言"
  ],
- "(남의 글)": [
+ "(다른 회원의 게시물)": [
   "(on others' posts)",
   "（他人帖子）",
   "（他人貼文）"
  ],
- "로그인하면 내 정품 식물과 방주 가입 요건 진행 상황이 여기 보여요.": [
+ "로그인하면 내 정품 식물과 방주 가입 요건 진행 상황을 확인할 수 있습니다.": [
   "Log in to see your genuine plants and your progress toward Ark membership.",
   "登录后可在这里查看你的正品植株和方舟入会进度。",
   "登入後可在這裡查看你的正品植株與方舟入會進度。"
@@ -281,7 +291,7 @@ module.exports = {
   "在方舟网站办理",
   "在方舟網站辦理"
  ],
- "누르면 방주 사이트로 넘어가요": [
+ "방주 사이트로 이동합니다": [
   "Opens the Ark website",
   "点击后前往方舟网站",
   "點擊後前往方舟網站"
@@ -321,7 +331,7 @@ module.exports = {
   "品种图鉴",
   "品種圖鑑"
  ],
- "회원들이 #품종명으로 올린 사진이 품종별로 모입니다. 칸마다 이번 달 대표 사진이 보여요.": [
+ "회원들이 #품종명으로 올린 사진이 품종별로 모입니다. 각 품종에는 이번 달 대표 사진이 표시됩니다.": [
   "Photos members tag with #variety are collected here by variety. Each tile shows this month's featured photo.",
   "会员用 #品种名 发布的照片会按品种汇集在这里，每格显示本月代表照片。",
   "會員用 #品種名 發布的照片會依品種匯集在這裡，每格顯示本月代表照片。"
@@ -346,17 +356,17 @@ module.exports = {
   "品种",
   "品種"
  ],
- "찾는 품종이 없어요.": [
+ "검색 결과가 없습니다.": [
   "No matching varieties.",
   "没有找到该品种。",
   "沒有找到該品種。"
  ],
- "아직 올라온 품종이 없어요.": [
+ "등록된 품종이 없습니다.": [
   "No varieties yet.",
   "还没有品种。",
   "還沒有品種。"
  ],
- "글만 있음": [
+ "텍스트 게시물": [
   "Text only",
   "仅文字",
   "僅文字"
@@ -391,7 +401,7 @@ module.exports = {
   "从最新",
   "從最新"
  ],
- "오늘 기록 올리기": [
+ "오늘 기록 등록": [
   "Add today's entry",
   "发布今天的记录",
   "發布今天的紀錄"
@@ -401,17 +411,17 @@ module.exports = {
   "+{n}天",
   "+{n}天"
  ],
- "글 보기 →": [
+ "게시물 보기 →": [
   "View post →",
   "查看帖子 →",
   "查看貼文 →"
  ],
- "홈 화면에 클럽 놓기": [
+ "홈 화면에 클럽 추가": [
   "Add the Club to your home screen",
   "把俱乐部添加到主屏幕",
   "把俱樂部加到主畫面"
  ],
- "앱처럼 바로 열 수 있어요": [
+ "앱처럼 바로 열 수 있습니다": [
   "Open it like an app",
   "像 App 一样直接打开",
   "像 App 一樣直接開啟"
@@ -446,7 +456,7 @@ module.exports = {
   "最新",
   "最新"
  ],
- "첫 사진을 기다리고 있어요.": [
+ "아직 등록된 사진이 없습니다.": [
   "Waiting for the first photo.",
   "正在等待第一张照片。",
   "正在等待第一張照片。"
@@ -456,7 +466,7 @@ module.exports = {
   "请加上 #品种名 分享你养的 Haworthia。",
   "請加上 #品種名 分享你種的 Haworthia。"
  ],
- "사진 올리기": [
+ "사진 등록": [
   "Upload photos",
   "上传照片",
   "上傳照片"
@@ -486,17 +496,17 @@ module.exports = {
   "注册即得",
   "註冊即得"
  ],
- "이렇게 셉니다": [
+ "집계 기준": [
   "How we count",
   "计算方式",
   "計算方式"
  ],
- "게시물: 내가 올린 글 (지운 글, 운영자가 숨긴 글은 빠짐)": [
+ "게시물: 내가 등록한 게시물 (삭제한 게시물, 운영자가 숨긴 게시물은 제외)": [
   "Posts: posts you published (deleted posts and posts hidden by the admin don't count)",
   "帖子：你发布的帖子（已删除或被管理员隐藏的不计）",
   "貼文：你發布的貼文（已刪除或被管理員隱藏的不計）"
  ],
- "댓글: <b>다른 회원의 글</b>에 단 댓글 (내 글에 단 댓글, 지우거나 숨겨진 댓글은 빠짐)": [
+ "댓글: <b>다른 회원의 게시물</b>에 작성한 댓글 (내 게시물에 단 댓글, 삭제·숨김 처리된 댓글은 제외)": [
   "Comments: comments on <b>other members' posts</b> (comments on your own posts, and deleted or hidden comments, don't count)",
   "评论：在<b>其他会员帖子</b>下的评论（自己帖子下的评论、已删除或被隐藏的不计）",
   "留言：在<b>其他會員貼文</b>下的留言（自己貼文下的留言、已刪除或被隱藏的不計）"
@@ -506,12 +516,12 @@ module.exports = {
   "我现在：帖子 <b>{p}</b> · 评论 <b>{c}</b>",
   "我現在：貼文 <b>{p}</b> · 留言 <b>{c}</b>"
  ],
- "휴대폰 번호로 바로 가입·로그인합니다.": [
+ "휴대폰 번호로 가입 및 로그인합니다.": [
   "Sign up and log in with just your phone number.",
   "用手机号码即可注册和登录。",
   "用手機號碼即可註冊與登入。"
  ],
- "비밀번호는 없어요.": [
+ "비밀번호는 필요하지 않습니다.": [
   "No password needed.",
   "无需密码。",
   "不需要密碼。"
@@ -531,7 +541,7 @@ module.exports = {
   "获取验证码",
   "取得驗證碼"
  ],
- "해외 번호는 보낸 사람이 「NURIGO」 또는 다른 번호로 표시될 수 있어요. 문자가 안 오면 잠시 뒤 다시 해 주세요.": [
+ "해외 번호는 발신자가 「NURIGO」 또는 다른 번호로 표시될 수 있습니다. 문자가 오지 않으면 잠시 후 다시 시도해 주세요.": [
   "For non-Korean numbers, the sender may appear as “NURIGO” or another number. If the text doesn't arrive, please try again shortly.",
   "海外号码的发件人可能显示为「NURIGO」或其他号码。如未收到短信，请稍后重试。",
   "海外號碼的寄件人可能顯示為「NURIGO」或其他號碼。如未收到簡訊，請稍後再試。"
@@ -546,17 +556,17 @@ module.exports = {
   "确认",
   "確認"
  ],
- "문자가 안 오면": [
+ "문자가 오지 않으면": [
   "Didn't get the text?",
   "没收到短信？",
   "沒收到簡訊？"
  ],
- "번호 다시 넣기": [
+ "번호 다시 입력": [
   "Re-enter number",
   "重新输入号码",
   "重新輸入號碼"
  ],
- "처음 오셨네요! 클럽에서 쓸 닉네임": [
+ "클럽에서 사용할 닉네임을 정해 주세요": [
   "Welcome! Choose a nickname for the Club",
   "欢迎！请设置在俱乐部使用的昵称",
   "歡迎！請設定在俱樂部使用的暱稱"
@@ -571,12 +581,12 @@ module.exports = {
   "[必选] 同意收集和使用个人信息 — 手机号码仅用于登录和身份验证，不会向其他会员显示。如需注销，请联系管理员。",
   "[必填] 同意蒐集及使用個人資料 — 手機號碼僅用於登入與身分驗證，不會顯示給其他會員。如需刪除帳號，請聯絡管理員。"
  ],
- "가입하고 시작하기": [
+ "가입하기": [
   "Sign up and start",
   "注册并开始",
   "註冊並開始"
  ],
- "처음으로": [
+ "홈으로": [
   "Home",
   "返回首页",
   "回首頁"
@@ -651,12 +661,12 @@ module.exports = {
   "证书审核中",
   "證書審核中"
  ],
- "넘버 <b>{no}</b> 연결을 운영자가 확인하고 있어요. 확인되면 🛡 정품 배지와 족보가 붙습니다.": [
+ "넘버 <b>{no}</b> 연결을 운영자가 확인하고 있습니다. 확인되면 🛡 정품 배지와 족보가 표시됩니다.": [
   "The admin is reviewing the link to number <b>{no}</b>. Once confirmed, the 🛡 genuine badge and lineage will appear.",
   "管理员正在审核编号 <b>{no}</b> 的连接。确认后将显示 🛡 正品徽章和谱系。",
   "管理員正在審核編號 <b>{no}</b> 的連結。確認後將顯示 🛡 正品徽章與譜系。"
  ],
- "연결 신청을 취소할까요?": [
+ "연결 신청을 취소하시겠습니까?": [
   "Cancel this link request?",
   "要取消连接申请吗？",
   "要取消連結申請嗎？"
@@ -676,12 +686,12 @@ module.exports = {
   "上次申请未通过：",
   "上次申請未通過："
  ],
- "보증서를 받으셨으면 <b>문자로 받은 보증서 링크</b>를 그대로 붙여 넣으세요. 바로 🛡 정품이 붙습니다.": [
+ "보증서를 받으셨다면 <b>문자로 받은 보증서 링크</b>를 그대로 붙여 넣어 주세요. 바로 🛡 정품으로 표시됩니다.": [
   "If you received a certificate, paste the <b>certificate link from your text message</b>. The 🛡 genuine badge appears right away.",
   "如果你收到了证书，请直接粘贴<b>短信中的证书链接</b>，即可立即显示 🛡 正品。",
   "如果你收到了證書，請直接貼上<b>簡訊中的證書連結</b>，即可立即顯示 🛡 正品。"
  ],
- "넘버만 넣으면 정품 등록 때 쓴 번호와 같을 때 바로, 아니면 운영자 확인 뒤 붙습니다.": [
+ "넘버만 입력한 경우, 정품 등록 시 사용한 번호와 같으면 바로 연결되고 다르면 운영자 확인 후 연결됩니다.": [
   "If you enter only the number, it is linked right away when your phone matches the registration; otherwise after admin review.",
   "只输入编号时：若与正品登记时的手机号一致则立即连接，否则需管理员审核。",
   "只輸入編號時：若與正品登記時的手機號碼一致則立即連結，否則需管理員審核。"
@@ -706,17 +716,17 @@ module.exports = {
   "{n}条",
   "{n}則"
  ],
- "기록 올리기": [
+ "기록 등록": [
   "Add entry",
   "发布记录",
   "發布紀錄"
  ],
- "아직 기록이 없어요.": [
+ "기록이 없습니다.": [
   "No entries yet.",
   "还没有记录。",
   "還沒有紀錄。"
  ],
- "첫 기록 올리기": [
+ "첫 기록 등록": [
   "Add the first entry",
   "发布第一条记录",
   "發布第一則紀錄"
@@ -726,17 +736,17 @@ module.exports = {
   "植物名称",
   "植物名稱"
  ],
- "이름 바꾸기": [
+ "이름 변경": [
   "Rename",
   "改名",
   "改名"
  ],
- "이 식물을 지울까요? (올린 사진은 남고 식물 연결만 풀립니다)": [
+ "이 식물을 삭제하시겠습니까? (등록한 사진은 유지되고 식물 연결만 해제됩니다)": [
   "Delete this plant? (Your photos stay; only the link to this plant is removed.)",
   "要删除这株植物吗？（照片会保留，只解除与植物的连接）",
   "要刪除這株植物嗎？（照片會保留，只解除與植物的連結）"
  ],
- "식물 지우기": [
+ "식물 삭제": [
   "Delete plant",
   "删除植物",
   "刪除植物"
@@ -751,12 +761,12 @@ module.exports = {
   "查看全部 →",
   "查看全部 →"
  ],
- "{nick}님이 같은 품종으로 올린 기록 {n}개": [
+ "{nick}님이 같은 품종으로 등록한 기록 {n}개": [
   "{n} entries by {nick} for this variety",
   "{nick} 以同一品种发布的 {n} 条记录",
   "{nick} 以同一品種發布的 {n} 則紀錄"
  ],
- "지금 글": [
+ "현재 게시물": [
   "This post",
   "当前",
   "目前"
@@ -776,17 +786,17 @@ module.exports = {
   "（已注销）",
   "（已退出）"
  ],
- "댓글을 지울까요?": [
+ "댓글을 삭제하시겠습니까?": [
   "Delete this comment?",
   "要删除这条评论吗？",
   "要刪除這則留言嗎？"
  ],
- "지우기": [
+ "삭제": [
   "Delete",
   "删除",
   "刪除"
  ],
- "신고하는 까닭": [
+ "신고 사유": [
   "Reason for report",
   "举报原因",
   "檢舉原因"
@@ -796,12 +806,12 @@ module.exports = {
   "举报",
   "檢舉"
  ],
- "댓글 달기… (#품종명도 돼요)": [
+ "댓글 입력… (#품종명 사용 가능)": [
   "Add a comment… (#variety works too)",
   "写评论…（也可以用 #品种名）",
   "寫留言…（也可以用 #品種名）"
  ],
- "로그인하고 댓글 달기": [
+ "로그인 후 댓글 작성": [
   "Log in to comment",
   "登录后评论",
   "登入後留言"
@@ -826,7 +836,7 @@ module.exports = {
   "<b>{n}</b> 张照片",
   "<b>{n}</b> 張照片"
  ],
- "<b>{n}</b> 명이 키워요": [
+ "<b>{n}</b>명이 키우는 중": [
   "<b>{n}</b> growers",
   "<b>{n}</b> 人在养",
   "<b>{n}</b> 人在種"
@@ -866,22 +876,22 @@ module.exports = {
   "热门（30天）",
   "熱門（30天）"
  ],
- "아직 #{tag} 사진이 없어요.": [
+ "#{tag} 사진이 없습니다.": [
   "No #{tag} photos yet.",
   "还没有 #{tag} 的照片。",
   "還沒有 #{tag} 的照片。"
  ],
- "첫 사진의 주인공이 되어 주세요.": [
+ "첫 사진을 등록해 주세요.": [
   "Be the first to share one.",
   "来发布第一张吧。",
   "來發布第一張吧。"
  ],
- "#{tag} 사진 올리기": [
+ "#{tag} 사진 등록": [
   "Post a #{tag} photo",
   "发布 #{tag} 照片",
   "發布 #{tag} 照片"
  ],
- "소개를 적어 보세요.": [
+ "소개를 입력해 주세요.": [
   "Add a short bio.",
   "写一句自我介绍吧。",
   "寫一句自我介紹吧。"
@@ -891,12 +901,7 @@ module.exports = {
   "植物",
   "植物"
  ],
- "사진·글": [
-  "Posts",
-  "帖子",
-  "貼文"
- ],
- "받은 ♥": [
+ "받은 좋아요": [
   "♥ received",
   "收到的 ♥",
   "收到的 ♥"
@@ -911,7 +916,7 @@ module.exports = {
   "最高等级",
   "最高等級"
  ],
- "(남의 글에 단 것)": [
+ "(다른 회원 게시물에 작성)": [
   "(on others' posts)",
   "（在他人帖子下）",
   "（在他人貼文下）"
@@ -926,7 +931,7 @@ module.exports = {
   "一句话介绍（最多120字）",
   "一句話介紹（最多120字）"
  ],
- "소개 고치기": [
+ "소개 수정": [
   "Edit bio",
   "编辑介绍",
   "編輯介紹"
@@ -936,7 +941,7 @@ module.exports = {
   "新昵称（2–16个字，不含空格）",
   "新暱稱（2–16個字，不含空格）"
  ],
- "닉네임 바꾸기": [
+ "닉네임 변경": [
   "Change nickname",
   "修改昵称",
   "修改暱稱"
@@ -951,7 +956,7 @@ module.exports = {
   "按品种的成长日记",
   "依品種的成長日記"
  ],
- "같은 품종 태그로 2번 넘게 올리면 자동으로 묶여요": [
+ "같은 품종 태그로 2회 이상 올리면 자동으로 묶입니다": [
   "Posts with the same variety tag are grouped automatically from the 2nd one",
   "同一品种标签发布2次以上会自动归在一起",
   "同一品種標籤發布2次以上會自動歸在一起"
@@ -966,7 +971,7 @@ module.exports = {
   "我的植物",
   "我的植物"
  ],
- "식물마다 성장 기록이 쌓여요": [
+ "식물별로 성장 기록이 저장됩니다": [
   "Each plant builds its own growth record",
   "每株植物都会累积成长记录",
   "每株植物都會累積成長紀錄"
@@ -981,7 +986,7 @@ module.exports = {
   "添加植物",
   "新增植物"
  ],
- "아직 등록한 식물이 없어요.": [
+ "등록한 식물이 없습니다.": [
   "No plants added yet.",
   "还没有添加植物。",
   "還沒有新增植物。"
@@ -991,12 +996,7 @@ module.exports = {
   "照片",
   "照片"
  ],
- "첫 사진을 올려 보세요.": [
-  "Post your first photo.",
-  "发布你的第一张照片吧。",
-  "發布你的第一張照片吧。"
- ],
- "아직 올린 사진이 없어요.": [
+ "등록한 사진이 없습니다.": [
   "No photos yet.",
   "还没有照片。",
   "還沒有照片。"
@@ -1016,22 +1016,22 @@ module.exports = {
   "第一张照片会作为封面。照片会在手机上先压缩，上传更快。",
   "第一張照片會作為封面。照片會在手機上先壓縮，上傳更快。"
  ],
- "사진은 바꿀 수 없어요. 글과 식물만 고칠 수 있습니다.": [
+ "사진은 변경할 수 없습니다. 내용과 식물만 수정할 수 있습니다.": [
   "Photos can't be changed. You can edit the text and plant only.",
   "照片无法更换，只能修改文字和植物。",
   "照片無法更換，只能修改文字與植物。"
  ],
- "어떤 식물인가요?": [
+ "식물 선택": [
   "Which plant is this?",
   "这是哪株植物？",
   "這是哪株植物？"
  ],
- "고르면 내 온실에 성장 기록으로 쌓여요": [
+ "선택하면 내 온실에 성장 기록으로 저장됩니다": [
   "Pick one to add it to that plant's growth record",
   "选择后会累积到我的温室成长记录",
   "選擇後會累積到我的溫室成長紀錄"
  ],
- "고르지 않음": [
+ "선택 안 함": [
   "None",
   "不选择",
   "不選擇"
@@ -1046,22 +1046,22 @@ module.exports = {
   "例如：米迦勒之心 1号 · 康平寿大株",
   "例如：米迦勒之心 1號 · 康平壽大株"
  ],
- "보증서가 있는 식물이면 올린 뒤 식물 화면에서 「보증서 연결」을 누르세요.": [
+ "보증서가 있는 식물은 등록 후 식물 화면에서 「보증서 연결」을 눌러 주세요.": [
   "If the plant has a certificate, tap “Link certificate” on its plant page after posting.",
   "如果植物有证书，发布后在植物页面点「连接证书」。",
   "如果植物有證書，發布後在植物頁面點「連結證書」。"
  ],
- "#품종명을 쓰면 알아서 골라져요. 직접 바꿔도 돼요": [
+ "#품종명을 입력하면 자동으로 선택됩니다. 직접 변경할 수도 있습니다": [
   "Picked automatically from your #variety. You can change it.",
   "写上 #品种名 会自动选择，也可以手动更改",
   "寫上 #品種名 會自動選擇，也可以手動更改"
  ],
- "글": [
+ "내용": [
   "Text",
   "内容",
   "內容"
  ],
- "#을 치면 품종명이 떠요": [
+ "#을 입력하면 품종명이 표시됩니다": [
   "Type # to see variety names",
   "输入 # 会显示品种名",
   "輸入 # 會顯示品種名"
@@ -1071,20 +1071,15 @@ module.exports = {
   "#米迦勒之心 养了3个月的样子，窗变得清透多了。",
   "#米迦勒之心 種了3個月的樣子，窗變得清透多了。"
  ],
- "띄어쓰기는 붙여서 써도, 띄워서 써도 같은 품종으로 묶여요. (#미카엘의심장 = #미카엘의 심장)": [
+ "띄어쓰기와 관계없이 같은 품종으로 묶입니다. (#미카엘의심장 = #미카엘의 심장)": [
   "Spaces don't matter — both spellings group as the same variety. (#MichaelsHeart = #Michaels Heart)",
   "有没有空格都会归为同一品种。（#米迦勒之心 = #米迦勒 之心）",
   "有沒有空格都會歸為同一品種。（#米迦勒之心 = #米迦勒 之心）"
  ],
- "저장하기": [
+ "저장": [
   "Save",
   "保存",
   "儲存"
- ],
- "올리기": [
-  "Post",
-  "发布",
-  "發布"
  ],
  "잘못된 요청입니다.": [
   "Invalid request.",
@@ -1106,12 +1101,12 @@ module.exports = {
   "仅限管理员。",
   "僅限管理員。"
  ],
- "글을 찾을 수 없습니다": [
+ "게시물을 찾을 수 없습니다": [
   "Post not found",
   "找不到帖子",
   "找不到貼文"
  ],
- "지워졌거나 숨겨진 글입니다.": [
+ "삭제되었거나 숨김 처리된 게시물입니다.": [
   "It was deleted or hidden.",
   "帖子已被删除或隐藏。",
   "貼文已被刪除或隱藏。"
@@ -1146,7 +1141,7 @@ module.exports = {
   "还没有记录",
   "還沒有紀錄"
  ],
- "이 품종으로 올린 사진이 없어요.": [
+ "이 품종으로 등록된 사진이 없습니다.": [
   "No photos posted for this variety.",
   "还没有以该品种发布的照片。",
   "還沒有以該品種發布的照片。"
@@ -1161,7 +1156,7 @@ module.exports = {
   "找不到植物",
   "找不到植物"
  ],
- "지워진 식물입니다.": [
+ "삭제된 식물입니다.": [
   "This plant was deleted.",
   "该植物已被删除。",
   "該植物已被刪除。"
@@ -1171,47 +1166,47 @@ module.exports = {
   "请确认手机号码。",
   "請確認手機號碼。"
  ],
- "문자를 방금 보냈습니다. 1분 뒤에 다시 눌러 주세요.": [
+ "인증번호를 방금 보냈습니다. 1분 후 다시 시도해 주세요.": [
   "A code was just sent. Please wait 1 minute before trying again.",
   "验证码刚刚已发送，请1分钟后再试。",
   "驗證碼剛剛已傳送，請1分鐘後再試。"
  ],
- "한 시간에 5번까지만 보낼 수 있습니다. 잠시 뒤에 해 주세요.": [
+ "1시간에 5회까지 보낼 수 있습니다. 잠시 후 다시 시도해 주세요.": [
   "You can request up to 5 codes per hour. Please try again later.",
   "每小时最多发送5次，请稍后再试。",
   "每小時最多傳送5次，請稍後再試。"
  ],
- "요청이 너무 많습니다. 잠시 뒤에 해 주세요.": [
+ "요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.": [
   "Too many requests. Please try again later.",
   "请求过多，请稍后再试。",
   "請求過多，請稍後再試。"
  ],
- "오늘 해외 인증 문자가 많아 잠시 멈췄습니다. 내일 다시 해 주세요.": [
+ "오늘 해외 인증 문자 발송량이 많아 일시 중단되었습니다. 내일 다시 시도해 주세요.": [
   "International codes are paused for today due to high volume. Please try again tomorrow.",
   "今天海外验证短信过多，已暂停发送，请明天再试。",
   "今天海外驗證簡訊過多，已暫停傳送，請明天再試。"
  ],
- "문자 발송에 실패했습니다. 잠시 뒤에 다시 해 주세요.": [
+ "문자 발송에 실패했습니다. 잠시 후 다시 시도해 주세요.": [
   "Couldn't send the text. Please try again later.",
   "短信发送失败，请稍后再试。",
   "簡訊傳送失敗，請稍後再試。"
  ],
- "문자 발송 설정이 아직 안 되어 있습니다. 운영자에게 알려 주세요.": [
+ "문자 발송 설정이 완료되지 않았습니다. 운영자에게 문의해 주세요.": [
   "Text messaging isn't set up yet. Please let the admin know.",
   "短信发送尚未设置，请告知管理员。",
   "簡訊傳送尚未設定，請告知管理員。"
  ],
- "인증번호 6자리를 넣어 주세요.": [
+ "인증번호 6자리를 입력해 주세요.": [
   "Please enter the 6-digit code.",
   "请输入6位验证码。",
   "請輸入6位驗證碼。"
  ],
- "인증번호가 만료되었습니다. 다시 받아 주세요.": [
+ "인증번호가 만료되었습니다. 다시 요청해 주세요.": [
   "The code has expired. Please request a new one.",
   "验证码已过期，请重新获取。",
   "驗證碼已過期，請重新取得。"
  ],
- "5번 틀려서 막혔습니다. 인증번호를 다시 받아 주세요.": [
+ "5회 잘못 입력하여 차단되었습니다. 인증번호를 다시 요청해 주세요.": [
   "Locked after 5 wrong attempts. Please request a new code.",
   "输错5次已锁定，请重新获取验证码。",
   "輸錯5次已鎖定，請重新取得驗證碼。"
@@ -1221,7 +1216,7 @@ module.exports = {
   "验证码不正确。（还剩 {n} 次）",
   "驗證碼不正確。（還剩 {n} 次）"
  ],
- "인증 시간이 지났습니다. 처음부터 다시 해 주세요.": [
+ "인증 시간이 초과되었습니다. 처음부터 다시 진행해 주세요.": [
   "Verification timed out. Please start again.",
   "验证已超时，请重新开始。",
   "驗證已逾時，請重新開始。"
@@ -1231,17 +1226,17 @@ module.exports = {
   "请同意收集和使用个人信息。",
   "請同意蒐集及使用個人資料。"
  ],
- "이미 쓰는 닉네임입니다. 다른 이름으로 해 주세요.": [
+ "이미 사용 중인 닉네임입니다. 다른 닉네임을 입력해 주세요.": [
   "That nickname is taken. Please choose another.",
   "该昵称已被使用，请换一个。",
   "此暱稱已被使用，請換一個。"
  ],
- "이미 쓰는 닉네임입니다.": [
+ "이미 사용 중인 닉네임입니다.": [
   "That nickname is taken.",
   "该昵称已被使用。",
   "此暱稱已被使用。"
  ],
- "사진을 올리지 못했습니다: {e}": [
+ "사진을 등록하지 못했습니다: {e}": [
   "Couldn't upload the photo: {e}",
   "照片上传失败：{e}",
   "照片上傳失敗：{e}"
@@ -1251,37 +1246,37 @@ module.exports = {
   "单张照片太大。（最大12MB）",
   "單張照片太大。（最大12MB）"
  ],
- "사진이나 글을 넣어 주세요.": [
+ "사진 또는 내용을 입력해 주세요.": [
   "Please add a photo or some text.",
   "请添加照片或文字。",
   "請加入照片或文字。"
  ],
- "하루에 30개까지 올릴 수 있습니다.": [
+ "하루 30개까지 등록할 수 있습니다.": [
   "You can post up to 30 times a day.",
   "每天最多发布30条。",
   "每天最多發布30則。"
  ],
- "내 글이 아닙니다.": [
+ "본인의 게시물이 아닙니다.": [
   "This isn't your post.",
   "这不是你的帖子。",
   "這不是你的貼文。"
  ],
- "글이 없습니다.": [
+ "게시물이 없습니다.": [
   "Post not found.",
   "帖子不存在。",
   "貼文不存在。"
  ],
- "댓글을 적어 주세요.": [
+ "댓글을 입력해 주세요.": [
   "Please write a comment.",
   "请输入评论。",
   "請輸入留言。"
  ],
- "하루 댓글 수를 넘었습니다.": [
+ "하루 댓글 작성 한도를 초과했습니다.": [
   "Daily comment limit reached.",
   "已达到每日评论上限。",
   "已達每日留言上限。"
  ],
- "내 댓글이 아닙니다.": [
+ "본인의 댓글이 아닙니다.": [
   "This isn't your comment.",
   "这不是你的评论。",
   "這不是你的留言。"
@@ -1296,7 +1291,7 @@ module.exports = {
   "举报次数过多。",
   "檢舉次數過多。"
  ],
- "식물 이름을 적어 주세요.": [
+ "식물 이름을 입력해 주세요.": [
   "Please enter a plant name.",
   "请输入植物名称。",
   "請輸入植物名稱。"
@@ -1311,32 +1306,32 @@ module.exports = {
   "这不是你的植物。",
   "這不是你的植物。"
  ],
- "이름을 적어 주세요.": [
+ "이름을 입력해 주세요.": [
   "Please enter a name.",
   "请输入名称。",
   "請輸入名稱。"
  ],
- "보증서 링크나 넘버를 넣어 주세요.": [
+ "보증서 링크 또는 넘버를 입력해 주세요.": [
   "Please enter a certificate link or number.",
   "请输入证书链接或编号。",
   "請輸入證書連結或編號。"
  ],
- "한 시간에 10번까지 확인할 수 있습니다.": [
+ "1시간에 10회까지 확인할 수 있습니다.": [
   "You can check up to 10 times per hour.",
   "每小时最多查询10次。",
   "每小時最多查詢10次。"
  ],
- "이 넘버는 이미 다른 회원의 식물에 정품으로 연결되어 있습니다. 소유권 이전을 했다면 운영자에게 알려 주세요.": [
+ "이 넘버는 이미 다른 회원의 식물에 정품으로 연결되어 있습니다. 소유권을 이전하셨다면 운영자에게 문의해 주세요.": [
   "This number is already linked to another member's plant. If ownership was transferred, please tell the admin.",
   "该编号已连接到其他会员的植物。如已转让所有权，请告知管理员。",
   "此編號已連結到其他會員的植物。如已轉讓所有權，請告知管理員。"
  ],
- "방주 장부를 읽지 못했습니다. 잠시 뒤에 다시 해 주세요.": [
+ "방주 장부를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.": [
   "Couldn't read the Ark register. Please try again later.",
   "无法读取方舟登记册，请稍后再试。",
   "無法讀取方舟登記冊，請稍後再試。"
  ],
- "방주에서 찾을 수 없는 넘버입니다. 보증서에 적힌 넘버를 그대로 넣어 주세요.": [
+ "방주에 등록되지 않은 넘버입니다. 보증서에 적힌 넘버를 그대로 입력해 주세요.": [
   "Number not found in the Ark. Please enter it exactly as shown on the certificate.",
   "方舟中找不到该编号，请按证书上的编号原样输入。",
   "方舟中找不到此編號，請依證書上的編號原樣輸入。"
@@ -1346,7 +1341,7 @@ module.exports = {
   "管理员",
   "管理員"
  ],
- "잠깐 문제가 생겼습니다": [
+ "일시적인 오류가 발생했습니다": [
   "Something went wrong",
   "出了点问题",
   "發生了一點問題"
@@ -1381,17 +1376,12 @@ module.exports = {
   "封面",
   "封面"
  ],
- "빼기": [
-  "Remove",
-  "移除",
-  "移除"
- ],
  "{n}/10장": [
   "{n}/10",
   "{n}/10张",
   "{n}/10張"
  ],
- "새 식물 이름을 적어 주세요.": [
+ "새 식물 이름을 입력해 주세요.": [
   "Please enter a name for the new plant.",
   "请输入新植物名称。",
   "請輸入新植物名稱。"
@@ -1456,17 +1446,17 @@ module.exports = {
   "点下方分享按钮 → 「添加到主屏幕」",
   "點下方分享按鈕 → 「加入主畫面」"
  ],
- "새 태그로 쓰기": [
+ "새 태그로 입력": [
   "Use as new tag",
   "作为新标签",
   "作為新標籤"
  ],
- "나라를 먼저 골라 주세요.": [
+ "국가를 먼저 선택해 주세요.": [
   "Please select your country first.",
   "请先选择国家/地区。",
   "請先選擇國家/地區。"
  ],
- "{n}개 글": [
+ "게시물 {n}개": [
   "{n} posts",
   "{n}条帖子",
   "{n}則貼文"
@@ -1626,17 +1616,17 @@ module.exports = {
   "其他",
   "其他"
  ],
- "닉네임은 2~16자로 정해 주세요.": [
+ "닉네임은 2~16자로 입력해 주세요.": [
   "Nicknames must be 2–16 characters.",
   "昵称须为2–16个字。",
   "暱稱須為2–16個字。"
  ],
- "닉네임에는 글자·숫자·_ . 만 쓸 수 있습니다. (띄어쓰기 안 됨)": [
+ "닉네임에는 문자·숫자·_ . 만 사용할 수 있습니다. (띄어쓰기 불가)": [
   "Nicknames may use letters, numbers, _ and . only (no spaces).",
   "昵称只能使用文字、数字、_ 和 .（不能有空格）",
   "暱稱只能使用文字、數字、_ 和 .（不能有空格）"
  ],
- "운영자로 오해될 수 있는 닉네임은 쓸 수 없습니다.": [
+ "운영자로 오해될 수 있는 닉네임은 사용할 수 없습니다.": [
   "Nicknames that could be mistaken for the admin aren't allowed.",
   "不能使用可能被误认为管理员的昵称。",
   "不能使用可能被誤認為管理員的暱稱。"
@@ -1651,7 +1641,7 @@ module.exports = {
   "通知",
   "通知"
  ],
- "비교 사진 만들어 공유하기": [
+ "비교 사진 만들기 · 공유": [
   "Make a before/after photo to share",
   "制作对比图并分享",
   "製作對比圖並分享"
@@ -1691,12 +1681,12 @@ module.exports = {
   "分享",
   "分享"
  ],
- "인스타·틱톡·카톡에 올려 보세요. QR 을 찍으면 이 성장일기로 와요.": [
+ "인스타그램·틱톡·카카오톡에 공유할 수 있습니다. QR을 찍으면 이 성장일기로 연결됩니다.": [
   "Post it on Instagram, TikTok or anywhere. Scanning the QR opens this growth diary.",
   "可以发到小红书、Instagram、TikTok。扫描二维码即可打开这本成长日记。",
   "可以發到 Instagram、TikTok、LINE。掃描 QR 碼即可打開這本成長日記。"
  ],
- "팔로우한 사람 새 사진": [
+ "팔로우한 회원의 새 사진": [
   "New from people you follow",
   "关注的人的新照片",
   "追蹤對象的新照片"
@@ -1706,17 +1696,17 @@ module.exports = {
   "关注",
   "追蹤中"
  ],
- "아직 팔로우한 사람이 없어요.": [
+ "팔로우한 회원이 없습니다.": [
   "You're not following anyone yet.",
   "还没有关注任何人。",
   "還沒有追蹤任何人。"
  ],
- "마음에 드는 회원 온실에서 「＋ 팔로우」를 눌러 보세요.": [
+ "관심 있는 회원의 온실에서 「＋ 팔로우」를 눌러 주세요.": [
   "Tap “＋ Follow” on a member's greenhouse you like.",
   "在喜欢的会员温室里点「＋ 关注」。",
   "在喜歡的會員溫室裡點「＋ 追蹤」。"
  ],
- "팔로우한 사람의 새 사진이 아직 없어요.": [
+ "팔로우한 회원의 새 사진이 없습니다.": [
   "No new photos from people you follow yet.",
   "关注的人还没有发布新照片。",
   "追蹤對象還沒有發布新照片。"
@@ -1736,17 +1726,17 @@ module.exports = {
   "已关注",
   "追蹤中"
  ],
- "아직 팔로워가 없어요.": [
+ "팔로워가 없습니다.": [
   "No followers yet.",
   "还没有粉丝。",
   "還沒有粉絲。"
  ],
- "폰으로도 알림 받기": [
+ "휴대폰 알림 받기": [
   "Get notifications on your phone",
   "在手机上接收通知",
   "在手機上接收通知"
  ],
- "문자 아님 · 무료 · 댓글·♥·팔로우 소식을 폰으로": [
+ "무료 · 댓글·좋아요·팔로우 소식을 휴대폰 알림으로 받습니다": [
   "Not SMS · free · comments, ♥ and follows sent to your phone",
   "不是短信 · 免费 · 评论、♥、关注消息推送到手机",
   "不是簡訊 · 免費 · 留言、♥、追蹤消息推送到手機"
@@ -1756,47 +1746,47 @@ module.exports = {
   "开启",
   "開啟"
  ],
- "아이폰은 먼저 Safari 아래 <b>공유 버튼 → 「홈 화면에 추가」</b>로 클럽을 홈 화면에 놓고, 그 아이콘으로 열어서 켜 주세요. (iOS 16.4 이상)": [
+ "아이폰은 Safari 하단 <b>공유 버튼 → 「홈 화면에 추가」</b>로 클럽을 홈 화면에 추가한 뒤, 해당 아이콘으로 실행하여 설정해 주세요. (iOS 16.4 이상)": [
   "On iPhone, first tap Safari's <b>Share button → “Add to Home Screen”</b>, then open the Club from that icon and turn it on. (iOS 16.4 or later)",
   "iPhone 请先点 Safari 下方的<b>分享按钮 → 「添加到主屏幕」</b>，再从该图标打开俱乐部并开启。（iOS 16.4 以上）",
   "iPhone 請先點 Safari 下方的<b>分享按鈕 → 「加入主畫面」</b>，再從該圖示打開俱樂部並開啟。（iOS 16.4 以上）"
  ],
- "아직 알림이 없어요.": [
+ "알림이 없습니다.": [
   "No notifications yet.",
   "还没有通知。",
   "還沒有通知。"
  ],
- "사진을 올리면 ♥·댓글 소식이 여기 모여요.": [
+ "사진을 등록하면 좋아요·댓글 소식이 여기에 표시됩니다.": [
   "When you post photos, ♥ and comments show up here.",
   "发布照片后，♥ 和评论消息会显示在这里。",
   "發布照片後，♥ 和留言消息會顯示在這裡。"
  ],
- "<b>{nick}</b>님이 회원님 사진에 댓글: “{text}”": [
+ "<b>{nick}</b>님이 회원님의 게시물에 댓글을 남겼습니다: “{text}”": [
   "<b>{nick}</b> commented on your photo: “{text}”",
   "<b>{nick}</b> 评论了你的照片：“{text}”",
   "<b>{nick}</b> 在你的照片留言：「{text}」"
  ],
- "<b>{nick}</b>님 외 {n}명이 회원님 사진을 ♥ 했어요": [
+ "<b>{nick}</b>님 외 {n}명이 회원님의 게시물을 좋아합니다.": [
   "<b>{nick}</b> and {n} others ♥ your photo",
   "<b>{nick}</b> 等 {n} 人 ♥ 了你的照片",
   "<b>{nick}</b> 等 {n} 人 ♥ 了你的照片"
  ],
- "<b>{nick}</b>님이 회원님 사진을 ♥ 했어요": [
+ "<b>{nick}</b>님이 회원님의 게시물을 좋아합니다.": [
   "<b>{nick}</b> ♥ your photo",
   "<b>{nick}</b> ♥ 了你的照片",
   "<b>{nick}</b> ♥ 了你的照片"
  ],
- "<b>{nick}</b>님이 회원님을 팔로우해요": [
+ "<b>{nick}</b>님이 회원님을 팔로우합니다.": [
   "<b>{nick}</b> started following you",
   "<b>{nick}</b> 关注了你",
   "<b>{nick}</b> 開始追蹤你"
  ],
- "팔로우한 <b>{nick}</b>님이 새 사진을 올렸어요": [
+ "팔로우한 <b>{nick}</b>님이 새 사진을 등록했습니다.": [
   "<b>{nick}</b>, whom you follow, posted a new photo",
   "你关注的 <b>{nick}</b> 发布了新照片",
   "你追蹤的 <b>{nick}</b> 發布了新照片"
  ],
- "<b>#{tag}</b> 마지막 기록이 한 달 지났어요. 오늘 모습을 남겨 볼까요?": [
+ "<b>#{tag}</b> 마지막 기록 후 한 달이 지났습니다. 오늘의 모습을 기록해 주세요.": [
   "It's been a month since your last <b>#{tag}</b> entry. Add how it looks today?",
   "<b>#{tag}</b> 上次记录已过一个月，记录一下今天的样子吧？",
   "<b>#{tag}</b> 上次紀錄已過一個月，記錄一下今天的樣子吧？"
@@ -1811,7 +1801,7 @@ module.exports = {
   "#{tag} · {n} 件",
   "#{tag} · {n} 件"
  ],
- "보러 가기": [
+ "바로가기": [
   "View",
   "去看看",
   "去看看"
@@ -1841,32 +1831,32 @@ module.exports = {
   "用照片记录十二卷的成长",
   "用照片記錄十二卷的成長"
  ],
- "최근에 다른 회원이 쓰던 닉네임이라 지금은 쓸 수 없습니다.": [
+ "최근 다른 회원이 사용한 닉네임이므로 현재 사용할 수 없습니다.": [
   "Another member used this nickname recently, so it can't be used right now.",
   "该昵称最近被其他会员使用过，暂时不能使用。",
   "此暱稱最近被其他會員使用過，暫時不能使用。"
  ],
- "나를 팔로우할 수는 없어요.": [
+ "본인은 팔로우할 수 없습니다.": [
   "You can't follow yourself.",
   "不能关注自己。",
   "不能追蹤自己。"
  ],
- "폰 알림이 켜졌어요": [
+ "휴대폰 알림이 설정되었습니다.": [
   "Phone notifications are on",
   "手机通知已开启",
   "手機通知已開啟"
  ],
- "폰 알림을 껐어요": [
+ "휴대폰 알림이 해제되었습니다.": [
   "Phone notifications are off",
   "已关闭手机通知",
   "已關閉手機通知"
  ],
- "이 폰은 알림을 지원하지 않아요": [
+ "이 기기는 알림을 지원하지 않습니다.": [
   "This phone or browser doesn't support notifications",
   "此手机或浏览器不支持通知",
   "此手機或瀏覽器不支援通知"
  ],
- "알림을 허용해야 받을 수 있어요. 폰 설정에서 허용해 주세요.": [
+ "알림을 받으려면 권한 허용이 필요합니다. 휴대폰 설정에서 허용해 주세요.": [
   "Please allow notifications in your phone settings to receive them.",
   "需要允许通知才能接收，请在手机设置中允许。",
   "需要允許通知才能接收，請在手機設定中允許。"
@@ -1881,57 +1871,52 @@ module.exports = {
   "开启中…",
   "開啟中…"
  ],
- "사진을 저장했어요": [
+ "사진이 저장되었습니다.": [
   "Image saved",
   "图片已保存",
   "圖片已儲存"
  ],
- "주소를 복사했어요": [
-  "Link copied",
-  "链接已复制",
-  "連結已複製"
- ],
- "사진 만들기에 실패했어요": [
+ "사진을 만들지 못했습니다.": [
   "Couldn't create the image",
   "图片生成失败",
   "圖片製作失敗"
  ],
- "{nick}님이 댓글을 남겼어요": [
+ "{nick}님이 댓글을 남겼습니다.": [
   "{nick} left a comment",
   "{nick} 留下了评论",
   "{nick} 留言了"
  ],
- "{nick}님이 회원님 사진을 ♥ 했어요": [
+ "{nick}님이 회원님의 게시물을 좋아합니다.": [
   "{nick} ♥ your photo",
   "{nick} ♥ 了你的照片",
   "{nick} ♥ 了你的照片"
  ],
- "{nick}님이 회원님을 팔로우해요": [
+ "{nick}님이 회원님을 팔로우합니다.": [
   "{nick} started following you",
   "{nick} 关注了你",
   "{nick} 開始追蹤你"
  ],
- "온실 보러 가기": [
+ "온실 바로가기": [
   "Visit their greenhouse",
   "去看看TA的温室",
   "去看看他的溫室"
  ],
- "{nick}님 새 사진": [
+ "{nick}님의 새 사진": [
   "New photo from {nick}",
   "{nick} 的新照片",
   "{nick} 的新照片"
  ],
- "🌱 #{tag} 마지막 기록 {n}일째": [
+ "#{tag} 마지막 기록 후 {n}일": [
   "🌱 #{tag}: {n} days since your last entry",
   "🌱 #{tag} 距上次记录已 {n} 天",
   "🌱 #{tag} 距上次紀錄已 {n} 天"
  ],
- "한 달 전 사진과 비교해 볼까요? 오늘 모습을 남겨 보세요": [
+ "한 달 전 사진과 비교할 수 있도록 오늘의 모습을 기록해 주세요.": [
   "Compare with last month — add how it looks today",
   "和一个月前比比看？记录一下今天的样子吧",
   "和一個月前比比看？記錄一下今天的樣子吧"
  ],
- "댓글·♥·팔로우 소식을 폰으로 알려 드릴게요 🌿": [
+ "댓글·좋아요·팔로우 소식을 휴대폰 알림으로 보내 드립니다.": [
   "We'll send comments, ♥ and follows to your phone 🌿",
   "评论、♥、关注消息会推送到你的手机 🌿",
   "留言、♥、追蹤消息會推送到你的手機 🌿"
@@ -1961,19 +1946,499 @@ module.exports = {
   "还原",
   "還原"
  ],
- "끌어서 위치 · 두 손가락으로 크기": [
+ "끌어서 위치 조정 · 두 손가락으로 크기 조정": [
   "Drag to move · Pinch to zoom",
   "拖动调整位置 · 双指缩放",
   "拖曳調整位置 · 雙指縮放"
  ],
- "끌어서 위치 · 휠로 크기": [
+ "끌어서 위치 조정 · 휠로 크기 조정": [
   "Drag to move · Scroll to zoom",
   "拖动调整位置 · 滚轮缩放",
   "拖曳調整位置 · 滾輪縮放"
  ],
- "첫 번째 사진이 대표 사진이 됩니다. ✂ 를 누르면 보일 부분을 다시 고를 수 있어요.": [
+ "첫 번째 사진이 대표 사진으로 등록됩니다. ✂를 누르면 표시 영역을 다시 지정할 수 있습니다.": [
   "The first photo becomes the cover. Tap ✂ to choose which part to show again.",
   "第一张照片会作为封面。点 ✂ 可以重新选择显示的部分。",
   "第一張照片會作為封面。點 ✂ 可以重新選擇顯示的部分。"
+ ],
+ "하월시아 클럽 이벤트": [
+  "Haworthia Club Event",
+  "Haworthia 俱乐部活动",
+  "Haworthia 俱樂部活動"
+ ],
+ "{a} ~ {b} · 게시물과 댓글을 가장 많이 작성한 회원께 드립니다": [
+  "{a} – {b} · For the members who post the most photos and comments",
+  "{a} ~ {b} · 送给发布照片帖和评论最多的会员",
+  "{a} ~ {b} · 送給發布照片貼文和留言最多的會員"
+ ],
+ "시작 전": [
+  "not started",
+  "未开始",
+  "未開始"
+ ],
+ "꺼져 있음 — 운영자만 보이는 미리 보기": [
+  "Off — preview visible to admins only",
+  "已关闭 — 仅管理员可预览",
+  "已關閉 — 僅管理員可預覽"
+ ],
+ "시작 예정": [
+  "Starting soon",
+  "即将开始",
+  "即將開始"
+ ],
+ "오늘 마감": [
+  "Ends today",
+  "今天截止",
+  "今天截止"
+ ],
+ "마감까지 D-{n}": [
+  "D-{n} until the end",
+  "距截止 D-{n}",
+  "距截止 D-{n}"
+ ],
+ "마감 · 결과": [
+  "Ended · Results",
+  "已截止 · 结果",
+  "已截止 · 結果"
+ ],
+ "{n}위": [
+  "#{n}",
+  "第{n}名",
+  "第{n}名"
+ ],
+ "{a}~{b}위": [
+  "#{a}–{b}",
+  "第{a}~{b}名",
+  "第{a}~{b}名"
+ ],
+ "마감 시 1위 점수가 {n}점 미만이면 {items} 상품은 지급되지 않으며, 1위부터 한 단계 아래 상품을 받습니다.": [
+  "If #1 has fewer than {n} points at the end, {items} won't be given and every prize moves down one place, starting from #1.",
+  "截止时第1名不足 {n} 分的话，{items} 取消，从第1名开始依次领取下一档奖品。",
+  "截止時第1名不足 {n} 分的話，{items} 取消，從第1名開始依序領取下一檔獎品。"
+ ],
+ "1위 점수 {n}점 — 한 단계씩 아래 상품이 지급됩니다.": [
+  "#1 finished with {n} points — prizes moved down one place.",
+  "第1名 {n} 分 — 奖品已依次下移。",
+  "第1名 {n} 分 — 獎品已依序下移。"
+ ],
+ "현재 1위 {n}점 — 이대로 마감되면 한 단계씩 아래 상품을 받습니다.": [
+  "#1 has {n} points now — if it ends like this, prizes move down one place.",
+  "目前第1名 {n} 分 — 如果就此结束，奖品会依次下移。",
+  "目前第1名 {n} 分 — 如果就此結束，獎品會依序下移。"
+ ],
+ "현재 1위 {n}점 — 기준 점수를 넘었습니다.": [
+  "#1 has {n} points now — over the bar 🎉",
+  "目前第1名 {n} 分 — 已达标 🎉",
+  "目前第1名 {n} 分 — 已達標 🎉"
+ ],
+ "내 점수 {n}점": [
+  "My score: {n}",
+  "我的分数 {n} 分",
+  "我的分數 {n} 分"
+ ],
+ "게시물 ×{n}점": [
+  "photo posts ×{n}",
+  "照片帖 ×{n}分",
+  "照片貼文 ×{n}分"
+ ],
+ "댓글 ×{n}점": [
+  "comments ×{n}",
+  "评论 ×{n}分",
+  "留言 ×{n}分"
+ ],
+ "수상 순위": [
+  "prize spot",
+  "获奖名次",
+  "得獎名次"
+ ],
+ "{n}위 이내까지": [
+  "to reach top {n}",
+  "进入前{n}名",
+  "進入前{n}名"
+ ],
+ "현재 {p} 수상 순위입니다. 마감까지 순위를 유지해 주세요.": [
+  "You're in line for {p}. Hold on until the end 🌱",
+  "目前可获得 {p}。坚持到截止吧 🌱",
+  "目前可獲得 {p}。堅持到截止吧 🌱"
+ ],
+ "게시물 {a}개와 댓글 {b}개를 더 작성하면 {n}위 이내에 들 수 있습니다.": [
+  "{a} photo posts + {b} comments gets you into the top {n} 🌱",
+  "再发 {a} 篇照片帖 + {b} 条评论就能进前{n}名 🌱",
+  "再發 {a} 篇照片貼文 + {b} 則留言就能進前{n}名 🌱"
+ ],
+ "게시물 {a}개를 더 작성하면 {n}위 이내에 들 수 있습니다.": [
+  "{a} more photo posts gets you into the top {n} 🌱",
+  "再发 {a} 篇照片帖就能进前{n}名 🌱",
+  "再發 {a} 篇照片貼文就能進前{n}名 🌱"
+ ],
+ "댓글 {b}개를 더 작성하면 {n}위 이내에 들 수 있습니다.": [
+  "{b} more comments gets you into the top {n} 🌱",
+  "再写 {b} 条评论就能进前{n}名 🌱",
+  "再寫 {b} 則留言就能進前{n}名 🌱"
+ ],
+ "로그인하면 내 순위를 확인할 수 있습니다 →": [
+  "Log in to see your rank →",
+  "登录后可查看我的名次 →",
+  "登入後可查看我的名次 →"
+ ],
+ "최종 순위": [
+  "Final ranking",
+  "最终排名",
+  "最終排名"
+ ],
+ "현재 순위": [
+  "Current ranking",
+  "当前排名",
+  "目前排名"
+ ],
+ "마감 시각 기준": [
+  "as of the deadline",
+  "以截止时间为准",
+  "以截止時間為準"
+ ],
+ "1분마다 갱신": [
+  "updated every minute",
+  "每分钟更新",
+  "每分鐘更新"
+ ],
+ "아직 점수가 없습니다. 첫 게시물을 등록해 주세요.": [
+  "No scores yet. Post the first photo and start at #1!",
+  "还没有人得分。发第一张照片，从第1名开始吧！",
+  "還沒有人得分。發第一張照片，從第1名開始吧！"
+ ],
+ "─ 여기까지 수상 ─": [
+  "─ prizes up to here ─",
+  "─ 以上获奖 ─",
+  "─ 以上得獎 ─"
+ ],
+ "{n}점": [
+  "{n} pts",
+  "{n}分",
+  "{n}分"
+ ],
+ "게시물 {a} · 댓글 {b}": [
+  "posts {a} · comments {b}",
+  "帖子 {a} · 评论 {b}",
+  "貼文 {a} · 留言 {b}"
+ ],
+ "수상 인원은 {n}명이며 현재 {m}명만 점수가 있습니다. 지금 참여하시면 바로 순위에 오릅니다.": [
+  "There are {n} prizes but only {m} members have points so far. Post now and you're on the board!",
+  "共有 {n} 个奖品，目前只有 {m} 人得分。现在发帖马上就能上榜！",
+  "共有 {n} 個獎品，目前只有 {m} 人得分。現在發文馬上就能上榜！"
+ ],
+ "점수 기준": [
+  "How scoring works",
+  "计分方式",
+  "計分方式"
+ ],
+ "게시물 1개": [
+  "per photo post",
+  "每篇照片帖",
+  "每篇照片貼文"
+ ],
+ "다른 회원 게시물 댓글 1개": [
+  "per comment on others' posts",
+  "每条他人帖子的评论",
+  "每則他人貼文的留言"
+ ],
+ "사진이 있는 게시물만 하루 {n}개까지 인정됩니다": [
+  "Only posts with photos count, up to {n} per day",
+  "仅限有照片的帖子，每天最多计 {n} 篇",
+  "僅限有照片的貼文，每天最多計 {n} 篇"
+ ],
+ "댓글은 다른 회원 게시물에 {m}자 이상, 하루 {n}개까지 인정되며 같은 게시물은 하루 1개만 인정됩니다": [
+  "Comments on others' posts, {m}+ characters · up to {n} per day · 1 per post per day",
+  "他人帖子的评论，{m} 字以上 · 每天最多 {n} 条 · 同一帖子每天只计 1 条",
+  "他人貼文的留言，{m} 字以上 · 每天最多 {n} 則 · 同一貼文每天只計 1 則"
+ ],
+ "삭제된 게시물·댓글은 점수에서 제외됩니다": [
+  "Deleted posts and comments don't count",
+  "已删除的帖子和评论不计分",
+  "已刪除的貼文和留言不計分"
+ ],
+ "동점이면 해당 점수에 먼저 도달한 회원이 앞 순위입니다": [
+  "Ties go to whoever reached that score first",
+  "同分时先达到该分数者排前",
+  "同分時先達到該分數者排前"
+ ],
+ "제외 대상": [
+  "What doesn't count",
+  "以下情况不计",
+  "以下情況不計"
+ ],
+ "같은 사진 중복 등록 · 의미 없는 댓글 (운영자가 제외)": [
+  "Reposting the same photo · meaningless comments (removed by admins)",
+  "重复发同一张照片 · 无意义的评论（由管理员剔除）",
+  "重複發同一張照片 · 無意義的留言（由管理員剔除）"
+ ],
+ "한 사람이 여러 번호로 가입한 경우": [
+  "One person using several phone numbers",
+  "一人用多个号码注册",
+  "一人用多個號碼註冊"
+ ],
+ "운영자 · 지양하월시아 직원 계정": [
+  "Admin and Jiyang Haworthia staff accounts",
+  "管理员及 Jiyang Haworthia 员工账号",
+  "管理員及 Jiyang Haworthia 員工帳號"
+ ],
+ "발표 · 상품 지급": [
+  "Results · Prizes",
+  "公布 · 奖品",
+  "公布 · 獎品"
+ ],
+ "{d} 이 화면에서 발표하며, 당첨자에게는 문자로 연락드립니다": [
+  "Results on this page on {d}; winners will be contacted by text",
+  "{d} 在本页面公布，并以短信联系获奖者",
+  "{d} 在本頁面公布，並以簡訊聯絡得獎者"
+ ],
+ "식물은 택배로 발송합니다": [
+  "Plants are sent by courier",
+  "植物以快递寄送",
+  "植物以宅配寄送"
+ ],
+ "적립금은 haworthia.co.kr 회원 계정으로 지급합니다 (당첨 시 아이디를 확인합니다)": [
+  "Store credit goes to your haworthia.co.kr account (we'll ask for your ID if you win)",
+  "积分会存入 haworthia.co.kr 会员账号（获奖后会询问您的账号）",
+  "購物金會存入 haworthia.co.kr 會員帳號（得獎後會詢問您的帳號）"
+ ],
+ "결과 발표": [
+  "Results",
+  "结果公布",
+  "結果公布"
+ ],
+ "{d}까지": [
+  "until {d}",
+  "截至 {d}",
+  "截至 {d}"
+ ],
+ "{n}위까지 시상": [
+  "prizes for the top {n}",
+  "前{n}名有奖",
+  "前{n}名有獎"
+ ],
+ "내 순위 →": [
+  "My rank →",
+  "我的名次 →",
+  "我的名次 →"
+ ],
+ "참여하기 →": [
+  "Join →",
+  "参加 →",
+  "參加 →"
+ ],
+ "연말 활동왕": [
+  "Year-End Activity Awards",
+  "年末活跃王",
+  "年末活躍王"
+ ],
+ "적립금 20만원": [
+  "₩200,000 store credit",
+  "20万韩元积分",
+  "20萬韓元購物金"
+ ],
+ "적립금 10만원": [
+  "₩100,000 store credit",
+  "10万韩元积分",
+  "10萬韓元購物金"
+ ],
+ "1월 2일": [
+  "January 2",
+  "1月2日",
+  "1月2日"
+ ],
+ "카카오 로그인이 취소되었습니다.": [
+  "You cancelled Kakao login.",
+  "已取消 Kakao 登录。",
+  "已取消 Kakao 登入。"
+ ],
+ "카카오 로그인에 실패했습니다. 잠시 후 다시 시도해 주세요.": [
+  "Kakao login failed. Please try again shortly.",
+  "Kakao 登录失败，请稍后再试。",
+  "Kakao 登入失敗，請稍後再試。"
+ ],
+ "카카오 계정이 확인되었습니다.": [
+  "Kakao account confirmed ✓",
+  "已确认 Kakao 账号 ✓",
+  "已確認 Kakao 帳號 ✓"
+ ],
+ "처음 한 번만 휴대폰 번호 인증이 필요합니다. 다음부터는 카카오로 로그인할 수 있습니다.": [
+  "Just this once, please verify with your phone number. Next time, simply tap the Kakao button.",
+  "仅首次需要用手机号验证身份。之后只需点 Kakao 按钮即可。",
+  "僅首次需要用手機號碼驗證身分。之後只需點 Kakao 按鈕即可。"
+ ],
+ "카카오로 로그인": [
+  "Continue with Kakao",
+  "使用 Kakao 开始",
+  "使用 Kakao 開始"
+ ],
+ "또는 휴대폰 번호로 로그인": [
+  "or with your phone number",
+  "或使用手机号",
+  "或使用手機號碼"
+ ],
+ "[필수] 만 14세 이상이며, 개인정보 수집·이용에 동의합니다 — 휴대폰 번호는 로그인·본인 확인에만 쓰며, 다른 회원에게 보이지 않습니다.": [
+  "[Required] I am 14 or older and agree to the collection and use of personal information — your phone number is used only for login and verification and is never shown to other members.",
+  "[必选] 本人已满14周岁，并同意收集和使用个人信息 — 手机号仅用于登录和身份验证，不会向其他会员显示。",
+  "[必選] 本人已滿14歲，並同意蒐集和使用個人資料 — 手機號碼僅用於登入和身分驗證，不會向其他會員顯示。"
+ ],
+ "개인정보처리방침": [
+  "Privacy policy",
+  "隐私政策",
+  "隱私政策"
+ ],
+ "설정": [
+  "Settings",
+  "设置",
+  "設定"
+ ],
+ "카카오 계정이 연결되었습니다. 다음부터 카카오로 로그인할 수 있습니다.": [
+  "Kakao connected. Next time, log in with the Kakao button.",
+  "已连接 Kakao。下次可直接用 Kakao 按钮登录。",
+  "已連結 Kakao。下次可直接用 Kakao 按鈕登入。"
+ ],
+ "이 카카오 계정은 이미 다른 회원과 연결되어 있습니다.": [
+  "This Kakao account is already connected to another member.",
+  "该 Kakao 账号已与其他会员连接。",
+  "該 Kakao 帳號已與其他會員連結。"
+ ],
+ "닉네임": [
+  "Nickname",
+  "昵称",
+  "暱稱"
+ ],
+ "로그인·본인 확인에만 사용되며 다른 회원에게 공개되지 않습니다.": [
+  "Used only for login and verification · hidden from other members",
+  "仅用于登录和身份验证 · 其他会员看不到",
+  "僅用於登入和身分驗證 · 其他會員看不到"
+ ],
+ "카카오 로그인": [
+  "Kakao login",
+  "Kakao 登录",
+  "Kakao 登入"
+ ],
+ "연결됨": [
+  "Connected",
+  "已连接",
+  "已連結"
+ ],
+ "카카오 연결을 해제하시겠습니까? 해제 후에는 휴대폰 번호로 로그인합니다.": [
+  "Disconnect Kakao? You'll log in with your phone number next time.",
+  "要断开 Kakao 连接吗？之后将使用手机号登录。",
+  "要中斷 Kakao 連結嗎？之後將使用手機號碼登入。"
+ ],
+ "연결 해제": [
+  "Disconnect",
+  "断开连接",
+  "中斷連結"
+ ],
+ "카카오 연결하기": [
+  "Connect Kakao",
+  "连接 Kakao",
+  "連結 Kakao"
+ ],
+ "회원 탈퇴": [
+  "Delete account",
+  "注销账号",
+  "刪除帳號"
+ ],
+ "탈퇴하면 아래 정보가 즉시 삭제되며 복구할 수 없습니다.": [
+  "If you delete your account, the following is erased immediately and cannot be restored.",
+  "注销后，以下内容将立即删除且无法恢复。",
+  "刪除帳號後，以下內容將立即刪除且無法復原。"
+ ],
+ "작성한 게시물 {n}개와 게시물에 달린 댓글": [
+  "Your {n} photo posts and the comments on them",
+  "我发布的 {n} 篇照片帖及其评论",
+  "我發布的 {n} 篇照片貼文及其留言"
+ ],
+ "작성한 댓글 {n}개": [
+  "Your {n} comments",
+  "我写的 {n} 条评论",
+  "我寫的 {n} 則留言"
+ ],
+ "좋아요·팔로우·알림·휴대폰 알림 설정": [
+  "Likes, follows, notifications and push settings",
+  "♥、关注、通知及手机通知设置",
+  "♥、追蹤、通知及手機通知設定"
+ ],
+ "내 식물·성장일기": [
+  "My plants and growth diaries",
+  "我的植物和成长日记",
+  "我的植物和成長日記"
+ ],
+ "닉네임·휴대폰 번호·카카오 연결": [
+  "Nickname, phone number and Kakao connection",
+  "昵称、手机号、Kakao 连接",
+  "暱稱、手機號碼、Kakao 連結"
+ ],
+ "참여 중인 이벤트 순위에서도 제외됩니다": [
+  "If you're in an event, you'll be removed from the ranking",
+  "如正在参加活动，也会从排名中移除",
+  "如正在參加活動，也會從排名中移除"
+ ],
+ "서버 자동 백업본에는 최대 14일간 보관된 후 자동 삭제됩니다.": [
+  "Automatic server backups keep a copy for up to 14 days, then delete it automatically.",
+  "服务器的自动备份最多保留 14 天，之后自动删除。",
+  "伺服器的自動備份最多保留 14 天，之後自動刪除。"
+ ],
+ "방주 보증서 기록(지양하월시아 보증서 장부)은 클럽과 별도로 보관됩니다. 삭제를 원하시면 운영자에게 문의해 주세요.": [
+  "Ark certificate records (Jiyang Haworthia's certificate ledger) are kept separately from the club. Contact us if you want them deleted.",
+  "方舟保证书记录（Jiyang Haworthia 保证书账本）与俱乐部分开保存。如需删除请联系管理员。",
+  "方舟保證書紀錄（Jiyang Haworthia 保證書帳本）與俱樂部分開保存。如需刪除請聯絡管理員。"
+ ],
+ "확인을 위해 「탈퇴」를 입력해 주세요": [
+  "Type “DELETE” to confirm",
+  "请输入「注销」以确认",
+  "請輸入「刪除」以確認"
+ ],
+ "탈퇴": [
+  "DELETE",
+  "注销",
+  "刪除"
+ ],
+ "탈퇴하기": [
+  "Delete my account",
+  "注销账号",
+  "刪除帳號"
+ ],
+ "취소하고 돌아가기": [
+  "Cancel and go back",
+  "取消并返回",
+  "取消並返回"
+ ],
+ "확인란에 「탈퇴」를 입력해 주세요.": [
+  "Please type “DELETE” in the box.",
+  "请在框中输入「注销」。",
+  "請在框中輸入「刪除」。"
+ ],
+ "정말 탈퇴하시겠습니까? 삭제된 정보는 복구할 수 없습니다.": [
+  "Really delete your account? This cannot be undone.",
+  "确定要注销吗？删除的内容无法恢复。",
+  "確定要刪除帳號嗎？刪除的內容無法復原。"
+ ],
+ "다시 시도해 주세요": [
+  "Please try again",
+  "请重试",
+  "請重試"
+ ],
+ "카카오 로그인 시간이 초과되었습니다. 카카오 로그인 버튼을 다시 눌러 주세요.": [
+  "The Kakao login timed out. Please tap the Kakao button again.",
+  "Kakao 登录已超时，请重新点击 Kakao 按钮。",
+  "Kakao 登入已逾時，請重新點擊 Kakao 按鈕。"
+ ],
+ "이용 제한": [
+  "Restricted",
+  "使用受限",
+  "使用受限"
+ ],
+ "탈퇴가 완료되었습니다": [
+  "Your account has been deleted",
+  "注销已完成",
+  "帳號已刪除"
+ ],
+ "그동안 하월시아 클럽을 이용해 주셔서 감사합니다.": [
+  "Thank you for being with us 🌿 You're welcome back anytime.",
+  "感谢您一直以来的陪伴 🌿 欢迎随时回来。",
+  "感謝您一直以來的陪伴 🌿 歡迎隨時回來。"
  ]
 };

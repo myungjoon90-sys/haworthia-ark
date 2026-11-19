@@ -27,16 +27,42 @@
     return true;
   }
 
-  // ---- 사진 넘기기 점 ----
+  // ---- 사진 넘기기: 점 + PC 화살표 ----
   function bindStrips(root) {
     $$('.ph .strip', root).forEach(function (st) {
       if (st._b) return; st._b = 1;
-      var dots = $$('.dots i', st.parentNode);
-      if (dots.length < 2) return;
-      st.addEventListener('scroll', function () {
-        var i = Math.round(st.scrollLeft / st.clientWidth);
+      var ph = st.closest('.ph');
+      var dots = $$('.dots i', ph);
+      var n = dots.length;
+      if (n < 2) return;
+      var tgt = null, tgtT = 0;   // 부드럽게 넘어가는 중에 또 누르면 목표 장 기준으로 계산
+      function cur() { return Math.max(0, Math.min(n - 1, Math.round(st.scrollLeft / (st.clientWidth || 1)))); }
+      function here() { return tgt !== null ? tgt : cur(); }
+      function go(i) {
+        i = Math.max(0, Math.min(n - 1, i));
+        tgt = i; clearTimeout(tgtT); tgtT = setTimeout(function () { tgt = null; }, 700);
+        st.scrollTo({ left: i * st.clientWidth, behavior: 'smooth' });
+      }
+      var prev = document.createElement('button');
+      prev.type = 'button'; prev.className = 'pnav prev'; prev.textContent = '‹';
+      prev.setAttribute('aria-label', L('이전 사진'));
+      var next = document.createElement('button');
+      next.type = 'button'; next.className = 'pnav next'; next.textContent = '›';
+      next.setAttribute('aria-label', L('다음 사진'));
+      ph.appendChild(prev); ph.appendChild(next);
+      function mark() {
+        var i = cur();
         dots.forEach(function (d, j) { d.classList.toggle('on', j === i); });
-      }, { passive: true });
+        prev.classList.toggle('off', i === 0);
+        next.classList.toggle('off', i === n - 1);
+      }
+      prev.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); go(here() - 1); });
+      next.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); go(here() + 1); });
+      dots.forEach(function (d, j) {
+        d.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); go(j); });
+      });
+      st.addEventListener('scroll', mark, { passive: true });
+      mark();
     });
   }
 
@@ -60,7 +86,7 @@
   // 사진 두 번 누르면 좋아요
   document.addEventListener('dblclick', function (e) {
     var ph = e.target.closest('.ph[data-post]');
-    if (!ph) return;
+    if (!ph || e.target.closest('.pnav, .dots')) return;
     var b = $('[data-like="' + ph.getAttribute('data-post') + '"]');
     if (b && !b.classList.contains('liked')) b.click();
   });
@@ -89,6 +115,33 @@
     if (c) { var s = c.closest('.sheet'); if (s) s.classList.remove('on'); }
   });
 
+  // ---- 회원 탈퇴 (「탈퇴」라고 적어야 버튼이 동작) ----
+  var lb = $('#leavebtn');
+  if (lb) lb.onclick = function () {
+    var v = ($('#leaveconfirm').value || '').trim(), er = $('#leaveerr');
+    if (v !== '탈퇴' && v !== L('탈퇴')) { er.textContent = L('확인란에 「탈퇴」를 입력해 주세요.'); er.style.display = 'block'; return; }
+    if (!confirm(L('정말 탈퇴하시겠습니까? 삭제된 정보는 복구할 수 없습니다.'))) return;
+    lb.disabled = true;
+    api('/api/me/leave', { confirm: '탈퇴' }).then(function (r) {
+      lb.disabled = false;
+      if (!r.ok) { er.textContent = r.error || L('실패했습니다.'); er.style.display = 'block'; return; }
+      location.href = B + '/bye';
+    });
+  };
+  // ---- 운영자 설정 폼 (data-api="주소" data-extra='{"action":"save"}') → 저장 후 새로고침 ----
+  $$('form[data-api]').forEach(function (f) {
+    f.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var body = {}; try { body = JSON.parse(f.getAttribute('data-extra') || '{}'); } catch (x) {}
+      new FormData(f).forEach(function (v, k) { body[k] = v; });
+      var bt = f.querySelector('[type=submit]'); if (bt) bt.disabled = true;
+      api(f.getAttribute('data-api'), body).then(function (r) {
+        if (bt) bt.disabled = false;
+        if (!r.ok) return toast(r.error || L('실패했습니다.'));
+        toast('저장되었습니다.'); setTimeout(function () { location.reload(); }, 400);
+      });
+    });
+  });
   // ---- 일반 동작 버튼 (data-act="주소" data-body='{"a":1}' data-confirm="…" data-go="이동할 곳") ----
   document.addEventListener('click', function (e) {
     var b = e.target.closest('[data-act]');
@@ -187,7 +240,7 @@
       if (!items.length) return hide();
       box.innerHTML = items.map(function (it, i) {
         return '<div data-i="' + i + '" class="' + (i === sel ? 'on' : '') + '"><b>#' + esc(it.word) + '</b>' +
-          '<small>' + (it.fresh ? L('새 태그로 쓰기') : it.n ? L('{n}개 글', { n: it.n }) : L('품종명')) + '</small></div>';
+          '<small>' + (it.fresh ? L('새 태그로 입력') : it.n ? L('게시물 {n}개', { n: it.n }) : L('품종명')) + '</small></div>';
       }).join('');
       box.style.display = 'block';
     }
@@ -252,7 +305,7 @@
       shots.forEach(function (s, i) {
         var d = document.createElement('div'); d.className = 't';
         d.innerHTML = '<img src="' + s.url + '" alt="">' + (i === 0 ? '<span class="one">' + L('대표') + '</span>' : '') +
-          '<button type="button" class="rm" aria-label="' + L('빼기') + '">✕</button>' +
+          '<button type="button" class="rm" aria-label="' + L('삭제') + '">✕</button>' +
           (s.src ? '<button type="button" class="cut" aria-label="' + L('자르기') + '">✂</button>' : '');
         d.querySelector('.rm').onclick = function () { URL.revokeObjectURL(s.url); shots.splice(i, 1); drawThumbs(); };
         if (s.src) d.querySelector('.cut').onclick = function () { cropOpen([s]); };
@@ -323,7 +376,7 @@
       var el = document.createElement('div'); el.className = 'ck'; el.setAttribute('role', 'dialog');
       el.innerHTML = '<div class="ck-bar"><button type="button" class="ck-x" aria-label="' + L('닫기') + '">✕</button><b class="ck-t"></b><button type="button" class="ck-ok"></button></div>' +
         '<div class="ck-stage"><img class="ck-img" alt="" draggable="false"><div class="ck-fr"><i class="v1"></i><i class="v2"></i><i class="h1"></i><i class="h2"></i></div>' +
-        '<div class="ck-hint">' + L(touch ? '끌어서 위치 · 두 손가락으로 크기' : '끌어서 위치 · 휠로 크기') + '</div></div>' +
+        '<div class="ck-hint">' + L(touch ? '끌어서 위치 조정 · 두 손가락으로 크기 조정' : '끌어서 위치 조정 · 휠로 크기 조정') + '</div></div>' +
         '<div class="ck-tools"><button type="button" class="ck-reset">↺ ' + L('원래대로') + '</button></div><div class="ck-strip"></div>';
       document.body.appendChild(el);
       document.documentElement.classList.add('ck-open');
@@ -475,7 +528,7 @@
       fd.append('species', spChoice || ''); fd.append('species_pick', spManual ? 'user' : 'auto');
       if (plantId === 'new') {
         var nm = $('#newplantname').value.trim();
-        if (!nm) { err.textContent = L('새 식물 이름을 적어 주세요.'); err.style.display = 'block'; return; }
+        if (!nm) { err.textContent = L('새 식물 이름을 입력해 주세요.'); err.style.display = 'block'; return; }
         fd.append('new_plant', nm);
       } else if (plantId) fd.append('plant_id', plantId);
       var btn = $('#wsubmit'); btn.disabled = true;
@@ -483,12 +536,12 @@
         var o = { body: body, species: spChoice || '', species_pick: spManual ? 'user' : 'auto' }; if (plantId === 'new') o.new_plant = $('#newplantname').value.trim(); else if (plantId) o.plant_id = plantId;
         btn.textContent = L('저장하는 중…');
         api('/api/posts/' + editId + '/edit', o).then(function (r) {
-          if (!r.ok) { btn.disabled = false; btn.textContent = L('저장하기'); err.textContent = r.error; err.style.display = 'block'; return; }
+          if (!r.ok) { btn.disabled = false; btn.textContent = L('저장'); err.textContent = r.error; err.style.display = 'block'; return; }
           location.href = r.url;
         });
         return;
       }
-      if (!shots.length && !body) { btn.disabled = false; err.textContent = L('사진이나 글을 넣어 주세요.'); err.style.display = 'block'; return; }
+      if (!shots.length && !body) { btn.disabled = false; err.textContent = L('사진 또는 내용을 입력해 주세요.'); err.style.display = 'block'; return; }
       rq.then(function () {
       shots.forEach(function (s, i) {
         fd.append('f' + i, s.full, 'p' + i + '.jpg');
@@ -500,10 +553,10 @@
       xhr.upload.onprogress = function (ev) { if (ev.lengthComputable) btn.textContent = L('올리는 중… {p}%', { p: Math.round(ev.loaded / ev.total * 100) }); };
       xhr.onload = function () {
         var r = {}; try { r = JSON.parse(xhr.responseText); } catch (x) { r = { ok: false, error: L('서버 응답 오류') }; }
-        if (!r.ok) { btn.disabled = false; btn.textContent = L('올리기'); err.textContent = r.error; err.style.display = 'block'; return; }
+        if (!r.ok) { btn.disabled = false; btn.textContent = L('등록'); err.textContent = r.error; err.style.display = 'block'; return; }
         location.href = r.url;
       };
-      xhr.onerror = function () { btn.disabled = false; btn.textContent = L('올리기'); err.textContent = L('인터넷 연결을 확인해 주세요.'); err.style.display = 'block'; };
+      xhr.onerror = function () { btn.disabled = false; btn.textContent = L('등록'); err.textContent = L('인터넷 연결을 확인해 주세요.'); err.style.display = 'block'; };
       btn.textContent = L('올리는 중…');
       xhr.send(fd);
       });
@@ -516,6 +569,7 @@
   var lg = $('#login');
   if (lg) {
     var next = lg.getAttribute('data-next') || (B + '/');
+    var kakao = lg.getAttribute('data-kakao') || '';   // 카카오로 처음 온 분: 휴대폰 확인 뒤 계정에 카카오를 이어 둠
     var phone = '', signup = '';
     var e1 = $('#lerr');
     function show(step) { $$('[data-step]', lg).forEach(function (x) { x.style.display = x.getAttribute('data-step') === step ? 'block' : 'none'; }); }
@@ -529,7 +583,7 @@
     };
     $('#sendbtn').onclick = function () {
       phone = $('#phone').value; good();
-      if (cty && !cty.value) return bad(L('나라를 먼저 골라 주세요.'));
+      if (cty && !cty.value) return bad(L('국가를 먼저 선택해 주세요.'));
       var b = this; b.disabled = true; b.textContent = L('보내는 중…');
       api('/api/auth/send', { phone: phone, country: country() }).then(function (r) {
         b.disabled = false; b.textContent = L('인증번호 받기');
@@ -542,7 +596,7 @@
     $('#resend').onclick = function (e) { e.preventDefault(); show('phone'); };
     $('#codebtn').onclick = function () {
       good(); var b = this; b.disabled = true;
-      api('/api/auth/verify', { phone: phone, country: country(), code: $('#code').value }).then(function (r) {
+      api('/api/auth/verify', { phone: phone, country: country(), code: $('#code').value, kakao: kakao }).then(function (r) {
         b.disabled = false;
         if (!r.ok) return bad(r.error);
         if (r.signup) { signup = r.signup; show('nick'); $('#nick').focus(); return; }
@@ -551,7 +605,7 @@
     };
     $('#nickbtn').onclick = function () {
       good(); var b = this; b.disabled = true;
-      api('/api/auth/signup', { signup: signup, nick: $('#nick').value, agree: $('#agree').checked }).then(function (r) {
+      api('/api/auth/signup', { signup: signup, nick: $('#nick').value, agree: $('#agree').checked, kakao: kakao }).then(function (r) {
         b.disabled = false;
         if (!r.ok) return bad(r.error);
         if (r.ark) toast(L('방주 멤버로 확인되었습니다 ✦'));
@@ -644,12 +698,12 @@
     function b64u(s) { var p = '='.repeat((4 - s.length % 4) % 4); var r = atob((s + p).replace(/-/g, '+').replace(/_/g, '/')); var a = new Uint8Array(r.length); for (var i = 0; i < r.length; i++) a[i] = r.charCodeAt(i); return a; }
     function show(state) {
       pc.classList.toggle('on', state === 'on');
-      if (state === 'on') { title.textContent = L('폰 알림이 켜졌어요'); btn.textContent = L('끄기'); }
+      if (state === 'on') { title.textContent = L('휴대폰 알림이 설정되었습니다.'); btn.textContent = L('끄기'); }
       else { btn.textContent = L('켜기'); }
     }
     if (!ok) {
       if (ios && !standalone) { $('#pushios').style.display = 'block'; btn.style.display = 'none'; }
-      else { sub.textContent = L('이 폰은 알림을 지원하지 않아요'); btn.style.display = 'none'; }
+      else { sub.textContent = L('이 기기는 알림을 지원하지 않습니다.'); btn.style.display = 'none'; }
       return;
     }
     if (ios && !standalone) { $('#pushios').style.display = 'block'; btn.style.display = 'none'; return; }
@@ -659,13 +713,13 @@
       navigator.serviceWorker.ready.then(function (reg) {
         return reg.pushManager.getSubscription().then(function (s) {
           if (s && pc.classList.contains('on')) {
-            return s.unsubscribe().then(function () { return api('/api/push/unsub', { endpoint: s.endpoint }); }).then(function () { show('off'); toast(L('폰 알림을 껐어요')); });
+            return s.unsubscribe().then(function () { return api('/api/push/unsub', { endpoint: s.endpoint }); }).then(function () { show('off'); toast(L('휴대폰 알림이 해제되었습니다.')); });
           }
           btn.textContent = L('켜는 중…');
           return Notification.requestPermission().then(function (perm) {
-            if (perm !== 'granted') { show('off'); toast(L('알림을 허용해야 받을 수 있어요. 폰 설정에서 허용해 주세요.')); return; }
+            if (perm !== 'granted') { show('off'); toast(L('알림을 받으려면 권한 허용이 필요합니다. 휴대폰 설정에서 허용해 주세요.')); return; }
             return reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64u(key) }).then(function (ns) {
-              return api('/api/push/sub', { sub: ns.toJSON() }).then(function (r) { if (!r.ok) { show('off'); return toast(r.error || L('실패했습니다.')); } show('on'); toast(L('폰 알림이 켜졌어요')); });
+              return api('/api/push/sub', { sub: ns.toJSON() }).then(function (r) { if (!r.ok) { show('off'); return toast(r.error || L('실패했습니다.')); } show('on'); toast(L('휴대폰 알림이 설정되었습니다.')); });
             });
           });
         });
@@ -761,7 +815,7 @@
       draw().then(function (b) {
         blob = b; if (img._u) URL.revokeObjectURL(img._u);
         img._u = URL.createObjectURL(b); img.src = img._u;
-      }).catch(function () { toast(L('사진 만들기에 실패했어요')); }).then(function () { busy = false; sheet.classList.remove('wait'); });
+      }).catch(function () { toast(L('사진을 만들지 못했습니다.')); }).then(function () { busy = false; sheet.classList.remove('wait'); });
     }
     function fileName() { return 'haworthia-' + String(D.tag).replace(/[^\w가-힣]/g, '') + '-D' + D.span + '-' + fmt + '.jpg'; }
     cbtn.onclick = function () { sheet.hidden = false; document.body.classList.add('noscroll'); if (!blob) render(); };
@@ -772,7 +826,7 @@
     $('#csave').onclick = function () {
       if (!blob) return;
       var a = document.createElement('a'); a.href = img._u; a.download = fileName(); document.body.appendChild(a); a.click(); a.remove();
-      toast(L('사진을 저장했어요'));
+      toast(L('사진이 저장되었습니다.'));
     };
     $('#cshare').onclick = function () {
       if (!blob) return;
@@ -784,7 +838,7 @@
       } else if (navigator.share) {
         navigator.share({ title: '#' + D.tag, text: text, url: D.url }).catch(function () {});
       } else if (navigator.clipboard) {
-        navigator.clipboard.writeText(D.url).then(function () { toast(L('주소를 복사했어요')); });
+        navigator.clipboard.writeText(D.url).then(function () { toast(L('주소를 복사했습니다.')); });
       }
     };
     window.__clubCard = { draw: function (f) { fmt = f; return draw(); } }; // 시험용

@@ -2,14 +2,14 @@
 <div class="ped" style="margin-top:16px;padding:22px 18px">
   <div class="h">ARK PROJECT · BY JIYANG<b><%= t('방주') %></b></div>
   <div class="nm" style="font-size:20px;margin-top:12px;line-height:1.45"><%- t('진짜 개체의 혈통과 소유를<br>기록하는 디지털 보증서') %></div>
-  <p style="font-size:13px;line-height:1.75;margin-top:10px;opacity:.9"><%= t('가치를 인정받은 하월시아에 고유 넘버와 보증서를 붙이고, 모본·부본과 소유 이력을 이어서 기록합니다. 클럽에서 내 식물에 보증서를 연결하면 사진마다 정품 배지와 족보가 붙어요.') %></p>
+  <p style="font-size:13px;line-height:1.75;margin-top:10px;opacity:.9"><%= t('가치를 인정받은 하월시아에 고유 넘버와 보증서를 부여하고, 모본·부본과 소유 이력을 이어서 기록합니다. 클럽에서 내 식물에 보증서를 연결하면 사진마다 정품 배지와 족보가 표시됩니다.') %></p>
   <div style="display:flex;gap:16px;margin-top:14px;font-size:12.5px;opacity:.9"><span><b style="font-size:16px;color:var(--gold2)"><%= official.length %></b> <%= t('등재 품종') %></span><span><b style="font-size:16px;color:var(--gold2)"><%= certTotal %></b> <%= t('클럽 정품 식물') %></span></div>
   <% if (lang !== 'ko') { %><p style="font-size:11.5px;margin-top:10px;opacity:.7"><%= t('방주 사이트는 한국어로 열립니다.') %></p><% } %>
 </div>
 
 <form class="box" method="get" action="<%= ARK_URL %>/verify" target="_blank">
   <h3>🔍 <%= t('넘버 정품 조회') %></h3>
-  <p><%= t('라벨이나 보증서에 적힌 넘버를 넣으면 방주 장부에서 정품인지 바로 확인합니다. (개인정보는 보이지 않아요)') %></p>
+  <p><%= t('라벨이나 보증서에 적힌 넘버를 입력하면 방주 장부에서 정품 여부를 바로 확인합니다. (개인정보는 표시되지 않습니다)') %></p>
   <div class="row2" style="margin-top:10px"><input class="in" name="n" placeholder="JY-…" autocomplete="off"><button class="btn s" type="submit"><%= t('조회') %></button></div>
 </form>
 
@@ -27,7 +27,7 @@
     <% }); %>
   </div>
   <% } else { %>
-  <p style="margin-top:6px"><%- t('아직 보증서가 연결된 식물이 없어요. <a href="{href}" style="color:var(--green2);font-weight:700;text-decoration:underline">내 온실</a>에서 식물을 고르고 「보증서 연결」을 누르세요.', { href: B + '/me' }) %></p>
+  <p style="margin-top:6px"><%- t('보증서가 연결된 식물이 없습니다. <a href="{href}" style="color:var(--green2);font-weight:700;text-decoration:underline">내 온실</a>에서 식물을 선택한 뒤 「보증서 연결」을 눌러 주세요.', { href: B + '/me' }) %></p>
   <% } %>
   <% var tr = me.tier, d = TIERS[TIERS.length - 1]; %>
   <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line)">
@@ -36,13 +36,13 @@
     <% if (!tr.ark) { var pp = Math.min(100, Math.round(me.act.posts / d.posts * 100)), cp = Math.min(100, Math.round(me.act.comments / d.comments * 100)); %>
     <div class="lvbox" style="padding:0;margin:8px 0 0;background:none">
       <div class="row"><span><%= t('게시물') %> <%= me.act.posts %> / <%= d.posts %></span><span><%= pp %>%</span></div><div class="bar"><i style="width:<%= pp %>%"></i></div>
-      <div class="row"><span><%= t('댓글') %> <%= me.act.comments %> / <%= d.comments %> <small><%= t('(남의 글)') %></small></span><span><%= cp %>%</span></div><div class="bar"><i style="width:<%= cp %>%"></i></div>
+      <div class="row"><span><%= t('댓글') %> <%= me.act.comments %> / <%= d.comments %> <small><%= t('(다른 회원의 게시물)') %></small></span><span><%= cp %>%</span></div><div class="bar"><i style="width:<%= cp %>%"></i></div>
     </div>
     <% } %>
   </div>
 </div>
 <% } else { %>
-<div class="box"><h3><%= t('내 방주') %></h3><p><%= t('로그인하면 내 정품 식물과 방주 가입 요건 진행 상황이 여기 보여요.') %></p><a class="btn" href="<%= B %>/login?next=<%= encodeURIComponent(B + '/ark') %>" style="margin-top:10px"><%= t('휴대폰으로 로그인') %></a></div>
+<div class="box"><h3><%= t('내 방주') %></h3><p><%= t('로그인하면 내 정품 식물과 방주 가입 요건 진행 상황을 확인할 수 있습니다.') %></p><a class="btn" href="<%= B %>/login?next=<%= encodeURIComponent(B + '/ark') %>" style="margin-top:10px"><%= t('휴대폰으로 로그인') %></a></div>
 <% } %>
 
 <% if (official.length) { %>
@@ -54,7 +54,7 @@
 </div>
 <% } %>
 
-<div class="sec"><h2><%= t('방주에서 하기') %></h2><small><%= t('누르면 방주 사이트로 넘어가요') %></small></div>
+<div class="sec"><h2><%= t('방주에서 하기') %></h2><small><%= t('방주 사이트로 이동합니다') %></small></div>
 <div style="display:flex;flex-direction:column;gap:9px;margin-bottom:10px">
   <a class="btn gold" href="<%= ARK_URL %>/royal" target="_blank"><%= t('가지고 있는 로얄넘버 정품 등록') %> ↗</a>
   <a class="btn line" href="<%= ARK_URL %>/list" target="_blank"><%= t('방주 갤러리 — 등재 품종') %> ↗</a>

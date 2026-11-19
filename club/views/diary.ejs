@@ -17,7 +17,7 @@
   <% } %>
 </div>
 <% if (card) { %>
-<button class="btn sharecard" type="button" id="cardbtn">🎬 <%= t('비교 사진 만들어 공유하기') %></button>
+<button class="btn sharecard" type="button" id="cardbtn">🎬 <%= t('비교 사진 만들기 · 공유') %></button>
 <script type="application/json" id="carddata"><%- JSON.stringify(card).replace(/</g, '\\u003c') %></script>
 <div class="csheet" id="csheet" hidden>
   <div class="dim" data-close></div>
@@ -27,14 +27,14 @@
     <div class="seg3"><button type="button" data-fmt="story"><%= t('세로 9:16') %></button><button type="button" data-fmt="square" class="on"><%= t('정사각 1:1') %></button><button type="button" data-fmt="tl"><%= t('타임라인 4:5') %></button></div>
     <div class="cprev"><img id="cimg" alt=""><span class="cwait"><%= t('만드는 중…') %></span></div>
     <div class="cbt"><button type="button" class="sv" id="csave">⬇ <%= t('사진 저장') %></button><button type="button" class="sh" id="cshare"><%= t('공유하기') %></button></div>
-    <p class="hint" style="margin-top:8px;text-align:center"><%= t('인스타·틱톡·카톡에 올려 보세요. QR 을 찍으면 이 성장일기로 와요.') %></p>
+    <p class="hint" style="margin-top:8px;text-align:center"><%= t('인스타그램·틱톡·카카오톡에 공유할 수 있습니다. QR을 찍으면 이 성장일기로 연결됩니다.') %></p>
   </div>
 </div>
 <% } %>
 <div class="dord">
   <a class="chip <%= order === 'old' ? 'on' : '' %>" href="?order=old"><%= t('처음부터') %></a>
   <a class="chip <%= order === 'new' ? 'on' : '' %>" href="?order=new"><%= t('최근부터') %></a>
-  <% if (own) { %><a class="btn gold s" style="margin-left:auto" href="<%= B %>/write?tag=<%= encodeURIComponent(word) %>">＋ <%= t('오늘 기록 올리기') %></a><% } %>
+  <% if (own) { %><a class="btn gold s" style="margin-left:auto" href="<%= B %>/write?tag=<%= encodeURIComponent(word) %>">＋ <%= t('오늘 기록 등록') %></a><% } %>
 </div>
 <div class="dtline">
   <% entries.forEach(function (e) { var ph = e.photos[0]; %>
@@ -43,7 +43,7 @@
     <div class="dtlc">
       <a class="dtli" href="<%= B %>/p/<%= e.id %>" style="aspect-ratio:<%= ph.w && ph.h ? ph.w + '/' + Math.round(Math.min(ph.h, ph.w * 1.35)) : '1/1' %>"><img src="<%= B %>/media/<%= ph.file %>" loading="lazy" alt=""><% if (e.photos.length > 1) { %><span class="multi">❐ <%= e.photos.length %></span><% } %><% if (e.hidden) { %><span class="hidb"><%= t('숨김') %></span><% } %></a>
       <% if (e.body) { %><div class="dtlb"><%- T.renderBody(String(e.body).length > 220 ? String(e.body).slice(0, 220) + '…' : e.body, B) %></div><% } %>
-      <a class="dtlm" href="<%= B %>/p/<%= e.id %>">♡ <%= e.likes %> · 💬 <%= e.comments %> · <%= t('글 보기 →') %></a>
+      <a class="dtlm" href="<%= B %>/p/<%= e.id %>">♡ <%= e.likes %> · 💬 <%= e.comments %> · <%= t('게시물 보기 →') %></a>
     </div>
   </article>
   <% }); %>

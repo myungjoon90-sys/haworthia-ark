@@ -17,11 +17,13 @@ const T = require('./text');
 const I18N = require('./i18n');
 const { makeNotify } = require('./notify');
 const { makeShop } = require('./shop');
+const { makeEvent } = require('./event');
+const I18N_DICT = require('./i18n_dict');
 const qrcode = require('qrcode-generator');
 
 const VIEWS = path.join(__dirname, 'views');
 const PUBLIC = path.join(__dirname, 'public');
-const VERSION = 'club-6';   // v30 사진 자르기 — 폰이 새 club.js·css 를 받도록
+const VERSION = 'club-10';  // v32c PC 사진 넘김 화살표 — 폰이 새 club.js·css 를 받도록
 
 // ---- 활동 등급 (사장님 결정 2026-11-15 보석형 · 2026-11-16 기준 바꿈: 실버 10/20 · 골드 30/60 · 플래티넘 70/140 · 다이아 150/300) ----
 //  글 = 숨김·삭제 안 된 내 글 / 댓글 = 남의 글에 단 댓글 (내 글에 단 것·숨김·삭제 제외)
@@ -59,6 +61,18 @@ function mountClub(app, deps) {
   // 알림·폰 알림 (notify.js) · 「지양에서 판매 중」 (shop.js) — v29
   const notify = makeNotify({ db, q, T, I18N, DEV });
   const shop = makeShop({ q, T, DEV });
+  const ev = makeEvent({ q, now });
+  // 운영자가 적은 글(이벤트 이름·상품)은 번역표에 있을 때만 바꿈 — 나머지는 적은 그대로
+  const tfOf = (t) => (x) => (I18N_DICT[x] ? t(x) : x);
+  // 피드 맨 위 이벤트 띠 (켜져 있고 시작한 뒤에만)
+  function eventBand(req) {
+    const c = ev.cfg();
+    if (!c.on) return null;
+    const st = ev.state();
+    if (st.phase === 'soon') return null;
+    const my = req.user ? ev.mine(st, req.user.id) : null;
+    return { phase: st.phase, cfg: c, groups: ev.groups(st.cfg.prizes), myRank: my && my.me ? my.me.rank : 0, endYmd: ev.kstYmd(c.end) };
+  }
 
   app.set('trust proxy', 1);
 
@@ -139,21 +153,23 @@ function mountClub(app, deps) {
       ago: (ms) => I18N.timeAgo(ms, req.lang, T.ymd),
       spLabel: (x) => spLabel(x, req.lang),
       jsDict: jsDict(req.lang),
+      kakaoOn: kakaoOn(),
     });
     next();
   });
   // 번역이 빠진 문장 모으기 (시험 모드에서 /club/_missing 으로 확인)
   const MISSING = DEV ? new Set() : null;
   // 화면 스크립트(club.js)에서 쓰는 문장
-  const JS_KEYS = ['불러오는 중…', '더 보기', '주소를 복사했습니다.', '실패했습니다.', '사진은 10장까지 올릴 수 있습니다.', '대표', '빼기',
-    '{n}/10장', '새 식물 이름을 적어 주세요.', '저장하는 중…', '저장하기', '사진이나 글을 넣어 주세요.', '올리는 중… {p}%', '올리기', '서버 응답 오류',
+  const JS_KEYS = ['불러오는 중…', '더 보기', '주소를 복사했습니다.', '실패했습니다.', '사진은 10장까지 올릴 수 있습니다.', '대표', '삭제',
+    '{n}/10장', '새 식물 이름을 입력해 주세요.', '저장하는 중…', '저장', '사진 또는 내용을 입력해 주세요.', '올리는 중… {p}%', '등록', '서버 응답 오류',
     '인터넷 연결을 확인해 주세요.', '올리는 중…', '보내는 중…', '인증번호 받기', '시험 모드: 인증번호 {code}', '방주 멤버로 확인되었습니다 ✦',
     '보증서 확인 중…', '보증서 연결하기', '🛡 정품으로 연결되었습니다 ({how})', '연결 신청이 접수되었습니다. 운영자 확인 후 🛡 배지가 붙습니다.',
-    '아래 공유 버튼 → 「홈 화면에 추가」', '새 태그로 쓰기', '나라를 먼저 골라 주세요.', '{n}개 글', '품종명', '휴대폰 번호', '구매자 전용 링크', '정품 등록 번호 일치',
-    '＋ 팔로우', '팔로잉', '폰 알림이 켜졌어요', '폰 알림을 껐어요', '이 폰은 알림을 지원하지 않아요', '알림을 허용해야 받을 수 있어요. 폰 설정에서 허용해 주세요.',
-    '켜기', '끄기', '켜는 중…', '만드는 중…', '사진을 저장했어요', '주소를 복사했어요', '사진 만들기에 실패했어요',
+    '아래 공유 버튼 → 「홈 화면에 추가」', '새 태그로 입력', '국가를 먼저 선택해 주세요.', '게시물 {n}개', '품종명', '휴대폰 번호', '구매자 전용 링크', '정품 등록 번호 일치',
+    '＋ 팔로우', '팔로잉', '휴대폰 알림이 설정되었습니다.', '휴대폰 알림이 해제되었습니다.', '이 기기는 알림을 지원하지 않습니다.', '알림을 받으려면 권한 허용이 필요합니다. 휴대폰 설정에서 허용해 주세요.',
+    '켜기', '끄기', '켜는 중…', '만드는 중…', '사진이 저장되었습니다.', '주소를 복사했습니다.', '사진을 만들지 못했습니다.',
     '{n}일 성장일기', '{n}일의 변화', '▼ {n}일 뒤', '기록 {n}개', '사진으로 보는 하월시아 성장 기록', '하월시아 클럽', '닫기',
-    '자르기', '사진 자르기 {i}/{n}', '다음', '완료', '원래대로', '끌어서 위치 · 두 손가락으로 크기', '끌어서 위치 · 휠로 크기'];
+    '자르기', '사진 자르기 {i}/{n}', '다음', '완료', '원래대로', '끌어서 위치 조정 · 두 손가락으로 크기 조정', '끌어서 위치 조정 · 휠로 크기 조정',
+    '이전 사진', '다음 사진', '확인란에 「탈퇴」를 입력해 주세요.', '정말 탈퇴하시겠습니까? 삭제된 정보는 복구할 수 없습니다.', '탈퇴'];
   const _jsCache = {};
   function jsDict(lang) {
     if (lang === 'ko') return {};
@@ -533,14 +549,15 @@ function mountClub(app, deps) {
     if (req.query.frag) return page(res, '_pins', { list, more, next, target: 'feedlist' });
     // 위 칩: 종 (만상·옥선…) + ETC
     const followN = req.user ? (q('SELECT COUNT(*) n FROM follows WHERE follower_id=?').get(req.user.id) || {}).n || 0 : 0;
-    page(res, 'feed', { list, more, sort, tk, followN, tkLabel: tk ? tagLabel(tk) : '', sp, spList, spName: sp ? spLabelById(sp === 'etc' ? null : sp, req.lang) : '', next, title: '' });
+    const evBand = !tk && !sp && pg === 0 ? eventBand(req) : null;
+    page(res, 'feed', { list, more, sort, tk, followN, tkLabel: tk ? tagLabel(tk) : '', sp, spList, spName: sp ? spLabelById(sp === 'etc' ? null : sp, req.lang) : '', next, title: '', evBand, tf: tfOf(res.locals.t) });
   });
 
   // 글 하나
   r.get('/p/:id', async (req, res) => {
     const id = parseInt(req.params.id, 10);
     const p = q('SELECT * FROM posts WHERE id=? AND deleted=0').get(id);
-    if (!p || (p.hidden && !canSeeHidden(req) && !(req.user && req.user.id === p.user_id))) return res.status(404), page(res, 'msg', { title: '글을 찾을 수 없습니다', msg: '지워졌거나 숨겨진 글입니다.' });
+    if (!p || (p.hidden && !canSeeHidden(req) && !(req.user && req.user.id === p.user_id))) return res.status(404), page(res, 'msg', { title: '게시물을 찾을 수 없습니다', msg: '삭제되었거나 숨김 처리된 게시물입니다.' });
     const [c] = cards([id], req.user);
     const cmts = q(`SELECT c.*, u.nick, u.ark_no FROM comments c LEFT JOIN users u ON u.id=c.user_id WHERE c.post_id=? AND c.deleted=0 ${req.isAdmin ? '' : 'AND c.hidden=0'} ORDER BY c.id`).all(id);
     const ws = cmts.map((x) => ({ id: x.user_id, ref: x }));
@@ -583,7 +600,7 @@ function mountClub(app, deps) {
     const spMap = {};
     for (const t of q('SELECT key, species FROM tags WHERE species IS NOT NULL').all()) spMap[t.key] = t.species;
     for (const t of q("SELECT key, merged_into FROM tags WHERE merged_into<>''").all()) { const to = resolveTag(t.key); if (spMap[to]) spMap[t.key] = spMap[to]; }
-    page(res, 'write', { plants, popular, spList: speciesList(), spMap, pick: parseInt(req.query.plant, 10) || (edit ? edit.plant_id : 0), preTag, edit, title: edit ? '글 고치기' : '사진 올리기' });
+    page(res, 'write', { plants, popular, spList: speciesList(), spMap, pick: parseInt(req.query.plant, 10) || (edit ? edit.plant_id : 0), preTag, edit, title: edit ? '게시물 수정' : '사진 등록' });
   });
 
   // 태그 페이지
@@ -696,7 +713,7 @@ function mountClub(app, deps) {
     await arkData(1500);
     const label = tagLabel(key);
     const entries = diaryOf(u.id, key, req.user, { admin: req.isAdmin });
-    if (!entries.length) return res.status(404), page(res, 'msg', { title: '아직 기록이 없습니다', msg: '이 품종으로 올린 사진이 없어요.' });
+    if (!entries.length) return res.status(404), page(res, 'msg', { title: '아직 기록이 없습니다', msg: '이 품종으로 등록된 사진이 없습니다.' });
     const order = req.query.order === 'new' ? 'new' : 'old';
     withTiers([u]);
     const own = !!(req.user && req.user.id === u.id);
@@ -731,7 +748,7 @@ function mountClub(app, deps) {
   // 식물 하나 (성장 기록 + 족보)
   r.get('/plant/:id', (req, res) => {
     const pl = q('SELECT * FROM plants WHERE id=? AND deleted=0').get(parseInt(req.params.id, 10));
-    if (!pl) return res.status(404), page(res, 'msg', { title: '식물을 찾을 수 없습니다', msg: '지워진 식물입니다.' });
+    if (!pl) return res.status(404), page(res, 'msg', { title: '식물을 찾을 수 없습니다', msg: '삭제된 식물입니다.' });
     const u = q('SELECT * FROM users WHERE id=?').get(pl.user_id);
     const own = !!(req.user && req.user.id === pl.user_id);
     const rows = q(`SELECT p.id FROM posts p WHERE p.plant_id=? AND p.deleted=0 ${own || req.isAdmin ? '' : 'AND p.hidden=0'} ORDER BY p.created_at ASC`).all(pl.id);
@@ -767,7 +784,9 @@ function mountClub(app, deps) {
   // 로그인
   r.get('/login', (req, res) => {
     const next = String(req.query.next || '');
-    page(res, 'login', { next: next.startsWith('/') && !next.startsWith('//') ? next : (req.B + '/'), defCountry: I18N.DEF_COUNTRY[req.lang] || '', title: '로그인' });
+    const k = readKakao(req.query.k) ? String(req.query.k) : '';
+    page(res, 'login', { next: next.startsWith('/') && !next.startsWith('//') ? next : (req.B + '/'), defCountry: I18N.DEF_COUNTRY[req.lang] || '', title: '로그인',
+      kakaoTok: k, kerr: String(req.query.kerr || '') });
   });
   r.post('/logout', (req, res) => {
     if (req.sess) q('DELETE FROM sessions WHERE token=?').run(req.sess.token);
@@ -779,6 +798,8 @@ function mountClub(app, deps) {
   r.get('/manifest.webmanifest', (req, res) => {
     res.type('application/manifest+json').send(JSON.stringify({
       name: '하월시아 클럽 · by Jiyang', short_name: '하월시아 클럽',
+      id: req.B + '/', description: '하월시아 사진 커뮤니티 — 내 식물 사진·성장일기·품종 도감 (by 지양하월시아)',
+      categories: ['lifestyle', 'social'],
       start_url: req.B + '/', scope: req.B + '/', display: 'standalone',
       background_color: '#F5F1E6', theme_color: '#1F4129', lang: 'ko',
       icons: [
@@ -787,6 +808,14 @@ function mountClub(app, deps) {
         { src: req.B + '/static/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
       ],
     }));
+  });
+  // 안드로이드 앱(TWA) 확인 파일: https://club.haworthia.co.kr/.well-known/assetlinks.json
+  //  Railway 변수 CLUB_TWA_PACKAGE (앱 패키지 이름) + CLUB_TWA_SHA256 (Play Console 「앱 서명」의 SHA-256, 여러 개면 쉼표)
+  r.get('/.well-known/assetlinks.json', (req, res) => {
+    const pkg = String(process.env.CLUB_TWA_PACKAGE || '').trim();
+    const fps = String(process.env.CLUB_TWA_SHA256 || '').split(',').map((x) => x.trim().toUpperCase()).filter(Boolean);
+    if (!pkg || !fps.length) return res.status(404).json([]);
+    res.json([{ relation: ['delegate_permission/common.handle_all_urls'], target: { namespace: 'android_app', package_name: pkg, sha256_cert_fingerprints: fps } }]);
   });
   r.get('/sw.js', (req, res) => {
     res.type('application/javascript').set('Cache-Control', 'no-cache').send(
@@ -837,6 +866,24 @@ self.addEventListener('fetch',e=>{
     const want = crypto.createHmac('sha256', SECRET).update('club-signup:' + phone + ':' + exp).digest('hex').slice(0, 24);
     return crypto.timingSafeEqual(Buffer.from(sig.padEnd(24)), Buffer.from(want)) ? phone : '';
   };
+  // 카카오 회원번호를 휴대폰 확인 전까지 잠깐 들고 다니는 표 (20분, 서명)
+  const KAKAO = {
+    key: () => process.env.CLUB_KAKAO_REST_KEY || '', secret: () => process.env.CLUB_KAKAO_SECRET || '',
+    auth: () => (process.env.CLUB_KAKAO_AUTH || 'https://kauth.kakao.com').replace(/\/$/, ''),
+    api: () => (process.env.CLUB_KAKAO_API || 'https://kapi.kakao.com').replace(/\/$/, ''),
+  };
+  function kakaoOn() { return !!KAKAO.key(); }
+  const kakaoToken = (kid) => {
+    const exp = now() + 20 * 60 * 1000;
+    const sig = crypto.createHmac('sha256', SECRET).update('club-kakao:' + kid + ':' + exp).digest('hex').slice(0, 24);
+    return `${kid}.${exp}.${sig}`;
+  };
+  const readKakao = (tok) => {
+    const [kid, exp, sig] = String(tok || '').split('.');
+    if (!/^\d{1,20}$/.test(kid || '') || !exp || !sig || now() > +exp) return '';
+    const want = crypto.createHmac('sha256', SECRET).update('club-kakao:' + kid + ':' + exp).digest('hex').slice(0, 24);
+    return sig.length === 24 && crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(want)) ? kid : '';
+  };
   const smsReady = () => !!(process.env.SOLAPI_API_KEY && process.env.SOLAPI_API_SECRET && process.env.SENDER_PHONE && messaging.sendText);
 
   // 나라 + 번호 → 저장 열쇠 (한국 = 010…, 해외 = +나라번호 + 번호) · 보낼 번호 · 나라번호
@@ -862,11 +909,11 @@ self.addEventListener('fetch',e=>{
     const pk = phoneOf(req.body);
     if (!pk) return fail(res, 400, '휴대폰 번호를 확인해 주세요.');
     const phone = pk.key;
-    if (limited('sms60:' + phone, 1, 60 * 1000)) return fail(res, 429, '문자를 방금 보냈습니다. 1분 뒤에 다시 눌러 주세요.');
-    if (limited('smsH:' + phone, 5, 3600 * 1000)) return fail(res, 429, '한 시간에 5번까지만 보낼 수 있습니다. 잠시 뒤에 해 주세요.');
-    if (limited('smsIP:' + req.ip, 15, 3600 * 1000)) return fail(res, 429, '요청이 너무 많습니다. 잠시 뒤에 해 주세요.');
+    if (limited('sms60:' + phone, 1, 60 * 1000)) return fail(res, 429, '인증번호를 방금 보냈습니다. 1분 후 다시 시도해 주세요.');
+    if (limited('smsH:' + phone, 5, 3600 * 1000)) return fail(res, 429, '1시간에 5회까지 보낼 수 있습니다. 잠시 후 다시 시도해 주세요.');
+    if (limited('smsIP:' + req.ip, 15, 3600 * 1000)) return fail(res, 429, '요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.');
     // 해외 문자는 비싸니 하루 전체 상한 (Railway 변수 CLUB_INTL_DAILY_MAX, 기본 100건)
-    if (pk.intl && limited('intlDay', parseInt(process.env.CLUB_INTL_DAILY_MAX, 10) || 100, DAY)) return fail(res, 429, '오늘 해외 인증 문자가 많아 잠시 멈췄습니다. 내일 다시 해 주세요.');
+    if (pk.intl && limited('intlDay', parseInt(process.env.CLUB_INTL_DAILY_MAX, 10) || 100, DAY)) return fail(res, 429, '오늘 해외 인증 문자 발송량이 많아 일시 중단되었습니다. 내일 다시 시도해 주세요.');
     const code = String(crypto.randomInt(0, 1000000)).padStart(6, '0');
     q('UPDATE sms_codes SET used=1 WHERE phone=? AND used=0').run(phone);
     q('INSERT INTO sms_codes(phone,code_hash,ip,created_at) VALUES(?,?,?,?)').run(phone, hashCode(phone, code), req.ip || '', now());
@@ -879,12 +926,12 @@ self.addEventListener('fetch',e=>{
         else await messaging.sendText({ to: phone, subject: '하월시아 클럽', text });
       } catch (e) {
         console.warn('[club] 인증 문자 실패:', e.message);
-        return fail(res, 502, '문자 발송에 실패했습니다. 잠시 뒤에 다시 해 주세요.');
+        return fail(res, 502, '문자 발송에 실패했습니다. 잠시 후 다시 시도해 주세요.');
       }
       return res.json({ ok: true });
     }
     if (DEV) { console.log('[club] (시험) 인증번호', phone, code, pk.intl ? '해외 ' + pk.country : ''); return res.json({ ok: true, dev_code: code, sent_to: pk.intl ? '+' + pk.country + ' ' + pk.to : phone }); }
-    return fail(res, 503, '문자 발송 설정이 아직 안 되어 있습니다. 운영자에게 알려 주세요.');
+    return fail(res, 503, '문자 발송 설정이 완료되지 않았습니다. 운영자에게 문의해 주세요.');
   });
 
   async function arkMemberCheck(u, force) {
@@ -903,10 +950,10 @@ self.addEventListener('fetch',e=>{
     const pk = phoneOf(req.body);
     const phone = pk ? pk.key : '';
     const code = T.digits(req.body.code);
-    if (!phone || code.length !== 6) return fail(res, 400, '인증번호 6자리를 넣어 주세요.');
+    if (!phone || code.length !== 6) return fail(res, 400, '인증번호 6자리를 입력해 주세요.');
     const row = q('SELECT * FROM sms_codes WHERE phone=? AND used=0 ORDER BY id DESC LIMIT 1').get(phone);
-    if (!row || now() - row.created_at > 5 * 60 * 1000) return fail(res, 400, '인증번호가 만료되었습니다. 다시 받아 주세요.');
-    if (row.tries >= 5) return fail(res, 429, '5번 틀려서 막혔습니다. 인증번호를 다시 받아 주세요.');
+    if (!row || now() - row.created_at > 5 * 60 * 1000) return fail(res, 400, '인증번호가 만료되었습니다. 다시 요청해 주세요.');
+    if (row.tries >= 5) return fail(res, 429, '5회 잘못 입력하여 차단되었습니다. 인증번호를 다시 요청해 주세요.');
     if (hashCode(phone, code) !== row.code_hash) {
       q('UPDATE sms_codes SET tries=tries+1 WHERE id=?').run(row.id);
       return fail(res, 400, req.t('인증번호가 맞지 않습니다. ({n}번 남음)', { n: 4 - row.tries }));
@@ -915,6 +962,9 @@ self.addEventListener('fetch',e=>{
     const u = q('SELECT * FROM users WHERE phone=?').get(phone);
     if (!u) return res.json({ ok: true, signup: signupToken(phone) });
     if (u.blocked) return fail(res, 403, '이용이 제한된 계정입니다. 운영자에게 문의해 주세요.');
+    // 카카오로 처음 들어온 분: 이 번호의 계정에 카카오를 이어 둠 → 다음부터는 카카오 버튼만
+    const kid = readKakao(req.body.kakao);
+    if (kid && !q('SELECT 1 FROM users WHERE kakao_id=? AND id<>?').get(kid, u.id)) q('UPDATE users SET kakao_id=? WHERE id=?').run(kid, u.id);
     newSession(req, res, u.id, req.isAdmin);
     await arkMemberCheck(u, false);
     res.json({ ok: true, nick: u.nick });
@@ -922,20 +972,175 @@ self.addEventListener('fetch',e=>{
 
   r.post('/api/auth/signup', async (req, res) => {
     const phone = readSignup(req.body.signup);
-    if (!phone) return fail(res, 400, '인증 시간이 지났습니다. 처음부터 다시 해 주세요.');
+    if (!phone) return fail(res, 400, '인증 시간이 초과되었습니다. 처음부터 다시 진행해 주세요.');
     if (!req.body.agree) return fail(res, 400, '개인정보 수집·이용에 동의해 주세요.');
     const n = T.checkNick(req.body.nick);
     if (n.error) return fail(res, 400, n.error);
-    if (q('SELECT 1 FROM users WHERE nick_key=?').get(n.key)) return fail(res, 409, '이미 쓰는 닉네임입니다. 다른 이름으로 해 주세요.');
-    if (oldNickTaken(n.key, 0)) return fail(res, 409, '최근에 다른 회원이 쓰던 닉네임이라 지금은 쓸 수 없습니다.');
+    if (q('SELECT 1 FROM users WHERE nick_key=?').get(n.key)) return fail(res, 409, '이미 사용 중인 닉네임입니다. 다른 닉네임을 입력해 주세요.');
+    if (oldNickTaken(n.key, 0)) return fail(res, 409, '최근 다른 회원이 사용한 닉네임이므로 현재 사용할 수 없습니다.');
     let u = q('SELECT * FROM users WHERE phone=?').get(phone);
     if (!u) {
-      const info = q('INSERT INTO users(phone,nick,nick_key,created_at) VALUES(?,?,?,?)').run(phone, n.nick, n.key, now());
+      const kid = readKakao(req.body.kakao);
+      const kk = kid && !q('SELECT 1 FROM users WHERE kakao_id=?').get(kid) ? kid : '';
+      const info = q('INSERT INTO users(phone,nick,nick_key,created_at,kakao_id) VALUES(?,?,?,?,?)').run(phone, n.nick, n.key, now(), kk);
       u = q('SELECT * FROM users WHERE id=?').get(Number(info.lastInsertRowid));
     }
     newSession(req, res, u.id, req.isAdmin);
     await arkMemberCheck(u, true);
     res.json({ ok: true, nick: u.nick, ark: !!u.ark_no });
+  });
+
+  // =============================================================
+  // 카카오 로그인 (사장님 B안, 2026-11-17)
+  //  - Railway 변수 CLUB_KAKAO_REST_KEY (+ 「Client Secret」을 켰으면 CLUB_KAKAO_SECRET) 가 있어야 버튼이 보임
+  //  - 카카오 회원번호만 받음 (동의 항목 없음). 처음 한 번은 휴대폰 번호로 확인해서 계정을 이어 둠
+  //  - 카카오 토큰은 저장하지 않음
+  // =============================================================
+  function safeNext(n, d) { n = String(n || ''); return n.startsWith('/') && !n.startsWith('//') ? n : d; }
+  function originOf(req) {
+    const proto = String(req.headers['x-forwarded-proto'] || req.protocol || 'http').split(',')[0].trim();
+    return proto + '://' + req.headers.host;
+  }
+  const kakaoRedirect = (req) => originOf(req) + req.B + '/auth/kakao/callback';
+  r.get('/auth/kakao', (req, res) => {
+    if (!kakaoOn()) return res.redirect(req.B + '/login');
+    const mode = req.query.mode === 'link' && req.user ? 'link' : 'login';
+    const st = { s: crypto.randomBytes(16).toString('hex'), n: safeNext(req.query.next, req.B + '/'), m: mode };
+    const secure = String(req.headers['x-forwarded-proto'] || '').includes('https') || req.secure;
+    res.append('Set-Cookie', `club_ks=${encodeURIComponent(JSON.stringify(st))}; Path=/; HttpOnly; SameSite=Lax; Max-Age=600${secure ? '; Secure' : ''}`);
+    const u = new URL(KAKAO.auth() + '/oauth/authorize');
+    u.searchParams.set('client_id', KAKAO.key());
+    u.searchParams.set('redirect_uri', kakaoRedirect(req));
+    u.searchParams.set('response_type', 'code');
+    u.searchParams.set('state', st.s);
+    res.redirect(u.toString());
+  });
+  r.get('/auth/kakao/callback', async (req, res) => {
+    let st = {};
+    try { st = JSON.parse(cookies(req).club_ks || '{}'); } catch (e) { st = {}; }
+    res.append('Set-Cookie', 'club_ks=x; Path=/; HttpOnly; SameSite=Lax; Max-Age=0');
+    const back = st.m === 'link' ? req.B + '/settings' : req.B + '/login';
+    if (!st.s || st.s !== String(req.query.state || '')) return page(res, 'msg', { title: '다시 시도해 주세요', msg: '카카오 로그인 시간이 초과되었습니다. 카카오 로그인 버튼을 다시 눌러 주세요.' });
+    if (req.query.error) return res.redirect(back + '?kerr=cancel');
+    let kid = '';
+    try {
+      const body = new URLSearchParams({ grant_type: 'authorization_code', client_id: KAKAO.key(), redirect_uri: kakaoRedirect(req), code: String(req.query.code || '') });
+      if (KAKAO.secret()) body.set('client_secret', KAKAO.secret());
+      const tr = await withTimeout(fetch(KAKAO.auth() + '/oauth/token', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8' }, body }), 8000);
+      const tj = await tr.json();
+      if (!tr.ok || !tj.access_token) throw new Error('token ' + tr.status + ' ' + (tj.error_code || tj.error || ''));
+      const mr = await withTimeout(fetch(KAKAO.api() + '/v2/user/me', { headers: { Authorization: 'Bearer ' + tj.access_token } }), 8000);
+      const mj = await mr.json();
+      if (!mr.ok || !mj.id) throw new Error('me ' + mr.status);
+      kid = String(mj.id);
+    } catch (e) {
+      console.warn('[club] 카카오 로그인 실패:', e.message);
+      return res.redirect(back + '?kerr=fail');
+    }
+    const found = q('SELECT * FROM users WHERE kakao_id=?').get(kid);
+    if (st.m === 'link' && req.user) {
+      if (found && found.id !== req.user.id) return res.redirect(req.B + '/settings?kerr=used');
+      q('UPDATE users SET kakao_id=? WHERE id=?').run(kid, req.user.id);
+      return res.redirect(req.B + '/settings?k=linked');
+    }
+    if (found) {
+      if (found.blocked) return page(res, 'msg', { title: '이용 제한', msg: '이용이 제한된 계정입니다. 운영자에게 문의해 주세요.' });
+      newSession(req, res, found.id, req.isAdmin);
+      await arkMemberCheck(found, false);
+      return res.redirect(st.n || req.B + '/');
+    }
+    // 처음 카카오로 온 분 → 휴대폰 번호로 한 번만 확인 (같은 사람이 계정을 두 개 만들지 않도록)
+    res.redirect(req.B + '/login?k=' + encodeURIComponent(kakaoToken(kid)) + '&next=' + encodeURIComponent(st.n || req.B + '/'));
+  });
+
+  // ---- ⚙ 설정 (휴대폰 번호 · 카카오 연결 · 개인정보처리방침 · 탈퇴) ----
+  r.get('/settings', (req, res) => {
+    if (!req.user) return loginRedirect(req, res);
+    page(res, 'settings', { title: '설정', phoneMasked: T.maskPhone(req.user.phone), kakaoLinked: !!req.user.kakao_id, k: String(req.query.k || ''), kerr: String(req.query.kerr || '') });
+  });
+  r.post('/api/me/kakao-unlink', (req, res) => {
+    if (!needUser(req, res)) return;
+    q("UPDATE users SET kakao_id='' WHERE id=?").run(req.user.id);
+    res.json({ ok: true });
+  });
+
+  // ---- 회원 탈퇴 (구글 플레이 정책: 앱 안 + 웹 주소 둘 다) ----
+  //  주소 /leave = 웹에서 탈퇴하는 곳 (로그인 → 확인 → 바로 지움). 지운 것은 되돌릴 수 없음
+  function deleteUser(uid) {
+    const files = [];
+    tx(db, () => {
+      const pids = q('SELECT id FROM posts WHERE user_id=?').all(uid).map((x) => x.id);
+      for (const pid of pids) {
+        for (const ph of q('SELECT file, thumb FROM photos WHERE post_id=?').all(pid)) files.push(ph.file, ph.thumb);
+        const cids = q('SELECT id FROM comments WHERE post_id=?').all(pid).map((x) => x.id);
+        for (const cid of cids) { q('DELETE FROM notifs WHERE comment_id=?').run(cid); q('DELETE FROM reports WHERE comment_id=?').run(cid); }
+        q('DELETE FROM comments WHERE post_id=?').run(pid);
+        q('DELETE FROM photos WHERE post_id=?').run(pid);
+        q('DELETE FROM post_tags WHERE post_id=?').run(pid);
+        q('DELETE FROM likes WHERE post_id=?').run(pid);
+        q('DELETE FROM notifs WHERE post_id=?').run(pid);
+        q('DELETE FROM reports WHERE post_id=?').run(pid);
+        q('UPDATE tags SET pinned_post=NULL WHERE pinned_post=?').run(pid);
+      }
+      q('DELETE FROM posts WHERE user_id=?').run(uid);
+      for (const c of q('SELECT id FROM comments WHERE user_id=?').all(uid)) { q('DELETE FROM notifs WHERE comment_id=?').run(c.id); q('DELETE FROM reports WHERE comment_id=?').run(c.id); }
+      q('DELETE FROM comments WHERE user_id=?').run(uid);
+      q('DELETE FROM likes WHERE user_id=?').run(uid);
+      q('DELETE FROM follows WHERE follower_id=? OR followee_id=?').run(uid, uid);
+      q('DELETE FROM notifs WHERE user_id=? OR actor_id=?').run(uid, uid);
+      q('DELETE FROM push_subs WHERE user_id=?').run(uid);
+      q('DELETE FROM plants WHERE user_id=?').run(uid);
+      q('DELETE FROM nick_history WHERE user_id=?').run(uid);
+      q('DELETE FROM reports WHERE user_id=?').run(uid);
+      const u = q('SELECT phone FROM users WHERE id=?').get(uid);
+      if (u) q('DELETE FROM sms_codes WHERE phone=?').run(u.phone);
+      q('DELETE FROM sessions WHERE user_id=?').run(uid);
+      q('DELETE FROM users WHERE id=?').run(uid);
+      // 이벤트: 빼기 목록·마감 결과에서도 지움
+      try {
+        const c = ev.cfg();
+        if ((c.exclude || []).includes(uid)) { c.exclude = c.exclude.filter((x) => x !== uid); ev.save(c); }
+        const f = q("SELECT v FROM kv WHERE k='event_final'").get();
+        if (f) { const j = JSON.parse(f.v); j.rows = (j.rows || []).filter((r) => r.userId !== uid).map((r, i) => Object.assign(r, { rank: i + 1 })); q("UPDATE kv SET v=? WHERE k='event_final'").run(JSON.stringify(j)); }
+      } catch (e) { /* 이벤트 기록은 없어도 됨 */ }
+    });
+    for (const f of files) if (f && !f.includes('/') && !f.includes('..')) fs.unlink(path.join(PHOTO_DIR, f), () => {});
+    return files.length;
+  }
+  r.get('/leave', (req, res) => {
+    if (!req.user) return loginRedirect(req, res);
+    const n = (q('SELECT COUNT(*) n FROM posts WHERE user_id=? AND deleted=0').get(req.user.id) || {}).n || 0;
+    const c = (q('SELECT COUNT(*) n FROM comments WHERE user_id=? AND deleted=0').get(req.user.id) || {}).n || 0;
+    page(res, 'leave', { title: '회원 탈퇴', postN: n, cmtN: c });
+  });
+  r.get('/bye', (req, res) => page(res, 'msg', { title: '탈퇴가 완료되었습니다', msg: '그동안 하월시아 클럽을 이용해 주셔서 감사합니다.' }));
+  r.post('/api/me/leave', (req, res) => {
+    if (!req.user) return fail(res, 401, '로그인이 필요합니다.');
+    if (String(req.body.confirm || '').trim() !== '탈퇴') return fail(res, 400, '확인란에 「탈퇴」를 입력해 주세요.');
+    const uid = req.user.id, nick = req.user.nick;
+    const nf = deleteUser(uid);
+    console.log('[club] 회원 탈퇴:', uid, '사진 파일', nf, '개 지움');
+    setCookie(req, res, 'x', 0);
+    res.json({ ok: true, bye: nick });
+  });
+
+  // ---- 개인정보처리방침 (누구나 볼 수 있음 — 구글 플레이 등록 주소) ----
+  const PRIVACY_DEF = { company: '지양하월시아', officer: '', email: '', tel: '', since: '2026-11-17' };
+  function privacyCfg() {
+    let c = {};
+    try { c = JSON.parse((q("SELECT v FROM kv WHERE k='privacy'").get() || {}).v || '{}'); } catch (e) { c = {}; }
+    return Object.assign({}, PRIVACY_DEF, c);
+  }
+  r.get('/privacy', (req, res) => {
+    page(res, 'privacy', { title: '개인정보처리방침', pv: privacyCfg(), kakaoOn: kakaoOn(), siteUrl: originOf(req) + req.B });
+  });
+  r.post('/api/admin/privacy', (req, res) => {
+    if (!needAdmin(req, res)) return;
+    const c = privacyCfg();
+    for (const k of ['company', 'officer', 'email', 'tel', 'since']) if (req.body[k] !== undefined) c[k] = String(req.body[k] || '').trim().slice(0, 80);
+    if (c.since && !/^\d{4}-\d{2}-\d{2}$/.test(c.since)) return fail(res, 400, '시행일은 2026-11-17 형식으로 입력해 주세요.');
+    q("INSERT OR REPLACE INTO kv(k,v) VALUES('privacy',?)").run(JSON.stringify(c));
+    res.json({ ok: true });
   });
 
   // 다른 회원이 90일 안에 버린 닉네임은 못 씀 (사칭 막기 — 옛 주소도 그 회원에게 넘어가고 있음)
@@ -952,12 +1157,12 @@ self.addEventListener('fetch',e=>{
     let nick = req.user.nick, key = req.user.nick_key, changed = false;
     if (req.body.nick !== undefined && String(req.body.nick).trim() !== req.user.nick) {
       const until = nickNextAt(req.user);
-      if (until > now()) return fail(res, 429, req.t('닉네임은 3개월에 한 번만 바꿀 수 있습니다. {date} 부터 다시 바꿀 수 있어요.', { date: T.ymd(until) }));
+      if (until > now()) return fail(res, 429, req.t('닉네임은 3개월에 한 번만 변경할 수 있습니다. {date}부터 다시 변경할 수 있습니다.', { date: T.ymd(until) }));
       const n = T.checkNick(req.body.nick);
       if (n.error) return fail(res, 400, n.error);
       const ex = q('SELECT id FROM users WHERE nick_key=?').get(n.key);
-      if (ex && ex.id !== req.user.id) return fail(res, 409, '이미 쓰는 닉네임입니다.');
-      if (oldNickTaken(n.key, req.user.id)) return fail(res, 409, '최근에 다른 회원이 쓰던 닉네임이라 지금은 쓸 수 없습니다.');
+      if (ex && ex.id !== req.user.id) return fail(res, 409, '이미 사용 중인 닉네임입니다.');
+      if (oldNickTaken(n.key, req.user.id)) return fail(res, 409, '최근 다른 회원이 사용한 닉네임이므로 현재 사용할 수 없습니다.');
       nick = n.nick; key = n.key; changed = true;
     }
     if (changed) {
@@ -985,7 +1190,7 @@ self.addEventListener('fetch',e=>{
   });
   function upAny(req, res, next) {
     up.any()(req, res, (err) => {
-      if (err) return fail(res, 400, err.code === 'LIMIT_FILE_SIZE' ? '사진 한 장이 너무 큽니다. (12MB 까지)' : req.t('사진을 올리지 못했습니다: {e}', { e: err.message }));
+      if (err) return fail(res, 400, err.code === 'LIMIT_FILE_SIZE' ? '사진 한 장이 너무 큽니다. (12MB 까지)' : req.t('사진을 등록하지 못했습니다: {e}', { e: err.message }));
       next();
     });
   }
@@ -1022,8 +1227,8 @@ self.addEventListener('fetch',e=>{
         (m[1] === 'f' ? full : thumb)[m[2]] = f;
       }
       const idx = Object.keys(full).map(Number).sort((a, b) => a - b).slice(0, 10);
-      if (!idx.length && !body) { dropFiles(files); return fail(res, 400, '사진이나 글을 넣어 주세요.'); }
-      if (limited('post:' + req.user.id, 30, DAY)) { dropFiles(files); return fail(res, 429, '하루에 30개까지 올릴 수 있습니다.'); }
+      if (!idx.length && !body) { dropFiles(files); return fail(res, 400, '사진 또는 내용을 입력해 주세요.'); }
+      if (limited('post:' + req.user.id, 30, DAY)) { dropFiles(files); return fail(res, 429, '하루 30개까지 등록할 수 있습니다.'); }
       const result = tx(db, () => {
         const plant = pickPlant(req, req.body);
         const info = q('INSERT INTO posts(user_id,plant_id,body,created_at) VALUES(?,?,?,?)').run(req.user.id, plant ? plant.id : null, body, now());
@@ -1058,7 +1263,7 @@ self.addEventListener('fetch',e=>{
   r.post('/api/posts/:id/edit', async (req, res) => {
     if (!needUser(req, res)) return;
     const p = q('SELECT * FROM posts WHERE id=? AND deleted=0').get(parseInt(req.params.id, 10));
-    if (!p || p.user_id !== req.user.id) return fail(res, 404, '내 글이 아닙니다.');
+    if (!p || p.user_id !== req.user.id) return fail(res, 404, '본인의 게시물이 아닙니다.');
     await arkData(2500);
     try {
       const body = String(req.body.body || '').trim().slice(0, 2000);
@@ -1076,7 +1281,7 @@ self.addEventListener('fetch',e=>{
   r.post('/api/posts/:id/delete', (req, res) => {
     if (!needUser(req, res)) return;
     const p = q('SELECT * FROM posts WHERE id=? AND deleted=0').get(parseInt(req.params.id, 10));
-    if (!p || (p.user_id !== req.user.id && !req.isAdmin)) return fail(res, 404, '내 글이 아닙니다.');
+    if (!p || (p.user_id !== req.user.id && !req.isAdmin)) return fail(res, 404, '본인의 게시물이 아닙니다.');
     q('UPDATE posts SET deleted=1 WHERE id=?').run(p.id);
     q('UPDATE tags SET pinned_post=NULL WHERE pinned_post=?').run(p.id);
     res.json({ ok: true });
@@ -1085,7 +1290,7 @@ self.addEventListener('fetch',e=>{
   r.post('/api/posts/:id/like', (req, res) => {
     if (!needUser(req, res)) return;
     const p = q(`SELECT id, user_id FROM posts p WHERE id=? AND ${VISIBLE}`).get(parseInt(req.params.id, 10));
-    if (!p) return fail(res, 404, '글이 없습니다.');
+    if (!p) return fail(res, 404, '게시물이 없습니다.');
     const had = q('SELECT 1 FROM likes WHERE post_id=? AND user_id=?').get(p.id, req.user.id);
     const lk = `like:${p.id}:${req.user.id}`;
     if (had) { q('DELETE FROM likes WHERE post_id=? AND user_id=?').run(p.id, req.user.id); notify.remove(lk); }
@@ -1097,10 +1302,10 @@ self.addEventListener('fetch',e=>{
   r.post('/api/posts/:id/comments', (req, res) => {
     if (!needUser(req, res)) return;
     const p = q(`SELECT id, user_id FROM posts p WHERE id=? AND ${VISIBLE}`).get(parseInt(req.params.id, 10));
-    if (!p) return fail(res, 404, '글이 없습니다.');
+    if (!p) return fail(res, 404, '게시물이 없습니다.');
     const body = String(req.body.body || '').trim().slice(0, 500);
-    if (!body) return fail(res, 400, '댓글을 적어 주세요.');
-    if (limited('cmt:' + req.user.id, 100, DAY)) return fail(res, 429, '하루 댓글 수를 넘었습니다.');
+    if (!body) return fail(res, 400, '댓글을 입력해 주세요.');
+    if (limited('cmt:' + req.user.id, 100, DAY)) return fail(res, 429, '하루 댓글 작성 한도를 초과했습니다.');
     const info = q('INSERT INTO comments(post_id,user_id,body,created_at) VALUES(?,?,?,?)').run(p.id, req.user.id, body, now());
     const cid = Number(info.lastInsertRowid);
     notify.add(p.user_id, 'comment', { actor: req.user.id, post: p.id, comment: cid, ukey: `cmt:${cid}` });
@@ -1110,7 +1315,7 @@ self.addEventListener('fetch',e=>{
   r.post('/api/comments/:id/delete', (req, res) => {
     if (!needUser(req, res)) return;
     const c = q('SELECT * FROM comments WHERE id=? AND deleted=0').get(parseInt(req.params.id, 10));
-    if (!c || (c.user_id !== req.user.id && !req.isAdmin)) return fail(res, 404, '내 댓글이 아닙니다.');
+    if (!c || (c.user_id !== req.user.id && !req.isAdmin)) return fail(res, 404, '본인의 댓글이 아닙니다.');
     q('UPDATE comments SET deleted=1 WHERE id=?').run(c.id);
     notify.remove(`cmt:${c.id}`);
     res.json({ ok: true });
@@ -1129,12 +1334,12 @@ self.addEventListener('fetch',e=>{
     if (!needUser(req, res)) return;
     const u = q('SELECT id, nick FROM users WHERE nick_key=? AND blocked=0').get(String(req.body.nick || '').toLowerCase());
     if (!u) return fail(res, 404, '회원을 찾을 수 없습니다');
-    if (u.id === req.user.id) return fail(res, 400, '나를 팔로우할 수는 없어요.');
+    if (u.id === req.user.id) return fail(res, 400, '본인은 팔로우할 수 없습니다.');
     const had = q('SELECT 1 FROM follows WHERE follower_id=? AND followee_id=?').get(req.user.id, u.id);
     const fk = `follow:${u.id}:${req.user.id}`;
     const want = req.body.on === undefined ? !had : !!req.body.on;
     if (want && !had) {
-      if (limited('follow:' + req.user.id, 300, DAY)) return fail(res, 429, '요청이 너무 많습니다. 잠시 뒤에 해 주세요.');
+      if (limited('follow:' + req.user.id, 300, DAY)) return fail(res, 429, '요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.');
       q('INSERT INTO follows(follower_id,followee_id,created_at) VALUES(?,?,?)').run(req.user.id, u.id, now());
       notify.add(u.id, 'follow', { actor: req.user.id, ukey: fk });
     } else if (!want && had) {
@@ -1171,11 +1376,11 @@ self.addEventListener('fetch',e=>{
   });
   r.post('/api/push/sub', (req, res) => {
     if (!needUser(req, res)) return;
-    if (limited('pushsub:' + req.user.id, 30, DAY)) return fail(res, 429, '요청이 너무 많습니다. 잠시 뒤에 해 주세요.');
+    if (limited('pushsub:' + req.user.id, 30, DAY)) return fail(res, 429, '요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.');
     if (!notify.subscribe(req.user.id, req.body.sub, req.headers['user-agent'])) return fail(res, 400, '잘못된 요청입니다.');
     // 켜자마자 한 번 보내서 폰에서 확인되게
     const t = I18N.makeT(req.user.lang || req.lang);
-    notify.pushTo(req.user.id, { title: t('폰 알림이 켜졌어요'), body: t('댓글·♥·팔로우 소식을 폰으로 알려 드릴게요 🌿'), url: 'noti', tag: 'welcome' }).catch(() => {});
+    notify.pushTo(req.user.id, { title: t('휴대폰 알림이 설정되었습니다.'), body: t('댓글·좋아요·팔로우 소식을 휴대폰 알림으로 보내 드립니다.'), url: 'noti', tag: 'welcome' }).catch(() => {});
     res.json({ ok: true, n: notify.subCount(req.user.id) });
   });
   r.post('/api/push/unsub', (req, res) => {
@@ -1241,7 +1446,7 @@ self.addEventListener('fetch',e=>{
   r.post('/api/plants', (req, res) => {
     if (!needUser(req, res)) return;
     const name = String(req.body.name || '').trim().slice(0, 40);
-    if (!name) return fail(res, 400, '식물 이름을 적어 주세요.');
+    if (!name) return fail(res, 400, '식물 이름을 입력해 주세요.');
     if ((q('SELECT COUNT(*) n FROM plants WHERE user_id=? AND deleted=0').get(req.user.id) || {}).n >= 500) return fail(res, 400, '식물은 500개까지 등록할 수 있습니다.');
     const tk = resolveTag(T.tagKey(name));
     const info = q('INSERT INTO plants(user_id,name,tag_key,created_at) VALUES(?,?,?,?)').run(req.user.id, name, tk, now());
@@ -1252,7 +1457,7 @@ self.addEventListener('fetch',e=>{
     const pl = q('SELECT * FROM plants WHERE id=? AND user_id=? AND deleted=0').get(parseInt(req.params.id, 10), req.user.id);
     if (!pl) return fail(res, 404, '내 식물이 아닙니다.');
     const name = String(req.body.name || '').trim().slice(0, 40);
-    if (!name) return fail(res, 400, '이름을 적어 주세요.');
+    if (!name) return fail(res, 400, '이름을 입력해 주세요.');
     const tk = pl.cert_status === 'ok' ? pl.tag_key : resolveTag(T.tagKey(name));
     q('UPDATE plants SET name=?, tag_key=? WHERE id=?').run(name, tk, pl.id);
     res.json({ ok: true });
@@ -1280,11 +1485,11 @@ self.addEventListener('fetch',e=>{
     const pl = q('SELECT * FROM plants WHERE id=? AND user_id=? AND deleted=0').get(parseInt(req.params.id, 10), req.user.id);
     if (!pl) return fail(res, 404, '내 식물이 아닙니다.');
     const { id, k } = parseCertInput(req.body.input);
-    if (!id || id.length < 4) return fail(res, 400, '보증서 링크나 넘버를 넣어 주세요.');
-    if (limited('cert:' + req.user.id, 10, 3600 * 1000)) return fail(res, 429, '한 시간에 10번까지 확인할 수 있습니다.');
+    if (!id || id.length < 4) return fail(res, 400, '보증서 링크 또는 넘버를 입력해 주세요.');
+    if (limited('cert:' + req.user.id, 10, 3600 * 1000)) return fail(res, 429, '1시간에 10회까지 확인할 수 있습니다.');
     const ck = certKeyOf(id);
     const taken = q("SELECT pl.id, u.nick FROM plants pl JOIN users u ON u.id=pl.user_id WHERE pl.cert_key=? AND pl.cert_status='ok' AND pl.deleted=0 AND pl.id<>?").get(ck, pl.id);
-    if (taken) return fail(res, 409, '이 넘버는 이미 다른 회원의 식물에 정품으로 연결되어 있습니다. 소유권 이전을 했다면 운영자에게 알려 주세요.');
+    if (taken) return fail(res, 409, '이 넘버는 이미 다른 회원의 식물에 정품으로 연결되어 있습니다. 소유권을 이전하셨다면 운영자에게 문의해 주세요.');
     let info = null, auto = false, how = '';
     try {
       const plant = sheets.findById ? await withTimeout(sheets.findById(id), 8000) : null;
@@ -1302,9 +1507,9 @@ self.addEventListener('fetch',e=>{
         }
       }
     } catch (e) {
-      return fail(res, 503, '방주 장부를 읽지 못했습니다. 잠시 뒤에 다시 해 주세요.');
+      return fail(res, 503, '방주 장부를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
     }
-    if (!info) return fail(res, 404, '방주에서 찾을 수 없는 넘버입니다. 보증서에 적힌 넘버를 그대로 넣어 주세요.');
+    if (!info) return fail(res, 404, '방주에 등록되지 않은 넘버입니다. 보증서에 적힌 넘버를 그대로 입력해 주세요.');
     if (auto && info.상태 && !/정품/.test(info.상태)) auto = false; // 보증서가 아직 미인증이면 운영자 확인
     const status = auto ? 'ok' : 'pending';
     const vname = String(info.품종명 || '').split('\n')[0].trim();
@@ -1363,7 +1568,12 @@ self.addEventListener('fetch',e=>{
       .sort((x, y) => y.n - x.n).slice(0, 40) : [];
     const shopInfo = { enabled: shop.enabled, n: shop.state.items.length, at: shop.state.at, error: shop.state.error, complete: shop.state.complete, url: shop.SHOP_URL };
     const pushN = (q('SELECT COUNT(DISTINCT user_id) n FROM push_subs').get() || {}).n || 0;
-    page(res, 'admin', { pending, reports, tagRows, typos, hidden, stats, users, spList, etcN, shopRows, shopInfo, pushN, arkReady: ark.t > 0, arkOfficial: ark.official.size, arkNames: ark.names.size, title: '운영자' });
+    // 🏆 이벤트: 설정 + 지금 순위 20명 (연락용 번호는 운영자만)
+    const evc = ev.cfg(), evs = ev.state();
+    const evTop = evs.rows.slice(0, 20).map((r) => Object.assign({}, r, { phone: (q('SELECT phone FROM users WHERE id=?').get(r.userId) || {}).phone || '' }));
+    const evEx = (evc.exclude || []).length ? q(`SELECT id, nick FROM users WHERE id IN (${evc.exclude.map(() => '?').join(',')})`).all(...evc.exclude) : [];
+    const evAdm = { cfg: evc, phase: evs.phase, voided: evs.voided, top: evs.top, prizes: evs.prizes, at: evs.at, rows: evTop, ex: evEx, startYmd: ev.kstYmd(evc.start), endYmd: ev.kstYmd(evc.end) };
+    page(res, 'admin', { evAdm, privacyAdm: privacyCfg(), pending, reports, tagRows, typos, hidden, stats, users, spList, etcN, shopRows, shopInfo, pushN, arkReady: ark.t > 0, arkOfficial: ark.official.size, arkNames: ark.names.size, title: '운영자' });
   });
   r.post('/admin/login', (req, res) => {
     if (limited('adm:' + req.ip, 10, 15 * 60 * 1000)) return page(res, 'admin_login', { error: '잠시 뒤에 다시 해 주세요.', title: '운영자' });
@@ -1402,7 +1612,7 @@ self.addEventListener('fetch',e=>{
     if (!needAdmin(req, res)) return;
     const from = resolveTag(T.tagKey(req.body.from));
     const to = resolveTag(T.tagKey(req.body.to));
-    if (!from || !to) return fail(res, 400, '태그를 둘 다 적어 주세요.');
+    if (!from || !to) return fail(res, 400, '태그 두 개를 모두 입력해 주세요.');
     if (from === to) return fail(res, 400, '같은 태그입니다.');
     if (!q('SELECT 1 FROM tags WHERE key=?').get(from)) return fail(res, 404, `#${req.body.from} 태그가 없습니다.`);
     await arkData(0);
@@ -1427,7 +1637,7 @@ self.addEventListener('fetch',e=>{
     const id = parseInt(req.body.id, 10) || 0;
     const name = String(req.body.name || req.body.value || '').trim().slice(0, 20);
     if (a === 'add') {
-      if (!name) return fail(res, 400, '종 이름을 적어 주세요.');
+      if (!name) return fail(res, 400, '종 이름을 입력해 주세요.');
       if (/^etc$/i.test(name)) return fail(res, 400, 'ETC 는 따로 만들지 않아도 맨 끝에 항상 있습니다.');
       if (q('SELECT 1 FROM species WHERE name=?').get(name)) return fail(res, 409, '이미 있는 종입니다.');
       const mx = (q('SELECT MAX(ord) m FROM species').get() || {}).m || 0;
@@ -1441,7 +1651,7 @@ self.addEventListener('fetch',e=>{
       const parts = String(req.body.value || req.body.names || '').split('/').map((x) => x.trim().slice(0, 40));
       q('UPDATE species SET name_en=?, name_zhs=?, name_zht=? WHERE id=?').run(parts[0] || '', parts[1] || '', parts[2] || parts[1] || '', id);
     } else if (a === 'rename') {
-      if (!name) return fail(res, 400, '이름을 적어 주세요.');
+      if (!name) return fail(res, 400, '이름을 입력해 주세요.');
       q('UPDATE species SET name=? WHERE id=?').run(name, id);
     } else if (a === 'move') {
       const list = speciesList(); const i = list.findIndex((x) => x.id === id); const j = i + (parseInt(req.body.dir, 10) < 0 ? -1 : 1);
@@ -1457,6 +1667,55 @@ self.addEventListener('fetch',e=>{
   });
   // 품종 태그 → 종 연결 (직접 고르지 않은 예전 글도 함께 바뀜)
   // 🛒 판매 연결: 지금 다시 읽기 · 품종마다 끄기/켜기
+  // 🏆 활동왕 이벤트 화면 (꺼져 있으면 운영자만 미리 보기)
+  r.get('/event', (req, res) => {
+    const c = ev.cfg();
+    if (!c.on && !req.isAdmin) return res.redirect(req.B + '/');
+    const st = ev.state();
+    const my = req.user ? ev.mine(st, req.user.id) : null;
+    const show = st.rows.slice(0, Math.max(10, st.prizes.length));
+    const meRow = my && my.me && my.me.rank > show.length ? my.me : null;
+    page(res, 'event', { st, my, show, meRow, groups: ev.groups(c.prizes), voidGroups: ev.groups(c.prizes.slice(0, c.voidN)), startYmd: ev.kstYmd(c.start), endYmd: ev.kstYmd(c.end),
+      tf: tfOf(res.locals.t), title: c.title, rawTitle: false });
+  });
+  r.post('/api/admin/event', (req, res) => {
+    if (!needAdmin(req, res)) return;
+    const a = String(req.body.action || '');
+    const c = ev.cfg();
+    const todayStart = ev.kstDayStart(ev.kstYmd(now()));
+    if (a === 'on') { c.on = true; if (!c.start) c.start = todayStart; ev.save(c); return res.json({ ok: true, start: ev.kstYmd(c.start) }); }
+    if (a === 'off') { c.on = false; ev.save(c); return res.json({ ok: true }); }
+    if (a === 'recalc') { ev.clearFinal(); return res.json({ ok: true }); }
+    if (a === 'exclude' || a === 'include') {
+      const id = parseInt(req.body.user_id, 10);
+      const set = new Set((c.exclude || []).map(Number));
+      if (a === 'exclude') set.add(id); else set.delete(id);
+      c.exclude = [...set]; ev.save(c); ev.clearFinal(); return res.json({ ok: true });
+    }
+    if (a === 'save') {
+      const b = req.body;
+      const num = (v, lo, hi, d) => { const n = parseInt(v, 10); return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : d; };
+      const title = String(b.title || '').trim().slice(0, 40);
+      if (!title) return fail(res, 400, '이벤트 이름을 입력해 주세요.');
+      // 시작일을 비우면: 켜져 있으면 지금 시작일 그대로(없으면 오늘), 꺼져 있으면 켜는 날
+      const start = b.start ? ev.kstDayStart(b.start) : (c.on ? (c.start || todayStart) : 0);
+      const endDay = ev.kstDayStart(b.end);
+      if (b.start && !start) return fail(res, 400, '시작일은 2026-11-17 형식으로 입력해 주세요.');
+      if (!endDay) return fail(res, 400, '마감일은 2026-12-31 형식으로 입력해 주세요.');
+      const end = endDay + 24 * 3600 * 1000 - 1;
+      if (start && end <= start) return fail(res, 400, '마감일은 시작일 이후여야 합니다.');
+      const prizes = String(b.prizes || '').split(/\r?\n/).map((x) => x.trim()).filter(Boolean).slice(0, 30);
+      if (!prizes.length) return fail(res, 400, '상품을 한 줄에 하나씩 입력해 주세요 (1위부터).');
+      Object.assign(c, {
+        title, start, end, prizes, announce: String(b.announce || '').trim().slice(0, 40),
+        minTop: num(b.minTop, 0, 100000, 150), voidN: num(b.voidN, 0, prizes.length, 2),
+        postPt: num(b.postPt, 1, 100, 3), cmtPt: num(b.cmtPt, 0, 100, 1), postDay: num(b.postDay, 1, 50, 3), cmtDay: num(b.cmtDay, 0, 200, 10), cmtMin: num(b.cmtMin, 1, 50, 5),
+      });
+      ev.save(c); ev.clearFinal();
+      return res.json({ ok: true });
+    }
+    fail(res, 400, '알 수 없는 동작입니다.');
+  });
   r.post('/api/admin/shop', async (req, res) => {
     if (!needAdmin(req, res)) return;
     const a = String(req.body.action || '');
@@ -1540,7 +1799,7 @@ self.addEventListener('fetch',e=>{
     if (res.headersSent) return;
     res.status(500);
     if (req.path.startsWith('/api/')) return res.json({ ok: false, error: '서버 오류: ' + err.message });
-    page(res, 'msg', { title: '잠깐 문제가 생겼습니다', msg: '다시 시도해 주세요.' });
+    page(res, 'msg', { title: '일시적인 오류가 발생했습니다', msg: '다시 시도해 주세요.' });
   });
 
   // ---- 매일 데이터베이스 사본 (14일치) ----
@@ -1552,6 +1811,9 @@ self.addEventListener('fetch',e=>{
       if (!fs.existsSync(f)) db.exec(`VACUUM INTO '${f.replace(/'/g, "''")}'`);
       const list = fs.readdirSync(BK).filter((x) => /^club-.*\.db$/.test(x)).sort();
       while (list.length > 14) fs.unlinkSync(path.join(BK, list.shift()));
+      // 개인정보처리방침에 적은 대로: 인증 문자 기록 30일, 안 쓰는 로그인 180일 뒤 지움
+      q('DELETE FROM sms_codes WHERE created_at<?').run(now() - 30 * DAY);
+      q('DELETE FROM sessions WHERE last_at<?').run(now() - SESSION_DAYS * DAY);
     } catch (e) { console.warn('[club] 백업 실패:', e.message); }
   }
   setTimeout(backup, 4 * 60 * 1000).unref();

@@ -1,4 +1,4 @@
-<footer class="sitefoot"><span><%= t('하월시아 클럽') %></span><a href="<%= B %>/levels"><%= t('등급 안내') %></a><a class="arklink" href="<%= B %>/ark"><%= t('방주') %></a></footer>
+<footer class="sitefoot"><span><%= t('하월시아 클럽') %></span><a href="<%= B %>/levels"><%= t('등급 안내') %></a><a href="<%= B %>/privacy"><%= t('개인정보처리방침') %></a><a class="arklink" href="<%= B %>/ark"><%= t('방주') %></a></footer>
 <div class="langbar">🌐 <% LANGS.forEach(function (l, i) { %><%- i ? '<span>|</span>' : '' %><a href="?lang=<%= l.code %>" class="<%= lang === l.code ? 'on' : '' %>" hreflang="<%= l.code %>"><%= l.label %></a><% }); %></div>
 </main>
 <% var tb = (typeof tab !== 'undefined') ? tab : ''; %>

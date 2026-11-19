@@ -8,7 +8,7 @@
   <a class="<%= tab === 'following' ? 'on' : '' %>" href="?tab=following"><b><%= fol.following %></b> <%= t('팔로잉') %></a>
 </div>
 <% if (!rows.length) { %>
-  <div class="empty-st"><i>👤</i><%= tab === 'followers' ? t('아직 팔로워가 없어요.') : t('아직 팔로우한 사람이 없어요.') %></div>
+  <div class="empty-st"><i>👤</i><%= tab === 'followers' ? t('팔로워가 없습니다.') : t('팔로우한 회원이 없습니다.') %></div>
 <% } else { %>
 <div class="flist">
   <% rows.forEach(function (x) { %>

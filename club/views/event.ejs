@@ -1,0 +1,67 @@
+<%- include('_head') %>
+<% var c = st.cfg; var P = function (x) { return tf(x); }; %>
+<div class="ev-hero">
+  <p><%= t('하월시아 클럽 이벤트') %></p>
+  <h1>🏆 <%= tf(c.title) %></h1>
+  <p><%= t('{a} ~ {b} · 게시물과 댓글을 가장 많이 작성한 회원께 드립니다', { a: startYmd ? startYmd.slice(5).replace('-', '.') : t('시작 전'), b: endYmd.slice(5).replace('-', '.') }) %></p>
+  <% if (!c.on) { %><span class="dd" style="background:#E0483E"><%= t('꺼져 있음 — 운영자만 보이는 미리 보기') %></span>
+  <% } else if (st.phase === 'soon') { %><span class="dd"><%= t('시작 예정') %></span>
+  <% } else if (st.phase === 'live') { %><span class="dd"><%= st.daysLeft === 0 ? t('오늘 마감') : t('마감까지 D-{n}', { n: st.daysLeft }) %></span>
+  <% } else { %><span class="dd"><%= t('마감 · 결과') %></span><% } %>
+</div>
+
+<div class="ev-prz">
+  <% groups.forEach(function (g) { %>
+  <div><i><%= g.from === 1 ? '🥇' : g.from === 2 ? '🥈' : g.from === 3 ? '🥉' : '🎁' %></i><b><%= g.from === g.to ? t('{n}위', { n: g.from }) : t('{a}~{b}위', { a: g.from, b: g.to }) %></b><span><%= P(g.label) %></span></div>
+  <% }); %>
+</div>
+<% if (c.minTop > 0 && c.voidN > 0) { %>
+<p class="ev-note">⚠ <%= t('마감 시 1위 점수가 {n}점 미만이면 {items} 상품은 지급되지 않으며, 1위부터 한 단계 아래 상품을 받습니다.', { n: c.minTop, items: c.prizes.slice(0, c.voidN).map(P).join('·') }) %>
+  <% if (st.phase !== 'soon' && st.rows.length) { %><br><b><%= st.voided ? (st.phase === 'done' ? t('1위 점수 {n}점 — 한 단계씩 아래 상품이 지급됩니다.', { n: st.top }) : t('현재 1위 {n}점 — 이대로 마감되면 한 단계씩 아래 상품을 받습니다.', { n: st.top })) : t('현재 1위 {n}점 — 기준 점수를 넘었습니다.', { n: st.top }) %></b><% } %></p>
+<% } %>
+
+<% if (st.phase !== 'soon') { %>
+<% if (me && my) { %>
+<div class="ev-my">
+  <div class="row"><span class="av"><%= me.nick.slice(0, 1) %></span><div><b><%= me.nick %></b><div class="sub"><%= t('내 점수 {n}점', { n: my.me ? my.me.pts : 0 }) %></div></div>
+    <span class="rk"><%= my.me ? t('{n}위', { n: my.me.rank }) : '—' %></span></div>
+  <div class="bd"><span><b><%= my.me ? my.me.posts : 0 %></b><%= t('게시물 ×{n}점', { n: c.postPt }) %></span><span><b><%= my.me ? my.me.cmts : 0 %></b><%= t('댓글 ×{n}점', { n: c.cmtPt }) %></span>
+    <span><b><%= my.inPrize ? '🎁' : '+' + my.need %></b><%= my.inPrize ? t('수상 순위') : t('{n}위 이내까지', { n: my.slots }) %></span></div>
+  <% if (st.phase === 'live') { %><div class="gap"><%= my.inPrize ? t('현재 {p} 수상 순위입니다. 마감까지 순위를 유지해 주세요.', { p: P(my.me.prize) }) : (my.ps && my.cs ? t('게시물 {a}개와 댓글 {b}개를 더 작성하면 {n}위 이내에 들 수 있습니다.', { a: my.ps, b: my.cs, n: my.slots }) : my.ps ? t('게시물 {a}개를 더 작성하면 {n}위 이내에 들 수 있습니다.', { a: my.ps, n: my.slots }) : t('댓글 {b}개를 더 작성하면 {n}위 이내에 들 수 있습니다.', { b: my.cs, n: my.slots })) %></div><% } %>
+</div>
+<% } else if (!me) { %>
+<a class="ev-join" href="<%= B %>/login?next=<%= encodeURIComponent(B + '/event') %>"><%= t('로그인하면 내 순위를 확인할 수 있습니다 →') %></a>
+<% } %>
+
+<div class="sec"><h2><%= st.phase === 'done' ? t('최종 순위') : t('현재 순위') %></h2><small><%= st.phase === 'done' ? t('마감 시각 기준') : t('1분마다 갱신') %></small></div>
+<% if (!st.rows.length) { %>
+<div class="ev-list"><div class="r empty"><%= t('아직 점수가 없습니다. 첫 게시물을 등록해 주세요.') %></div></div>
+<% } else { %>
+<div class="ev-list">
+  <% show.forEach(function (r, i) { %>
+  <% if (i === st.prizes.length && i > 0) { %><div class="r cut"><%= t('─ 여기까지 수상 ─') %></div><% } %>
+  <a class="r<%= me && r.userId === me.id ? ' me' : '' %>" href="<%= B %>/u/<%= encodeURIComponent(r.nick) %>"><span class="n"><%= r.rank === 1 ? '🥇' : r.rank === 2 ? '🥈' : r.rank === 3 ? '🥉' : r.rank %></span><span class="av"><%= r.nick.slice(0, 1) %></span>
+    <span class="nm"><b><%= r.nick %></b><% if (r.prize) { %><em><%= P(r.prize) %></em><% } %></span><span class="p"><%= t('{n}점', { n: r.pts }) %><small><%= t('게시물 {a} · 댓글 {b}', { a: r.posts, b: r.cmts }) %></small></span></a>
+  <% }); %>
+  <% if (meRow) { %><div class="r cut">⋯</div>
+  <div class="r me"><span class="n"><%= meRow.rank %></span><span class="av"><%= meRow.nick.slice(0, 1) %></span><span class="nm"><b><%= meRow.nick %></b></span><span class="p"><%= t('{n}점', { n: meRow.pts }) %><small><%= t('게시물 {a} · 댓글 {b}', { a: meRow.posts, b: meRow.cmts }) %></small></span></div><% } %>
+</div>
+<% if (st.phase === 'live' && st.rows.length < st.prizes.length) { %><p class="ev-note"><%= t('수상 인원은 {n}명이며 현재 {m}명만 점수가 있습니다. 지금 참여하시면 바로 순위에 오릅니다.', { n: st.prizes.length, m: st.rows.length }) %></p><% } %>
+<% } %>
+<% } %>
+
+<div class="ev-rule"><h3><%= t('점수 기준') %></h3>
+  <div class="pt"><div><b><%= t('{n}점', { n: c.postPt }) %></b><span><%= t('게시물 1개') %></span></div><div><b><%= t('{n}점', { n: c.cmtPt }) %></b><span><%= t('다른 회원 게시물 댓글 1개') %></span></div></div>
+  <ul><li><%= t('사진이 있는 게시물만 하루 {n}개까지 인정됩니다', { n: c.postDay }) %></li>
+    <li><%= t('댓글은 다른 회원 게시물에 {m}자 이상, 하루 {n}개까지 인정되며 같은 게시물은 하루 1개만 인정됩니다', { m: c.cmtMin, n: c.cmtDay }) %></li>
+    <li><%= t('삭제된 게시물·댓글은 점수에서 제외됩니다') %></li>
+    <li><%= t('동점이면 해당 점수에 먼저 도달한 회원이 앞 순위입니다') %></li></ul></div>
+<div class="ev-rule"><h3><%= t('제외 대상') %></h3>
+  <ul><li><%= t('같은 사진 중복 등록 · 의미 없는 댓글 (운영자가 제외)') %></li>
+    <li><%= t('한 사람이 여러 번호로 가입한 경우') %></li>
+    <li><%= t('운영자 · 지양하월시아 직원 계정') %></li></ul></div>
+<div class="ev-rule"><h3><%= t('발표 · 상품 지급') %></h3>
+  <ul><% if (c.announce) { %><li><%= t('{d} 이 화면에서 발표하며, 당첨자에게는 문자로 연락드립니다', { d: tf(c.announce) }) %></li><% } %>
+    <li><%= t('식물은 택배로 발송합니다') %></li>
+    <li><%= t('적립금은 haworthia.co.kr 회원 계정으로 지급합니다 (당첨 시 아이디를 확인합니다)') %></li></ul></div>
+<%- include('_foot') %>

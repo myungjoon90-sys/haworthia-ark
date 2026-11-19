@@ -3,13 +3,13 @@
 
 <div class="pushcard" id="pushcard" data-key="<%= pushKey %>" data-subn="<%= subN %>">
   <span class="ic">📲</span>
-  <div class="tx"><b data-pt><%= t('폰으로도 알림 받기') %></b><small data-ps><%= t('문자 아님 · 무료 · 댓글·♥·팔로우 소식을 폰으로') %></small></div>
+  <div class="tx"><b data-pt><%= t('휴대폰 알림 받기') %></b><small data-ps><%= t('무료 · 댓글·좋아요·팔로우 소식을 휴대폰 알림으로 받습니다') %></small></div>
   <button type="button" data-pb><%= t('켜기') %></button>
 </div>
-<p class="hint pushios" id="pushios" style="display:none"><%- t('아이폰은 먼저 Safari 아래 <b>공유 버튼 → 「홈 화면에 추가」</b>로 클럽을 홈 화면에 놓고, 그 아이콘으로 열어서 켜 주세요. (iOS 16.4 이상)') %></p>
+<p class="hint pushios" id="pushios" style="display:none"><%- t('아이폰은 Safari 하단 <b>공유 버튼 → 「홈 화면에 추가」</b>로 클럽을 홈 화면에 추가한 뒤, 해당 아이콘으로 실행하여 설정해 주세요. (iOS 16.4 이상)') %></p>
 
 <% if (!list.length) { %>
-  <div class="empty-st"><i>🔔</i><%= t('아직 알림이 없어요.') %><br><%= t('사진을 올리면 ♥·댓글 소식이 여기 모여요.') %></div>
+  <div class="empty-st"><i>🔔</i><%= t('알림이 없습니다.') %><br><%= t('사진을 등록하면 좋아요·댓글 소식이 여기에 표시됩니다.') %></div>
 <% } else { %>
 <div class="notis">
   <% list.forEach(function (n) {
@@ -18,11 +18,11 @@
   <a class="nrow <%= n.unread ? 'new' : '' %>" href="<%= href %>">
     <span class="av <%= n.kind === 'diary' ? 'em' : '' %>"><%= av %></span>
     <span class="tx">
-      <% if (n.kind === 'comment') { %><%- t('<b>{nick}</b>님이 회원님 사진에 댓글: “{text}”', { nick: T.esc(n.actor_nick), text: T.esc(String(n.comment_body || '').slice(0, 60)) }) %>
-      <% } else if (n.kind === 'like') { %><%- n.others ? t('<b>{nick}</b>님 외 {n}명이 회원님 사진을 ♥ 했어요', { nick: T.esc(n.actor_nick), n: n.others }) : t('<b>{nick}</b>님이 회원님 사진을 ♥ 했어요', { nick: T.esc(n.actor_nick) }) %>
-      <% } else if (n.kind === 'follow') { %><%- t('<b>{nick}</b>님이 회원님을 팔로우해요', { nick: T.esc(n.actor_nick) }) %>
-      <% } else if (n.kind === 'newpost') { %><%- t('팔로우한 <b>{nick}</b>님이 새 사진을 올렸어요', { nick: T.esc(n.actor_nick) }) %><% if (n.post_body) { %> · <%= String(n.post_body).slice(0, 30) %><% } %>
-      <% } else if (n.kind === 'diary') { %><%- t('<b>#{tag}</b> 마지막 기록이 한 달 지났어요. 오늘 모습을 남겨 볼까요?', { tag: T.esc(T.tagWord(n.tag_label || '')) }) %><% } %>
+      <% if (n.kind === 'comment') { %><%- t('<b>{nick}</b>님이 회원님의 게시물에 댓글을 남겼습니다: “{text}”', { nick: T.esc(n.actor_nick), text: T.esc(String(n.comment_body || '').slice(0, 60)) }) %>
+      <% } else if (n.kind === 'like') { %><%- n.others ? t('<b>{nick}</b>님 외 {n}명이 회원님의 게시물을 좋아합니다.', { nick: T.esc(n.actor_nick), n: n.others }) : t('<b>{nick}</b>님이 회원님의 게시물을 좋아합니다.', { nick: T.esc(n.actor_nick) }) %>
+      <% } else if (n.kind === 'follow') { %><%- t('<b>{nick}</b>님이 회원님을 팔로우합니다.', { nick: T.esc(n.actor_nick) }) %>
+      <% } else if (n.kind === 'newpost') { %><%- t('팔로우한 <b>{nick}</b>님이 새 사진을 등록했습니다.', { nick: T.esc(n.actor_nick) }) %><% if (n.post_body) { %> · <%= String(n.post_body).slice(0, 30) %><% } %>
+      <% } else if (n.kind === 'diary') { %><%- t('<b>#{tag}</b> 마지막 기록 후 한 달이 지났습니다. 오늘의 모습을 기록해 주세요.', { tag: T.esc(T.tagWord(n.tag_label || '')) }) %><% } %>
       <small><%= ago(n.created_at) %></small>
     </span>
     <% if (n.thumb) { %><img class="th" src="<%= B %>/media/<%= n.thumb %>" alt="" loading="lazy"><% } %>

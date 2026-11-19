@@ -3,7 +3,7 @@
   <span class="ava l"><%= u.nick.slice(0,1) %></span>
   <div style="min-width:0">
     <h1><%= u.nick %> <%- include('_badges', { u: u }) %></h1>
-    <p><%= u.bio || (own ? t('소개를 적어 보세요.') : '') %></p>
+    <p><%= u.bio || (own ? t('소개를 입력해 주세요.') : '') %></p>
   </div>
 </div>
 <div class="follow-row">
@@ -14,9 +14,9 @@
 </div>
 <div class="stats">
   <div><b><%= plants.length %></b><small><%= t('식물') %></small></div>
-  <div><b><%= stats.posts %></b><small><%= t('사진·글') %></small></div>
+  <div><b><%= stats.posts %></b><small><%= t('게시물') %></small></div>
   <div><b><%= u.act.comments %></b><small><%= t('댓글') %></small></div>
-  <div><b><%= stats.hearts %></b><small><%= t('받은 ♥') %></small></div>
+  <div><b><%= stats.hearts %></b><small><%= t('받은 좋아요') %></small></div>
 </div>
 
 <% var tr = u.tier, nx = tr.next; %>
@@ -24,25 +24,25 @@
   <div class="t"><span class="tier t-<%= tr.key %>" style="font-size:13px;padding:3px 10px"><%= tr.icon %> <%= t(tr.name) %></span><% if (nx) { %><span style="font-size:13px;color:var(--sub);font-weight:600"><%= t('→ {tier}까지', { tier: nx.icon + ' ' + t(nx.name) }) %></span><% } else { %><span style="font-size:13px;color:var(--sub);font-weight:600"><%= t('최고 등급') %></span><% } %><a href="<%= B %>/levels"><%= t('등급 안내') %></a></div>
   <% if (nx) { var pp = Math.min(100, Math.round(u.act.posts / nx.posts * 100)), cp = Math.min(100, Math.round(u.act.comments / nx.comments * 100)); %>
   <div class="row"><span><%= t('게시물') %> <%= u.act.posts %> / <%= nx.posts %></span><span><%= pp %>%</span></div><div class="bar"><i style="width:<%= pp %>%"></i></div>
-  <div class="row"><span><%= t('댓글') %> <%= u.act.comments %> / <%= nx.comments %> <small><%= t('(남의 글에 단 것)') %></small></span><span><%= cp %>%</span></div><div class="bar"><i style="width:<%= cp %>%"></i></div>
+  <div class="row"><span><%= t('댓글') %> <%= u.act.comments %> / <%= nx.comments %> <small><%= t('(다른 회원 게시물에 작성)') %></small></span><span><%= cp %>%</span></div><div class="bar"><i style="width:<%= cp %>%"></i></div>
   <% } %>
   <% if (tr.ark && own) { %><p class="hint" style="margin-top:10px"><%- t('💎 다이아 기록은 <a href="{href}" style="text-decoration:underline">방주</a> 가입 요건으로도 인정됩니다.', { href: B + '/ark' }) %></p><% } %>
 </div>
 
 <% if (own) { %>
 <div style="display:flex;gap:8px;margin:6px 0;flex-wrap:wrap">
-  <button class="btn line s" data-act="/api/me/edit" data-prompt="<%= t('소개 한 줄 (120자까지)') %>" data-prompt-value="<%= u.bio %>" data-prompt-key="bio" data-go="reload"><%= t('소개 고치기') %></button>
+  <button class="btn line s" data-act="/api/me/edit" data-prompt="<%= t('소개 한 줄 (120자까지)') %>" data-prompt-value="<%= u.bio %>" data-prompt-key="bio" data-go="reload"><%= t('소개 수정') %></button>
   <% if (nickLocked) { %>
-  <button class="btn line s" type="button" disabled title="<%= t('{date} 부터 바꿀 수 있어요', { date: nickNextDate }) %>"><%= t('닉네임 바꾸기') %> · <%= t('{date} 부터', { date: nickNextDate }) %></button>
+  <button class="btn line s" type="button" disabled title="<%= t('{date}부터 변경 가능', { date: nickNextDate }) %>"><%= t('닉네임 변경') %> · <%= t('{date} 부터', { date: nickNextDate }) %></button>
   <% } else { %>
-  <button class="btn line s" data-act="/api/me/edit" data-prompt="<%= t('새 닉네임 (2~16자, 띄어쓰기 없이) — 바꾸면 3개월 동안 다시 못 바꿔요') %>" data-prompt-value="<%= u.nick %>" data-prompt-key="nick" data-go="/me"><%= t('닉네임 바꾸기') %></button>
+  <button class="btn line s" data-act="/api/me/edit" data-prompt="<%= t('새 닉네임 (2~16자, 띄어쓰기 없이) — 변경 후 3개월 동안 다시 변경할 수 없습니다') %>" data-prompt-value="<%= u.nick %>" data-prompt-key="nick" data-go="/me"><%= t('닉네임 변경') %></button>
   <% } %>
-  <form method="post" action="<%= B %>/logout" style="margin-left:auto"><button class="btn line s" type="submit"><%= t('로그아웃') %></button></form>
+  <a class="btn line s" href="<%= B %>/settings" style="margin-left:auto">⚙ <%= t('설정') %></a>
 </div>
 <% } %>
 
 <% if (diaries.length) { %>
-<div class="sec"><h2>🌱 <%= t('품종별 성장일기') %></h2><small><%= t('같은 품종 태그로 2번 넘게 올리면 자동으로 묶여요') %></small></div>
+<div class="sec"><h2>🌱 <%= t('품종별 성장일기') %></h2><small><%= t('같은 품종 태그로 2회 이상 올리면 자동으로 묶입니다') %></small></div>
 <div class="dlist">
   <% diaries.forEach(function (d) { %>
   <a href="<%= B %>/u/<%= encodeURIComponent(u.nick) %>/d/<%= encodeURIComponent(d.key) %>">
@@ -53,7 +53,7 @@
 </div>
 <% } %>
 
-<div class="sec"><h2>🪴 <%= own ? t('내 식물') : t('식물') %></h2><small><%= t('식물마다 성장 기록이 쌓여요') %></small></div>
+<div class="sec"><h2>🪴 <%= own ? t('내 식물') : t('식물') %></h2><small><%= t('식물별로 성장 기록이 저장됩니다') %></small></div>
 <div class="plants">
   <% plants.forEach(function (p) { %>
   <a href="<%= B %>/plant/<%= p.id %>">
@@ -64,10 +64,10 @@
   <% }); %>
   <% if (own) { %><a class="add" href="#" data-act="/api/plants" data-prompt="<%= t('새 식물 이름 (예: 미카엘의 심장 1호)') %>" data-prompt-key="name"><span>＋</span><%= t('식물 추가') %></a><% } %>
 </div>
-<% if (!plants.length && !own) { %><p class="hint"><%= t('아직 등록한 식물이 없어요.') %></p><% } %>
+<% if (!plants.length && !own) { %><p class="hint"><%= t('등록한 식물이 없습니다.') %></p><% } %>
 
 <div class="sec"><h2><%= t('사진') %></h2><small><%= t('{n}개', { n: stats.posts }) %></small></div>
-<% if (!list.length) { %><div class="empty-st" style="padding:26px"><i>📷</i><%= own ? t('첫 사진을 올려 보세요.') : t('아직 올린 사진이 없어요.') %></div><% } else { %>
+<% if (!list.length) { %><div class="empty-st" style="padding:26px"><i>📷</i><%= own ? t('첫 사진을 등록해 주세요.') : t('등록한 사진이 없습니다.') %></div><% } else { %>
 <div class="masonry" id="gridlist"><% list.forEach(function (c) { %><%- include('_pin', { c: c }) %><% }); %></div>
 <% if (more) { %><button class="btn line moreb" data-more="<%= next %>" data-target="gridlist"><%= t('더 보기') %></button><% } %>
 <% } %>

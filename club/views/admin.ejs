@@ -12,6 +12,47 @@
   <p class="hint" style="margin-top:8px">방주 시트 품종명: <%= arkReady ? '등재 ' + arkOfficial + '종 · 전체 ' + arkNames + '개 읽음' : '아직 못 읽음' %>
     <button class="btn line s" style="margin-left:6px;padding:4px 9px" data-act="/api/admin/ark-refresh" data-go="reload">다시 읽기</button></p>
 
+  <% var E = evAdm, EC = evAdm.cfg; %>
+  <h2>🏆 활동왕 이벤트 <small style="font-weight:400;color:<%= EC.on ? 'var(--green2)' : 'var(--sub)' %>"><%= EC.on ? (E.phase === 'soon' ? '켜짐 · 시작 전' : E.phase === 'live' ? '켜짐 · 진행 중' : '켜짐 · 마감') : '꺼짐' %></small></h2>
+  <p class="hint" style="margin-bottom:8px">
+    <% if (EC.on) { %><button class="btn line s" data-act="/api/admin/event" data-body='{"action":"off"}' data-confirm="이벤트를 종료하시겠습니까? (피드 띠와 이벤트 화면이 회원에게 표시되지 않습니다)" data-go="reload">종료</button>
+    <% } else { %><button class="btn s" data-act="/api/admin/event" data-body='{"action":"on"}' data-confirm="이벤트를 시작하시겠습니까? 시작일이 비어 있으면 오늘 0시부터 점수를 집계합니다." data-go="reload">시작 (공지)</button><% } %>
+    <a class="btn line s" href="<%= B %>/event" style="margin-left:4px">이벤트 화면 보기</a>
+    <% if (E.phase === 'done') { %><button class="btn line s" style="margin-left:4px" data-act="/api/admin/event" data-body='{"action":"recalc"}' data-confirm="마감 결과를 다시 계산하시겠습니까? (제외·숨김 처리 반영)" data-go="reload">결과 다시 계산</button><% } %>
+    <br>기간 <b><%= E.startYmd || '켜는 날' %> ~ <%= E.endYmd %></b> · 1등 <b><%= E.top %></b>점<% if (EC.minTop && EC.voidN) { %> (<%= EC.minTop %>점 미만이면 앞 상품 <%= EC.voidN %>개 없음 → <b><%= E.voided ? '지금대로면 한 칸씩 내려 받음' : '기준 넘음' %></b>)<% } %></p>
+  <% if (E.rows.length) { %>
+  <table><tr><th>순위</th><th>닉네임</th><th>점수</th><th>글·댓글</th><th>상품</th><th>연락처</th><th></th></tr>
+  <% E.rows.forEach(function (r, i) { %>
+    <tr><td><%= r.rank %></td><td><a href="<%= B %>/u/<%= encodeURIComponent(r.nick) %>"><%= r.nick %></a></td><td><b><%= r.pts %></b></td><td><%= r.posts %> · <%= r.cmts %></td><td><%= E.prizes[i] || '' %></td>
+      <td><a href="tel:<%= r.phone %>"><%= r.phone %></a></td>
+      <td><button class="btn red s" data-act="/api/admin/event" data-body='<%= JSON.stringify({ action: "exclude", user_id: r.userId }) %>' data-confirm="<%= r.nick %> 님을 이벤트에서 제외하시겠습니까? (도배·다중 계정 등)" data-go="reload">제외</button></td></tr>
+  <% }); %></table>
+  <% } else { %><p class="hint">점수가 있는 회원이 없습니다.</p><% } %>
+  <% if (E.ex.length) { %><p class="hint">제외된 회원: <% E.ex.forEach(function (u) { %><%= u.nick %> <button class="btn line s" style="padding:2px 7px" data-act="/api/admin/event" data-body='<%= JSON.stringify({ action: "include", user_id: u.id }) %>' data-go="reload">다시 포함</button> <% }); %></p><% } %>
+  <details style="margin:8px 0 14px"><summary style="cursor:pointer;font-weight:700">설정 고치기</summary>
+  <form id="evform" data-api="/api/admin/event" data-extra='{"action":"save"}' class="evf">
+    <label>이벤트 이름 <input name="title" value="<%= EC.title %>" maxlength="40"></label>
+    <label>시작일 <input name="start" value="<%= E.startYmd %>" placeholder="비우면 켜는 날 0시"></label>
+    <label>마감일 (그날 밤 12시까지) <input name="end" value="<%= E.endYmd %>" placeholder="2026-12-31"></label>
+    <label>발표 <input name="announce" value="<%= EC.announce %>" placeholder="1월 2일"></label>
+    <label>상품 — 한 줄에 하나, 1등부터 <textarea name="prizes" rows="10"><%= EC.prizes.join('\n') %></textarea></label>
+    <label>1등 점수가 <input name="minTop" type="number" value="<%= EC.minTop %>" style="width:80px">점 미만이면 앞의 상품 <input name="voidN" type="number" value="<%= EC.voidN %>" style="width:56px">개는 없음 (0 = 이 규칙 안 씀)</label>
+    <label>사진 글 <input name="postPt" type="number" value="<%= EC.postPt %>" style="width:56px">점 · 하루 <input name="postDay" type="number" value="<%= EC.postDay %>" style="width:56px">개까지</label>
+    <label>댓글 <input name="cmtPt" type="number" value="<%= EC.cmtPt %>" style="width:56px">점 · 하루 <input name="cmtDay" type="number" value="<%= EC.cmtDay %>" style="width:56px">개까지 · <input name="cmtMin" type="number" value="<%= EC.cmtMin %>" style="width:56px">글자 이상</label>
+    <button class="btn s" type="submit">저장</button>
+  </form></details>
+
+  <% var PV = privacyAdm; %>
+  <h2>🔏 개인정보처리방침 <small style="font-weight:400"><a href="<%= B %>/privacy" style="text-decoration:underline">보기</a><% if (!PV.officer || !PV.email) { %> · <span style="color:#C0392B">책임자 이름·이메일을 입력해 주세요 (구글 플레이 등록 전 필수)</span><% } %></small></h2>
+  <form data-api="/api/admin/privacy" class="evf" style="margin-bottom:16px">
+    <label>상호 <input name="company" value="<%= PV.company %>"></label>
+    <label>개인정보 보호책임자 이름 <input name="officer" value="<%= PV.officer %>" placeholder="예: 대표 홍길동"></label>
+    <label>연락 이메일 <input name="email" value="<%= PV.email %>" placeholder="예: help@haworthia.co.kr"></label>
+    <label>전화 (선택) <input name="tel" value="<%= PV.tel %>"></label>
+    <label>시행일 <input name="since" value="<%= PV.since %>" placeholder="2026-11-17"></label>
+    <button class="btn s" type="submit">저장</button>
+  </form>
+
   <h2>🛡 보증서 연결 확인 <small style="font-weight:400;color:var(--sub)"><%= pending.length %>건</small></h2>
   <% if (!pending.length) { %><p class="hint">확인할 것이 없습니다.</p><% } %>
   <% pending.forEach(function (p) { %>
@@ -38,7 +79,7 @@
 
   <h2>🛒 판매 연결 (품종 페이지 아래 「지양하월시아에서 판매 중」)</h2>
   <% if (!shopInfo.enabled) { %>
-  <p class="hint">꺼져 있어요. Railway 변수 <b>CLUB_IMWEB_KEY</b> · <b>CLUB_IMWEB_SECRET</b> (아임웹 API 키, 팔림과 같은 값) 을 넣으면 켜집니다. 상품 주소는 <%= shopInfo.url %>/shop_view?idx=상품번호</p>
+  <p class="hint">꺼져 있습니다. Railway 변수 <b>CLUB_IMWEB_KEY</b> · <b>CLUB_IMWEB_SECRET</b> (아임웹 API 키, 팔림과 같은 값) 을 넣으면 켜집니다. 상품 주소는 <%= shopInfo.url %>/shop_view?idx=상품번호</p>
   <% } else { %>
   <p class="hint" style="margin-bottom:8px">아임웹 판매중 상품 <b><%= shopInfo.n %></b>개 · 마지막 확인 <%= shopInfo.at ? T.ymd(shopInfo.at) + ' ' + new Date(shopInfo.at + 9 * 3600000).toISOString().slice(11, 16) : '아직' %> (30분마다 자동)
     <% if (!shopInfo.complete) { %> · <span style="color:var(--red)">목록을 끝까지 못 읽음</span><% } %>
@@ -52,7 +93,7 @@
   <% }); %>
   </table>
   <p class="hint">엉뚱한 상품이 잡히는 품종(이름이 너무 짧거나 겹치는 것)은 「숨기기」로 끄세요.</p>
-  <% } else { %><p class="hint">아직 판매중 상품과 이름이 겹치는 품종 태그가 없어요.</p><% } %>
+  <% } else { %><p class="hint">판매 중인 상품과 이름이 겹치는 품종 태그가 없습니다.</p><% } %>
   <% } %>
   <p class="hint" style="margin:6px 0 14px">📲 폰 알림 켠 회원: <b><%= pushN %></b>명</p>
 
@@ -67,7 +108,7 @@
       <button class="btn line s" data-act="/api/admin/species" data-body='<%= JSON.stringify({ action: "move", id: x.id, dir: 1 }) %>' data-go="reload" <%= i === spList.length - 1 ? 'disabled' : '' %>>▼</button>
       <button class="btn line s" data-act="/api/admin/species" data-body='<%= JSON.stringify({ action: "rename", id: x.id }) %>' data-prompt="새 이름" data-prompt-value="<%= x.name %>" data-prompt-key="name" data-go="reload">이름</button>
       <button class="btn line s" data-act="/api/admin/species" data-body='<%= JSON.stringify({ action: "i18n", id: x.id }) %>' data-prompt="외국어 이름 — English / 简体 / 繁體 (/ 로 나눠 적기)" data-prompt-value="<%= fx.join(' / ') %>" data-prompt-key="value" data-go="reload">🌐 외국어</button>
-      <button class="btn red s" data-act="/api/admin/species" data-body='<%= JSON.stringify({ action: "delete", id: x.id }) %>' data-confirm="「<%= x.name %>」을 지울까요? 이 종의 글은 ETC 로 갑니다." data-go="reload">지우기</button>
+      <button class="btn red s" data-act="/api/admin/species" data-body='<%= JSON.stringify({ action: "delete", id: x.id }) %>' data-confirm="「<%= x.name %>」을 삭제하시겠습니까? 이 종의 게시물은 ETC로 이동합니다." data-go="reload">지우기</button>
     </td></tr>
   <% }); %>
     <tr><td><b>ETC</b> <small style="color:var(--sub)">(고정)</small></td><td><%= etcN %></td><td>
@@ -79,7 +120,7 @@
   <p class="hint" style="margin-bottom:8px">한 글자만 다른 태그입니다. 오타면 [합치기]를 누르세요. 합친 뒤 옛 태그로 쓴 글도 새 태그로 모이고, 앞으로 옛 태그로 써도 자동으로 옮겨집니다.</p>
   <% typos.forEach(function (x) { %>
   <div class="pc" style="padding:9px 12px"><div class="tx">#<%= T.tagWord(x.from.label) %> <small>(<%= x.from.n %>)</small> → <b>#<%= T.tagWord(x.to.label) %></b> <small>(<%= x.to.n %>)</small></div>
-    <button class="btn s" data-act="/api/admin/merge" data-body='<%= JSON.stringify({ from: x.from.key, to: x.to.key }) %>' data-confirm="#<%= T.tagWord(x.from.label) %> 을(를) #<%= T.tagWord(x.to.label) %> 로 합칠까요?" data-go="reload">합치기</button></div>
+    <button class="btn s" data-act="/api/admin/merge" data-body='<%= JSON.stringify({ from: x.from.key, to: x.to.key }) %>' data-confirm="#<%= T.tagWord(x.from.label) %> 을(를) #<%= T.tagWord(x.to.label) %>(으)로 합치시겠습니까?" data-go="reload">합치기</button></div>
   <% }); %>
   <% } %>
   <div class="box">
@@ -95,7 +136,7 @@
       <% spList.forEach(function (x) { %><option value="<%= x.id %>" <%= t.species === x.id ? 'selected' : '' %>><%= x.name %></option><% }); %>
     </select></td>
     <td><%= t.pinned_post ? '📌 글 #' + t.pinned_post : '자동' %></td>
-    <td><button class="btn line s" data-act="/api/admin/label" data-body='<%= JSON.stringify({ tag: t.key }) %>' data-prompt="보이는 이름 (띄어쓰기·대소문자만 바꿀 수 있어요)" data-prompt-value="<%= t.label %>" data-prompt-key="label" data-go="reload">이름</button>
+    <td><button class="btn line s" data-act="/api/admin/label" data-body='<%= JSON.stringify({ tag: t.key }) %>' data-prompt="표시 이름 (띄어쓰기·대소문자만 변경할 수 있습니다)" data-prompt-value="<%= t.label %>" data-prompt-key="label" data-go="reload">이름</button>
       <% if (t.pinned_post) { %><button class="btn line s" data-act="/api/admin/pin" data-body='<%= JSON.stringify({ tag: t.key, post_id: null }) %>' data-go="reload">📌 풀기</button><% } %></td></tr>
   <% }); %></table>
   <p class="hint" style="margin-top:6px">📌 대표 지정은 글 화면 아래 「태그 대표 사진 지정」에서 합니다.</p>
@@ -108,14 +149,14 @@
   <table><tr><th>닉네임</th><th>번호</th><th>글</th><th>가입</th><th></th></tr>
   <% users.forEach(function (x) { %>
     <tr style="<%= x.blocked ? 'opacity:.5' : '' %>"><td><a href="<%= B %>/u/<%= encodeURIComponent(x.nick) %>" style="font-weight:700"><%= x.nick %></a> <% if (x.ark_no) { %><span class="arkb">ARK</span><% } %></td><td><small><%= T.maskPhone(x.phone) %></small></td><td><%= x.n %></td><td><small><%= T.ymd(x.created_at) %></small></td>
-    <td><button class="btn <%= x.blocked ? 'line' : 'red' %> s" data-act="/api/admin/block" data-body='<%= JSON.stringify({ user_id: x.id, blocked: x.blocked ? 0 : 1 }) %>' data-confirm="<%= x.blocked ? '이용 제한을 풀까요?' : '이 회원의 글쓰기·댓글을 막을까요?' %>" data-go="reload"><%= x.blocked ? '제한 풀기' : '이용 제한' %></button></td></tr>
+    <td><button class="btn <%= x.blocked ? 'line' : 'red' %> s" data-act="/api/admin/block" data-body='<%= JSON.stringify({ user_id: x.id, blocked: x.blocked ? 0 : 1 }) %>' data-confirm="<%= x.blocked ? '이용 제한을 해제하시겠습니까?' : '이 회원의 게시물·댓글 작성을 제한하시겠습니까?' %>" data-go="reload"><%= x.blocked ? '제한 풀기' : '이용 제한' %></button></td></tr>
   <% }); %></table>
 </div>
 <script>
 document.getElementById('mergeform').addEventListener('submit', function (e) {
   e.preventDefault();
   var f = e.target, a = f.from.value.replace(/^#/, ''), b = f.to.value.replace(/^#/, '');
-  if (!a || !b || !confirm('#' + a + ' → #' + b + ' 로 합칠까요?')) return;
+  if (!a || !b || !confirm('#' + a + ' → #' + b + '(으)로 합치시겠습니까?')) return;
   clubApi('/api/admin/merge', { from: a, to: b }).then(function (r) { if (!r.ok) return clubToast(r.error); clubToast(r.moved + '개 글을 옮겼습니다.'); setTimeout(function () { location.reload(); }, 700); });
 });
 </script>

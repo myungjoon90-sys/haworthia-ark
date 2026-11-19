@@ -40,13 +40,13 @@ function makeNotify({ db, q, T, I18N, DEV }) {
     const t = I18N.makeT(lang || 'ko');
     const nick = n.actor_nick || '';
     switch (n.kind) {
-      case 'comment': return { title: t('{nick}님이 댓글을 남겼어요', { nick }), body: snippet(n.comment_body, 80), url: `p/${n.post_id}#c${n.comment_id}` };
-      case 'like': return { title: t('{nick}님이 회원님 사진을 ♥ 했어요', { nick }), body: snippet(n.post_body, 60), url: `p/${n.post_id}` };
-      case 'follow': return { title: t('{nick}님이 회원님을 팔로우해요', { nick }), body: t('온실 보러 가기'), url: `u/${encodeURIComponent(nick)}` };
-      case 'newpost': return { title: t('{nick}님 새 사진', { nick }), body: snippet(n.post_body, 80), url: `p/${n.post_id}` };
+      case 'comment': return { title: t('{nick}님이 댓글을 남겼습니다.', { nick }), body: snippet(n.comment_body, 80), url: `p/${n.post_id}#c${n.comment_id}` };
+      case 'like': return { title: t('{nick}님이 회원님의 게시물을 좋아합니다.', { nick }), body: snippet(n.post_body, 60), url: `p/${n.post_id}` };
+      case 'follow': return { title: t('{nick}님이 회원님을 팔로우합니다.', { nick }), body: t('온실 바로가기'), url: `u/${encodeURIComponent(nick)}` };
+      case 'newpost': return { title: t('{nick}님의 새 사진', { nick }), body: snippet(n.post_body, 80), url: `p/${n.post_id}` };
       case 'diary': {
         const word = T.tagWord(n.tag_label || n.tag_key || '');
-        return { title: t('🌱 #{tag} 마지막 기록 {n}일째', { tag: word, n: n.days || 30 }), body: t('한 달 전 사진과 비교해 볼까요? 오늘 모습을 남겨 보세요'), url: `write?tag=${encodeURIComponent(word)}` };
+        return { title: t('#{tag} 마지막 기록 후 {n}일', { tag: word, n: n.days || 30 }), body: t('한 달 전 사진과 비교할 수 있도록 오늘의 모습을 기록해 주세요.'), url: `write?tag=${encodeURIComponent(word)}` };
       }
       default: return { title: t('하월시아 클럽'), body: '', url: 'noti' };
     }

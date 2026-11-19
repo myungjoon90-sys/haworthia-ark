@@ -34,12 +34,12 @@
   <% if (!c.photos.length && c.plant) { %><div class="ptags"><a href="<%= B %>/plant/<%= c.plant.id %>"><%= c.plant.cert_status==='ok' ? '🛡 ' + t('정품') : '🌱' %> <%= c.plant.name %></a></div><% } %>
   <% if (extra.length) { %><div class="ptags"><% extra.forEach(function (x) { %><a href="<%= B %>/t/<%= encodeURIComponent(x.key) %>">#<%= T.tagWord(x.label) %></a><% }); %></div><% } %>
   <div class="sheet" id="sheet-p<%= c.id %>"><div class="in">
-    <a href="<%= B %>/p/<%= c.id %>"><%= t('글 보기') %></a>
+    <a href="<%= B %>/p/<%= c.id %>"><%= t('게시물 보기') %></a>
     <% if (c.mineOwn) { %>
-      <a href="<%= B %>/write?edit=<%= c.id %>"><%= t('글 고치기') %></a>
-      <button class="dng" data-act="/api/posts/<%= c.id %>/delete" data-confirm="<%= t('이 글을 지울까요?') %>" data-go="/me"><%= t('글 지우기') %></button>
+      <a href="<%= B %>/write?edit=<%= c.id %>"><%= t('게시물 수정') %></a>
+      <button class="dng" data-act="/api/posts/<%= c.id %>/delete" data-confirm="<%= t('이 게시물을 삭제하시겠습니까?') %>" data-go="/me"><%= t('게시물 삭제') %></button>
     <% } else { %>
-      <button class="dng" data-login data-act="/api/report" data-body='{"post_id":<%= c.id %>}' data-prompt="<%= t('신고하는 까닭을 적어 주세요 (예: 광고, 남의 사진, 욕설)') %>" data-prompt-key="reason" data-done="<%= t('신고가 접수되었습니다.') %>">🚩 <%= t('신고하기') %></button>
+      <button class="dng" data-login data-act="/api/report" data-body='{"post_id":<%= c.id %>}' data-prompt="<%= t('신고 사유를 입력해 주세요 (예: 광고, 타인의 사진, 욕설)') %>" data-prompt-key="reason" data-done="<%= t('신고가 접수되었습니다.') %>">🚩 <%= t('신고하기') %></button>
     <% } %>
     <% if (isAdmin) { %>
       <button class="gold" data-act="/api/admin/hide" data-body='{"post_id":<%= c.id %>,"hidden":<%= c.hidden ? 0 : 1 %>}' data-go="reload"><%= c.hidden ? '숨김 풀기 (운영자)' : '숨기기 (운영자)' %></button>

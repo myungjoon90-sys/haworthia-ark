@@ -66,6 +66,16 @@ img{display:block;max-width:100%}
 .ph .dots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.55)}
 .ph .dots i.on{background:#fff}
 .ph .cnt{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.5);color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px}
+.ph .pnav{display:none}
+@media (hover:hover) and (pointer:fine){
+  .ph .pnav{display:flex;align-items:center;justify-content:center;position:absolute;top:50%;transform:translateY(-50%);width:34px;height:34px;padding:0 0 3px;border:0;border-radius:50%;background:rgba(255,255,255,.9);color:#2B2A26;font-size:24px;line-height:1;font-weight:700;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.25);z-index:2;opacity:.85;transition:opacity .15s}
+  .ph .pnav:hover{opacity:1}
+  .ph .pnav.prev{left:10px}
+  .ph .pnav.next{right:10px}
+  .ph .pnav.off{display:none}
+  .ph .dots{pointer-events:none}
+  .ph .dots i{pointer-events:auto;cursor:pointer;width:8px;height:8px}
+}
 .plantchip{position:absolute;left:10px;bottom:10px;display:flex;gap:5px;align-items:center;font-size:12px;font-weight:700;background:rgba(255,255,255,.93);padding:5px 10px;border-radius:999px;color:var(--green)}
 .plantchip.c{background:#101a12;color:var(--gold2)}
 .acts{display:flex;align-items:center;gap:16px;padding:10px 14px 2px}
@@ -501,3 +511,89 @@ html.ck-open,html.ck-open body{overflow:hidden;overscroll-behavior:none}
 .ck-strip button.on{border-color:#E2C27A;opacity:1}
 .ck-strip img{width:100%;height:100%;object-fit:cover;display:block}
 .thumbs .t .cut{top:auto;bottom:4px;font-size:12px}
+
+/* ---- 🏆 활동왕 이벤트 (2026-11-17) ---- */
+.ev-band{display:flex;align-items:center;gap:12px;margin:12px 0 0;padding:13px 14px;border-radius:16px;background:linear-gradient(135deg,#FBF3DD,#F3E3B5);border:1px solid #E5CF92;color:#3B3115}
+.ev-band .ic{font-size:28px;flex-shrink:0}
+.ev-band b{display:block;font-size:14.5px;color:#1F4129}
+.ev-band small{display:block;font-size:12px;color:#6B5A2A;margin-top:2px;line-height:1.45}
+.ev-band .me{margin-left:auto;text-align:right;flex-shrink:0}
+.ev-band .me em{display:block;font-style:normal;font-weight:900;font-size:17px;color:#1F4129}
+.ev-band .me span{font-size:11.5px;color:#6B5A2A;white-space:nowrap}
+.ev-hero{margin:14px 0 10px;padding:18px 16px;border-radius:18px;background:linear-gradient(160deg,#1F4129,#2D6A3E);color:#fff}
+.ev-hero h1{font-size:21px;margin:2px 0 4px}
+.ev-hero p{font-size:12.5px;opacity:.88;margin:0;line-height:1.5}
+.ev-hero .dd{display:inline-block;margin-top:10px;background:rgba(255,255,255,.14);border-radius:999px;padding:5px 12px;font-size:12.5px;font-weight:800}
+.ev-prz{display:grid;grid-template-columns:repeat(auto-fit,minmax(64px,1fr));gap:6px;margin:12px 0 6px}
+.ev-prz div{background:#fff;border-radius:12px;padding:10px 4px;text-align:center;border:1px solid var(--line)}
+.ev-prz i{font-style:normal;font-size:20px;display:block}
+.ev-prz b{display:block;font-size:12px;margin-top:3px}
+.ev-prz span{display:block;font-size:11.5px;color:#3B3115;font-weight:700;margin-top:2px;line-height:1.3;word-break:keep-all}
+.ev-note{font-size:12.5px;color:#6B5A2A;background:#FBF3DD;border-radius:12px;padding:9px 12px;margin:6px 0 10px;line-height:1.6}
+.ev-my{background:#fff;border-radius:16px;padding:14px;border:2px solid #E2C27A;margin:10px 0}
+.ev-my .row{display:flex;align-items:center;gap:10px}
+.ev-my .sub{font-size:12px;color:var(--sub)}
+.ev-my .av,.ev-list .av{border-radius:50%;background:#2D6A3E;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0}
+.ev-my .av{width:38px;height:38px}
+.ev-my .rk{margin-left:auto;font-weight:900;font-size:22px;color:#1F4129}
+.ev-my .bd{display:flex;gap:8px;margin-top:10px}
+.ev-my .bd span{flex:1;background:#F5F1E6;border-radius:10px;padding:8px 4px;text-align:center;font-size:11.5px;color:var(--sub)}
+.ev-my .bd b{display:block;font-size:16px;color:#1C261E}
+.ev-my .gap{margin-top:9px;font-size:12.5px;color:#6B5A2A;text-align:center}
+.ev-join{display:block;text-align:center;background:#fff;border:2px dashed #E2C27A;border-radius:14px;padding:12px;font-weight:800;color:#1F4129;margin:10px 0}
+.ev-list{background:#fff;border-radius:16px;overflow:hidden;border:1px solid var(--line)}
+.ev-list .r{display:flex;align-items:center;gap:10px;padding:10px 14px;border-top:1px solid var(--line);font-size:14px;color:inherit}
+.ev-list .r:first-child{border-top:0}
+.ev-list .n{width:26px;text-align:center;font-weight:900;color:var(--sub);flex-shrink:0}
+.ev-list .av{width:30px;height:30px;font-size:12px}
+.ev-list .nm{min-width:0;display:flex;flex-direction:column}
+.ev-list .nm b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev-list .nm em{font-style:normal;font-size:11px;font-weight:800;color:#8A6A1E}
+.ev-list .p{margin-left:auto;font-weight:800;text-align:right;flex-shrink:0}
+.ev-list .p small{display:block;font-weight:500;color:var(--sub);font-size:11px}
+.ev-list .r.me{background:#FBF3DD}
+.ev-list .r.cut{background:#F5F1E6;justify-content:center;font-size:12px;color:var(--sub);padding:6px}
+.ev-list .r.empty{justify-content:center;color:var(--sub);font-size:13px;padding:22px 14px;text-align:center}
+.ev-rule{background:#fff;border-radius:16px;padding:14px 16px;margin:10px 0;border:1px solid var(--line);font-size:13.5px;line-height:1.75}
+.ev-rule h3{font-size:15px;margin:0 0 6px}
+.ev-rule ul{margin:0;padding-left:18px}
+.ev-rule .pt{display:flex;gap:8px;margin:6px 0 10px}
+.ev-rule .pt div{flex:1;background:#F5F1E6;border-radius:12px;padding:10px;text-align:center}
+.ev-rule .pt b{display:block;font-size:20px;color:#1F4129}
+.ev-rule .pt span{font-size:12px;color:var(--sub)}
+.evf{display:flex;flex-direction:column;gap:8px;margin-top:10px;font-size:13px}
+.evf label{display:block}
+.evf input:not([type=number]),.evf textarea{display:block;width:100%;margin-top:3px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fff}
+.evf input[type=number]{padding:5px 6px;border:1px solid var(--line);border-radius:8px;font:inherit}
+
+/* ---- v32 카카오 로그인 · 설정 · 탈퇴 · 개인정보처리방침 ---- */
+.kakaobtn{display:flex;align-items:center;justify-content:center;gap:8px;background:#FEE500;color:rgba(0,0,0,.85);font-weight:800;font-size:15px;border-radius:12px;padding:13px 16px;margin:0 0 12px}
+.kakaobtn.sm{display:inline-flex;font-size:13px;padding:8px 14px;margin:0}
+.ordiv{display:flex;align-items:center;gap:10px;color:var(--sub);font-size:12.5px;margin:4px 0 12px}
+.ordiv::before,.ordiv::after{content:'';flex:1;height:1px;background:var(--line)}
+.okmsg{background:#E8F3EA;color:#1F4129;border-radius:12px;padding:11px 13px;font-size:13.5px;margin:0 0 12px;line-height:1.6}
+.okmsg.warn{background:#FCEDEB;color:#8C2F25}
+.okmsg.kk{background:#FFF8C4;color:#3B3115}
+.setlist{background:#fff;border-radius:16px;border:1px solid var(--line);overflow:hidden}
+.setlist .it{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:14px 16px;border-top:1px solid var(--line);font-size:14.5px;color:inherit;margin:0}
+.setlist .it:first-child{border-top:0}
+.setlist .it > span{flex:1;color:var(--sub)}
+.setlist .it b.ok{color:var(--green2)}
+.setlist .it small{flex-basis:100%;font-size:12px;color:var(--sub)}
+.setlist .it.lnk button{all:unset;display:flex;width:100%;cursor:pointer}
+.setlist .it.lnk button span{flex:1;color:inherit}
+.setlist .it.lnk span{color:inherit}
+.setlist .it.red span{color:var(--red)}
+.leavebox{background:#fff;border-radius:16px;border:1px solid var(--line);padding:16px;font-size:14px;line-height:1.7}
+.leavebox ul{margin:6px 0 10px;padding-left:18px}
+.leavebox .sub{font-size:12.5px;color:var(--sub)}
+.policy{background:#fff;border-radius:16px;border:1px solid var(--line);padding:18px 16px;margin:14px 0;font-size:13.5px;line-height:1.75;word-break:keep-all}
+.policy h1{font-size:19px;margin:0 0 10px}
+.policy h2{font-size:15px;margin:18px 0 6px}
+.policy table{width:100%;border-collapse:collapse;font-size:12.5px;margin:6px 0}
+.policy th,.policy td{border:1px solid var(--line);padding:6px 7px;text-align:left;vertical-align:top}
+.policy th{background:#F5F1E6;white-space:nowrap}
+.policy ul{padding-left:18px;margin:4px 0}
+.policy a{text-decoration:underline}
+.policy .pnote{font-size:12px;color:var(--sub);background:#F5F1E6;border-radius:10px;padding:8px 10px}
+.policy .pnote.warn{background:#FCEDEB;color:#8C2F25}

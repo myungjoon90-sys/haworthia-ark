@@ -212,6 +212,9 @@ function openDb(dataDir) {
   `);
   addCol('users', 'lang', "TEXT DEFAULT ''");          // 폰 알림을 이 언어로
   addCol('tags', 'shop_off', 'INTEGER DEFAULT 0');      // 1 = 이 품종은 판매 연결 안 보임 (운영자)
+  // v32 카카오 로그인: 카카오 회원번호 (처음 한 번 휴대폰으로 확인한 뒤 이어 둠)
+  addCol('users', 'kakao_id', "TEXT DEFAULT ''");
+  db.exec("CREATE UNIQUE INDEX IF NOT EXISTS ix_users_kakao ON users(kakao_id) WHERE kakao_id<>''");
   return db;
 }
 

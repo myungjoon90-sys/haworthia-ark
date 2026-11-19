@@ -1,0 +1,21 @@
+<%- include('_head') %>
+<h1 class="pagettl" style="margin:18px 0 12px">⚙ <%= t('설정') %></h1>
+<% if (k === 'linked') { %><div class="okmsg"><%= t('카카오 계정이 연결되었습니다. 다음부터 카카오로 로그인할 수 있습니다.') %></div><% } %>
+<% if (kerr === 'used') { %><div class="okmsg warn"><%= t('이 카카오 계정은 이미 다른 회원과 연결되어 있습니다.') %></div>
+<% } else if (kerr === 'cancel') { %><div class="okmsg warn"><%= t('카카오 로그인이 취소되었습니다.') %></div>
+<% } else if (kerr === 'fail') { %><div class="okmsg warn"><%= t('카카오 로그인에 실패했습니다. 잠시 후 다시 시도해 주세요.') %></div><% } %>
+<div class="setlist">
+  <div class="it"><span><%= t('닉네임') %></span><b><%= me.nick %></b></div>
+  <div class="it"><span><%= t('휴대폰 번호') %></span><b><%= phoneMasked %></b><small><%= t('로그인·본인 확인에만 사용되며 다른 회원에게 공개되지 않습니다.') %></small></div>
+  <% if (kakaoOn || kakaoLinked) { %>
+  <div class="it"><span><%= t('카카오 로그인') %></span>
+    <% if (kakaoLinked) { %><b class="ok">✓ <%= t('연결됨') %></b>
+      <button class="btn line s" data-act="/api/me/kakao-unlink" data-confirm="<%= t('카카오 연결을 해제하시겠습니까? 해제 후에는 휴대폰 번호로 로그인합니다.') %>" data-go="reload"><%= t('연결 해제') %></button>
+    <% } else { %><a class="kakaobtn sm" href="<%= B %>/auth/kakao?mode=link&next=<%= encodeURIComponent(B + '/settings') %>"><%= t('카카오 연결하기') %></a><% } %>
+  </div>
+  <% } %>
+  <a class="it lnk" href="<%= B %>/privacy"><span><%= t('개인정보처리방침') %></span><b>›</b></a>
+  <form method="post" action="<%= B %>/logout" class="it lnk"><button type="submit"><span><%= t('로그아웃') %></span><b>›</b></button></form>
+  <a class="it lnk red" href="<%= B %>/leave"><span><%= t('회원 탈퇴') %></span><b>›</b></a>
+</div>
+<%- include('_foot', { tab: 'me' }) %>

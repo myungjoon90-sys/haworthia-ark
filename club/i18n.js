@@ -96,7 +96,7 @@ const DEF_COUNTRY = { ko: '82', 'zh-Hant': '886', 'zh-Hans': '86', en: '' }; // 
 //  - 한국 번호: 한국어 (국내 SMS 는 EUC-KR 이라 중국 간체 글자가 깨질 수 있음)
 //  - 해외 번호: 영문·숫자만 (해외 SMS 글자 처리가 나라마다 달라 깨짐 없는 쪽으로 · 확실하지 않아 안전하게)
 const SMS_TEXT = {
-  ko: '[하월시아 클럽] 인증번호 {code}\n5분 안에 입력해 주세요.',
+  ko: '[하월시아 클럽] 인증번호 {code}\n5분 이내에 입력해 주세요.',
   intl: '[Haworthia Club] Code {code} (valid 5 min)',
 };
 

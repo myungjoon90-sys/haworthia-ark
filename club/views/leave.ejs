@@ -1,0 +1,21 @@
+<%- include('_head') %>
+<h1 class="pagettl" style="margin:18px 0 12px"><%= t('회원 탈퇴') %></h1>
+<div class="leavebox">
+  <p><b><%= t('탈퇴하면 아래 정보가 즉시 삭제되며 복구할 수 없습니다.') %></b></p>
+  <ul>
+    <li><%= t('작성한 게시물 {n}개와 게시물에 달린 댓글', { n: postN }) %></li>
+    <li><%= t('작성한 댓글 {n}개', { n: cmtN }) %></li>
+    <li><%= t('좋아요·팔로우·알림·휴대폰 알림 설정') %></li>
+    <li><%= t('내 식물·성장일기') %></li>
+    <li><%= t('닉네임·휴대폰 번호·카카오 연결') %></li>
+    <li><%= t('참여 중인 이벤트 순위에서도 제외됩니다') %></li>
+  </ul>
+  <p class="sub"><%= t('서버 자동 백업본에는 최대 14일간 보관된 후 자동 삭제됩니다.') %><br>
+    <%= t('방주 보증서 기록(지양하월시아 보증서 장부)은 클럽과 별도로 보관됩니다. 삭제를 원하시면 운영자에게 문의해 주세요.') %></p>
+  <label class="f"><%= t('확인을 위해 「탈퇴」를 입력해 주세요') %></label>
+  <input class="in" id="leaveconfirm" placeholder="<%= t('탈퇴') %>" autocomplete="off">
+  <button class="btn red" id="leavebtn" type="button" style="margin-top:12px;width:100%"><%= t('탈퇴하기') %></button>
+  <div class="err" id="leaveerr"></div>
+  <p class="sub" style="margin-top:14px"><a href="<%= B %>/settings" style="text-decoration:underline"><%= t('취소하고 돌아가기') %></a></p>
+</div>
+<%- include('_foot', { tab: 'me' }) %>
