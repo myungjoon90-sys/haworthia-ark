@@ -46,10 +46,14 @@ try { fs.mkdirSync(PHOTO_DIR, { recursive: true }); } catch (e) { console.warn('
 
 // ---- 갤러리 사진: 시트가 쓰기를 막아도 서버에 먼저 저장해 바로 보이게 (v29.1) ----
 const { makeGalleryPending } = require('./lib/gallery_pending');
-const gallery = makeGalleryPending({ sheets, dataDir: fs.existsSync('/data') ? '/data' : path.join(PHOTO_DIR, '..') });
+const DATA_DIR = fs.existsSync('/data') ? '/data' : path.join(PHOTO_DIR, '..');
+const gallery = makeGalleryPending({ sheets, dataDir: DATA_DIR });
+// v33: 시트가 쓰기를 거절해도 손님 신청(정품 등록·멤버십 가입)을 잃지 않도록 서버에 먼저 보관 → 풀리면 자동 기록
+const { makeWriteQueue, isSheetTrouble, korErr } = require('./lib/write_queue');
+const writeq = makeWriteQueue({ dataDir: DATA_DIR });
 const _arkListRaw = sheets.getArkList, _arkRowsRaw = sheets.listArkListRows, _arkSetRaw = sheets.setArkListPhoto, _arkAddRaw = sheets.addArkListRow;
 sheets.getArkList = async (...a) => gallery.applyGroups(await _arkListRaw.apply(sheets, a));
-const galleryFlush = () => gallery.flush((...a) => _arkRowsRaw.apply(sheets, a), (...a) => _arkSetRaw.apply(sheets, a), (...a) => _arkAddRaw.apply(sheets, a)).catch((e) => ({ error: e.message }));
+const galleryFlush = () => gallery.flush((...a) => _arkRowsRaw.apply(sheets, a), (...a) => _arkSetRaw.apply(sheets, a), (...a) => _arkAddRaw.apply(sheets, a)).catch((e) => ({ error: korErr(e) }));
 // 쓰기가 막혔을 때: 드라이브에 이유를 물어봄 (읽기만) → 「잠금」이면 푸는 방법을 알려 줌
 async function galleryWhy(err) {
   let why = gallery.explain(err);
@@ -62,7 +66,25 @@ async function galleryWhy(err) {
   gallery.state.lastError = why;
   return why;
 }
+// 시트 쓰기가 막혔을 때 이유 (드라이브에 읽기만 물어봄) — 정품 등록·가입 신청용
+async function sheetWhy(err) {
+  let why = korErr(err);
+  try {
+    const d = await sheets.diagnoseSheetWrite();
+    console.error('[시트] 쓰기 막힘 — 시트 상태:', JSON.stringify(d));
+    if (d.locked) why = '시트 파일 「' + d.name + '」이(가) 구글 드라이브에서 「잠금」 상태입니다 — 드라이브에서 파일 오른쪽 클릭 → 파일 정보 → 잠금 해제' + (d.lockedBy ? ' (잠근 사람: ' + d.lockedBy + ')' : '');
+    else if (d.canEdit === false) why += ' · 서버 계정(ark-bot)이 이 파일을 편집할 수 없는 상태입니다';
+  } catch (e) { console.error('[시트] 상태 확인 실패:', e.message); }
+  writeq.state.lastError = why;
+  return why;
+}
 setTimeout(galleryFlush, 60 * 1000).unref();
+// 켜지고 90초 뒤 시트 쓰기 상태를 한 번 기록 (읽기만 함) — 막혀 있으면 로그에 이유가 남음
+setTimeout(() => {
+  sheets.diagnoseSheetWrite()
+    .then((d) => console.log('[시트] 쓰기 상태:', JSON.stringify(d)))
+    .catch((e) => console.error('[시트] 쓰기 상태 확인 실패:', e.message));
+}, 90 * 1000).unref();
 setInterval(galleryFlush, 30 * 60 * 1000).unref();
 
 const upload = multer({
@@ -136,7 +158,7 @@ app.get('/certificate/:id', async (req, res) => {
     res.render('certificate', { plant, grade, full, pageUrl: certificateUrl(req, req.params.id) });
   } catch (err) {
     console.error(err);
-    res.status(500).send('보증서를 불러오는 중 오류가 발생했습니다: ' + err.message);
+    res.status(500).send('보증서를 불러오는 중 오류가 발생했습니다: ' + korErr(err));
   }
 });
 
@@ -169,7 +191,7 @@ app.get('/api/next-number', requireLogin, async (req, res) => {
     const r = await sheets.suggestGradeNumber(String(req.query.grade || ''));
     res.json({ ok: true, suggest: r.suggest, last: r.last, lastRow: r.lastRow, tab: r.tab });
   } catch (e) {
-    res.json({ ok: false, error: e.message });
+    res.json({ ok: false, error: korErr(e) });
   }
 });
 
@@ -179,7 +201,7 @@ app.get('/api/varieties', requireLogin, async (req, res) => {
     const names = await sheets.listVarieties(String(req.query.grade || '로얄'));
     res.json({ ok: true, names });
   } catch (e) {
-    res.json({ ok: false, error: e.message, names: [] });
+    res.json({ ok: false, error: korErr(e), names: [] });
   }
 });
 
@@ -189,7 +211,7 @@ app.get('/api/sheet-preview', requireLogin, async (req, res) => {
     const r = await sheets.getSheetPreview(String(req.query.grade || ''));
     res.json({ ok: true, tab: r.tab, rows: r.rows });
   } catch (e) {
-    res.json({ ok: false, error: e.message, rows: [] });
+    res.json({ ok: false, error: korErr(e), rows: [] });
   }
 });
 
@@ -213,7 +235,7 @@ app.get('/admin/gallery', requireLogin, async (req, res) => {
       pend: { n: gallery.list().length, why: (gallery.list().slice(-1)[0] || {}).why || gallery.state.lastError, lastTry: gallery.state.lastTry }, wait: req.query.wait === '1' });
   } catch (err) {
     console.error(err);
-    res.render('gallery_admin', { rows: gallery.applyRows([]), grades: Object.keys(sheets.GRADE_TABS), ok: '', error: err.message, pend: { n: gallery.list().length, why: gallery.state.lastError, lastTry: gallery.state.lastTry }, wait: false });
+    res.render('gallery_admin', { rows: gallery.applyRows([]), grades: Object.keys(sheets.GRADE_TABS), ok: '', error: korErr(err), pend: { n: gallery.list().length, why: gallery.state.lastError, lastTry: gallery.state.lastTry }, wait: false });
   }
 });
 app.post('/admin/gallery/photo', requireLogin, upload.single('photo'), async (req, res) => {
@@ -238,8 +260,8 @@ app.post('/admin/gallery/photo', requireLogin, upload.single('photo'), async (re
     res.redirect('/admin/gallery?ok=' + encodeURIComponent(req.body.name || '') + (pending ? '&wait=1' : '') + '#r' + encodeURIComponent(req.body.row || ''));
   } catch (err) {
     if (req.file && req.file.path) fs.unlink(req.file.path, () => {});
-    if (wantJson) return res.json({ ok: false, error: err.message });
-    res.redirect('/admin/gallery?err=' + encodeURIComponent(err.message));
+    if (wantJson) return res.json({ ok: false, error: korErr(err) });
+    res.redirect('/admin/gallery?err=' + encodeURIComponent(korErr(err)));
   }
 });
 app.post('/admin/gallery/flush', requireLogin, async (req, res) => {
@@ -264,18 +286,28 @@ app.post('/admin/gallery/add', requireLogin, upload.single('photo'), async (req,
     res.redirect('/admin/gallery?ok=' + encodeURIComponent(req.body.name || '') + wait);
   } catch (err) {
     if (req.file && req.file.path) fs.unlink(req.file.path, () => {});
-    res.redirect('/admin/gallery?err=' + encodeURIComponent(err.message));
+    res.redirect('/admin/gallery?err=' + encodeURIComponent(korErr(err)));
   }
 });
 
 // 정품 등록 제출 승인 보드 (확인대기 목록)
+function sheetQueueView(req) {
+  const all = writeq.list();
+  return {
+    royal: all.filter((x) => x.kind === 'royal'),
+    joinN: all.filter((x) => x.kind === 'join').length,
+    why: writeq.state.lastError || (all[all.length - 1] && all[all.length - 1].why) || '',
+    lastTry: writeq.state.lastTry,
+    flashed: String(req.query.f || ''),
+  };
+}
 app.get('/admin/submissions', requireLogin, async (req, res) => {
   try {
     const subs = await sheets.listPendingSubmissions();
-    res.render('submissions', { subs, grades: Object.keys(sheets.GRADE_TABS), error: null });
+    res.render('submissions', { subs, grades: Object.keys(sheets.GRADE_TABS), error: null, q: sheetQueueView(req) });
   } catch (err) {
     console.error(err);
-    res.render('submissions', { subs: [], grades: Object.keys(sheets.GRADE_TABS), error: err.message });
+    res.render('submissions', { subs: [], grades: Object.keys(sheets.GRADE_TABS), error: korErr(err), q: sheetQueueView(req) });
   }
 });
 
@@ -375,7 +407,7 @@ app.post('/admin/new', requireLogin, upload.single('photo'), async (req, res) =>
   } catch (err) {
     console.error(err);
     const viewForm = { grade: form['등급'], plantId: form['고유번호'], variety: form['품종명'], breeder: form['육종가'], bredYear: form['육종연도'], mother: form['모본'], father: form['부본'], dna: form['DNA마커'], owner: form['소유자'], history: form['소유이력'], adminMsg: form['관리자메시지'], phone: form['고객전화'] };
-    res.render('register', { error: err.message, form: viewForm, result: null, grades: Object.keys(sheets.GRADE_TABS) });
+    res.render('register', { error: korErr(err), form: viewForm, result: null, grades: Object.keys(sheets.GRADE_TABS) });
   }
 });
 
@@ -388,7 +420,7 @@ app.get('/admin/sheet/:key', requireLogin, async (req, res) => {
     res.render('sheet_view', { key, tab, values, grades: Object.keys(sheets.GRADE_TABS) });
   } catch (err) {
     console.error(err);
-    res.status(500).send('시트를 불러오는 중 오류: ' + err.message);
+    res.status(500).send('시트를 불러오는 중 오류: ' + korErr(err));
   }
 });
 
@@ -399,7 +431,7 @@ app.get('/admin/settings', requireLogin, async (req, res) => {
     res.render('settings', { items, grades: Object.keys(sheets.GRADE_TABS), added: req.query.ok === '1', error: null });
   } catch (err) {
     console.error(err);
-    res.render('settings', { items: [], grades: Object.keys(sheets.GRADE_TABS), added: false, error: err.message });
+    res.render('settings', { items: [], grades: Object.keys(sheets.GRADE_TABS), added: false, error: korErr(err) });
   }
 });
 
@@ -411,7 +443,7 @@ app.post('/admin/settings', requireLogin, async (req, res) => {
   } catch (err) {
     console.error(err);
     const items = await sheets.getSettings().catch(() => []);
-    res.render('settings', { items, grades: Object.keys(sheets.GRADE_TABS), added: false, error: err.message });
+    res.render('settings', { items, grades: Object.keys(sheets.GRADE_TABS), added: false, error: korErr(err) });
   }
 });
 
@@ -422,7 +454,7 @@ app.get('/admin/dashboard', requireLogin, async (req, res) => {
     res.render('dashboard', { stats, grades: Object.keys(sheets.GRADE_TABS), error: null });
   } catch (err) {
     console.error(err);
-    res.render('dashboard', { stats: null, grades: Object.keys(sheets.GRADE_TABS), error: err.message });
+    res.render('dashboard', { stats: null, grades: Object.keys(sheets.GRADE_TABS), error: korErr(err) });
   }
 });
 
@@ -452,7 +484,7 @@ app.get('/admin/members', requireLogin, async (req, res) => {
     res.render('members', { members, grades: Object.keys(sheets.GRADE_TABS), sent: req.query.sent || '', error: null });
   } catch (err) {
     console.error(err);
-    res.render('members', { members: [], grades: Object.keys(sheets.GRADE_TABS), sent: '', error: err.message });
+    res.render('members', { members: [], grades: Object.keys(sheets.GRADE_TABS), sent: '', error: korErr(err) });
   }
 });
 
@@ -467,7 +499,7 @@ app.post('/admin/members/card', requireLogin, async (req, res) => {
   } catch (err) {
     console.error(err);
     const members = await sheets.getJoinApplicants().catch(() => []);
-    res.render('members', { members, grades: Object.keys(sheets.GRADE_TABS), sent: '', error: err.message });
+    res.render('members', { members, grades: Object.keys(sheets.GRADE_TABS), sent: '', error: korErr(err) });
   }
 });
 
@@ -500,7 +532,7 @@ app.get('/offers', async (req, res) => {
     res.render('offers', { offers, member: m.info, d: m.d, k: m.k, error: null, done: null });
   } catch (err) {
     console.error(err);
-    res.render('offers', { offers: [], member: m.info, d: m.d, k: m.k, error: err.message, done: null });
+    res.render('offers', { offers: [], member: m.info, d: m.d, k: m.k, error: korErr(err), done: null });
   }
 });
 
@@ -524,7 +556,7 @@ ${m.info.n} (${m.info.no}) / ${phone}`;
   } catch (err) {
     console.error(err);
     const offers = await sheets.getOffers().catch(() => []);
-    res.render('offers', { offers, member: m.info, d: m.d, k: m.k, error: err.message, done: null });
+    res.render('offers', { offers, member: m.info, d: m.d, k: m.k, error: korErr(err), done: null });
   }
 });
 
@@ -535,7 +567,7 @@ app.get('/admin/history', requireLogin, async (req, res) => {
     res.render('history', { groups, transfers, grades: Object.keys(sheets.GRADE_TABS), msg: req.query.ok ? '소유권 이전이 완료되었습니다.' : null, error: null });
   } catch (err) {
     console.error(err);
-    res.render('history', { groups: [], transfers: [], grades: Object.keys(sheets.GRADE_TABS), msg: null, error: err.message });
+    res.render('history', { groups: [], transfers: [], grades: Object.keys(sheets.GRADE_TABS), msg: null, error: korErr(err) });
   }
 });
 
@@ -550,7 +582,7 @@ app.post('/admin/transfer', requireLogin, async (req, res) => {
   } catch (err) {
     console.error(err);
     const [groups, transfers] = await Promise.all([sheets.buildHistory().catch(() => []), sheets.getTransfers().catch(() => [])]);
-    res.render('history', { groups, transfers, grades: Object.keys(sheets.GRADE_TABS), msg: null, error: err.message });
+    res.render('history', { groups, transfers, grades: Object.keys(sheets.GRADE_TABS), msg: null, error: korErr(err) });
   }
 });
 
@@ -592,7 +624,7 @@ app.post('/admin/send', requireLogin, async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.render('admin', { error: err.message, form, result: null, grades: Object.keys(sheets.GRADE_TABS) });
+    res.render('admin', { error: korErr(err), form, result: null, grades: Object.keys(sheets.GRADE_TABS) });
   }
 });
 
@@ -622,20 +654,38 @@ app.get('/verify', async (req, res) => {
     res.render('verify', { q, result, error: null });
   } catch (err) {
     console.error(err);
-    res.render('verify', { q, result: null, error: err.message });
+    res.render('verify', { q, result: null, error: korErr(err) });
   }
 });
 
 // 공개 방주 리스트 (작출자별 등재 품종)
+// v33: 방주 갤러리 사진 = 하월시아 클럽에서 같은 이름 태그(#품종명) 게시물 중 조회수가 가장 많은 글의 첫 사진.
+// 클럽에 그 품종 게시물이 없으면 시트에 넣어 둔 사진 그대로. 시트는 고치지 않음 (보여 줄 때만 바꿔 끼움)
+const { tagKey: clubTagKey } = require('./club/text');
+function applyClubPhotos(groups) {
+  let top;
+  try { top = club.topPhotosByTag(); } catch (e) { console.error('[갤러리] 클럽 사진 읽기 실패:', e.message); return groups; }
+  for (const g of groups || []) for (const v of g.품종 || []) {
+    const k = clubTagKey(v.품종명);
+    const t = k && top.get(k);
+    if (!t || !t.file) continue;
+    v.시트사진URL = v.사진URL;
+    v.사진URL = '/club/media/' + t.file;
+    v.썸네일 = t.thumb ? '/club/media/' + t.thumb : v.사진URL;
+    v.클럽 = { n: t.n, nick: t.nick, views: t.views, tag: club.tagLink(k), post: club.postLink(t.id) };
+  }
+  return groups;
+}
+
 app.get('/list', async (req, res) => {
   const isMember = !!(req.session && req.session.memberNo);
   try {
-    const groups = await sheets.getArkList();
+    const groups = applyClubPhotos(await sheets.getArkList());
     const ownership = isMember ? await sheets.getOwnershipMap().catch(() => ({})) : {};
     res.render('ark_list', { groups, isMember, ownership, error: null });
   } catch (err) {
     console.error(err);
-    res.render('ark_list', { groups: [], isMember, ownership: {}, error: err.message });
+    res.render('ark_list', { groups: [], isMember, ownership: {}, error: korErr(err) });
   }
 });
 
@@ -650,7 +700,7 @@ app.get('/members', async (req, res) => {
     res.render('members_public', { members, seat, error: null });
   } catch (err) {
     console.error(err);
-    res.render('members_public', { members: [], seat: null, error: err.message });
+    res.render('members_public', { members: [], seat: null, error: korErr(err) });
   }
 });
 
@@ -667,7 +717,7 @@ app.get('/vote', requireMember, async (req, res) => {
     res.render('vote', { proposals, me: { no: req.session.memberNo, nick: req.session.memberNick || req.session.memberName }, msg: req.query.msg || '', error: null });
   } catch (err) {
     console.error(err);
-    res.render('vote', { proposals: [], me: { no: req.session.memberNo, nick: req.session.memberNick || '' }, msg: '', error: err.message });
+    res.render('vote', { proposals: [], me: { no: req.session.memberNo, nick: req.session.memberNick || '' }, msg: '', error: korErr(err) });
   }
 });
 
@@ -683,7 +733,7 @@ app.post('/vote/propose', requireMember, upload.single('photo'), async (req, res
     res.redirect('/vote?msg=' + encodeURIComponent('등재 제안이 올라갔습니다. 회원 투표가 시작됩니다.'));
   } catch (err) {
     const proposals = await sheets.listProposals(req.session.memberNo).catch(() => []);
-    res.render('vote', { proposals, me: { no: req.session.memberNo, nick: req.session.memberNick || '' }, msg: '', error: err.message });
+    res.render('vote', { proposals, me: { no: req.session.memberNo, nick: req.session.memberNick || '' }, msg: '', error: korErr(err) });
   }
 });
 
@@ -697,7 +747,7 @@ app.post('/vote/cast', requireMember, async (req, res) => {
     res.redirect('/vote?msg=' + encodeURIComponent('투표가 기록되었습니다.'));
   } catch (err) {
     const proposals = await sheets.listProposals(req.session.memberNo).catch(() => []);
-    res.render('vote', { proposals, me: { no: req.session.memberNo, nick: req.session.memberNick || '' }, msg: '', error: err.message });
+    res.render('vote', { proposals, me: { no: req.session.memberNo, nick: req.session.memberNick || '' }, msg: '', error: korErr(err) });
   }
 });
 
@@ -708,7 +758,7 @@ app.get('/community', requireMember, async (req, res) => {
     res.render('community', { posts, me: { nick: req.session.memberNick || req.session.memberName }, msg: req.query.msg || '', error: null });
   } catch (err) {
     console.error(err);
-    res.render('community', { posts: [], me: { nick: req.session.memberNick || '' }, msg: '', error: err.message });
+    res.render('community', { posts: [], me: { nick: req.session.memberNick || '' }, msg: '', error: korErr(err) });
   }
 });
 
@@ -722,7 +772,7 @@ app.post('/community/post', requireMember, upload.single('photo'), async (req, r
     res.redirect('/community/' + no);
   } catch (err) {
     const posts = await sheets.listPosts().catch(() => []);
-    res.render('community', { posts, me: { nick: req.session.memberNick || '' }, msg: '', error: err.message });
+    res.render('community', { posts, me: { nick: req.session.memberNick || '' }, msg: '', error: korErr(err) });
   }
 });
 
@@ -762,7 +812,7 @@ app.post('/members/enter', async (req, res) => {
     req.session.memberNick = member.닉네임 || member.성함;
     res.redirect(req.session.afterGate || '/members');
   } catch (err) {
-    res.render('members_gate', { error: err.message });
+    res.render('members_gate', { error: korErr(err) });
   }
 });
 
@@ -811,7 +861,7 @@ app.post('/join', async (req, res) => {
     const stamp = now.toISOString().slice(0, 10) + ' ' + now.toTimeString().slice(0, 5);
     const seat = await sheets.getMembershipStatus().catch(() => null);
     const isWait = !!(seat && seat.waitlist);
-    await sheets.appendJoinApplication({
+    const joinRow = {
       일시: stamp,
       성함: form.name,
       연락처: form.phone,
@@ -822,8 +872,17 @@ app.post('/join', async (req, res) => {
       제출넘버,
       자동확인,
       닉네임: form.nickname,
-    });
-    messaging.sendAdminAlert(`[방주] ${isWait ? '대기 명단 등록' : '새 멤버십 가입 신청'}\n${form.name} / ${form.phone}\n요건: ${form.criteria.join(', ')}` + (자동확인 ? `\n넘버 자동확인: ${자동확인}` : '')).catch(() => {});
+    };
+    let queued = '';
+    try {
+      await sheets.appendJoinApplication(joinRow);
+    } catch (e) {
+      if (!isSheetTrouble(e)) throw e;
+      console.error('[가입신청] 시트 기록 실패 → 서버에 보관:', e.message);
+      queued = await sheetWhy(e);
+      writeq.put('join', { row: joinRow }, queued);
+    }
+    messaging.sendAdminAlert(`[방주] ${isWait ? '대기 명단 등록' : '새 멤버십 가입 신청'}${queued ? ' (시트 기록 대기)' : ''}\n${form.name} / ${form.phone}\n요건: ${form.criteria.join(', ')}` + (자동확인 ? `\n넘버 자동확인: ${자동확인}` : '') + (queued ? `\n사유: ${queued}\n시트가 풀리면 자동으로 기록됩니다.` : '')).catch(() => {});
     // 신청자 본인에게 접수 확인 문자 (실패해도 신청은 정상 처리)
     messaging.sendText({
       to: form.phone,
@@ -837,7 +896,7 @@ app.post('/join', async (req, res) => {
   } catch (err) {
     console.error(err);
     const seat = await sheets.getMembershipStatus().catch(() => null);
-    res.render('join', { error: err.message, done: false, form, criteria: MEMBER_CRITERIA, bonus: MEMBER_BONUS, need: MEMBER_RULE.need, seat });
+    res.render('join', { error: korErr(err), done: false, form, criteria: MEMBER_CRITERIA, bonus: MEMBER_BONUS, need: MEMBER_RULE.need, seat });
   }
 });
 
@@ -860,7 +919,7 @@ app.get('/contract', async (req, res) => {
     res.render('contract', { name: row.성함, dq: link.d, kq: link.k, done: false, error: null });
   } catch (e) {
     console.error(e);
-    res.status(500).render('contract', { name: link.info.n, dq: link.d, kq: link.k, done: false, error: e.message });
+    res.status(500).render('contract', { name: link.info.n, dq: link.d, kq: link.k, done: false, error: korErr(e) });
   }
 });
 
@@ -887,7 +946,7 @@ app.post('/contract', async (req, res) => {
     res.render('contract', { name: row.성함, dq: link.d, kq: link.k, done: true, error: null });
   } catch (e) {
     console.error(e);
-    res.render('contract', { name: link.info.n, dq: link.d, kq: link.k, done: false, error: e.message });
+    res.render('contract', { name: link.info.n, dq: link.d, kq: link.k, done: false, error: korErr(e) });
   }
 });
 
@@ -896,8 +955,50 @@ app.post('/contract', async (req, res) => {
 // =============================================================
 
 app.get('/royal', (req, res) => {
-  res.render('royal', { error: null, result: null, form: {} });
+  // 정품 조회에서 「정품 등록하기」로 오면 넘버를 미리 채움 (/royal?n=넘버)
+  const n = String(req.query.n || '').trim().slice(0, 60);
+  res.render('royal', { error: null, result: null, form: n ? { number: n } : {} });
 });
+
+// 정품 등록 신청을 시트에 기록 — 손님이 누른 순간 + 시트가 막혀 보관했던 신청을 나중에 다시 기록할 때 같이 씀
+async function recordRoyal(sub, { alert = true } = {}) {
+  const { form, stamp, 제출사진 } = sub;
+  const row = await sheets.findRoyalByNumber(form.number);
+
+  if (!row) {
+    await sheets.appendSubmissionLog({
+      제출일시: stamp, 입력넘버: form.number, 품종명: form.vname, 성함: form.name,
+      연락처: form.phone, 일치여부: '불일치', 처리상태: '관리자 확인 필요',
+    });
+    if (alert) messaging.sendAdminAlert(`[방주] 새 넘버 제출(목록 불일치)\n${form.name} / ${form.phone}\n${form.number} (${form.vname})\n사진: ${제출사진}`).catch(() => {});
+    return 'pending';
+  }
+
+  const existingName = (row['제출자명'] || '').trim();
+  const existingPhone = (row['제출자연락처'] || '').replace(/[^0-9]/g, '');
+  if (existingName && existingPhone && existingPhone !== form.phone.replace(/[^0-9]/g, '')) {
+    await sheets.appendSubmissionLog({
+      제출일시: stamp, 입력넘버: form.number, 품종명: form.vname, 성함: form.name,
+      연락처: form.phone, 일치여부: '일치(중복제출)', 처리상태: '관리자 확인 필요',
+    });
+    if (alert) messaging.sendAdminAlert(`[방주] 중복 제출(소유권 확인 필요)\n${form.name} / ${form.phone}\n${form.number} (${form.vname})\n사진: ${제출사진}`).catch(() => {});
+    return 'duplicate';
+  }
+
+  await sheets.updateRoyalRow(row._sheet, row._rowNumber, {
+    제출자명: form.name,
+    제출자연락처: form.phone,
+    제출일: stamp,
+    등록상태: '제출완료(확인대기)',
+    제출사진,
+  });
+  if (alert) messaging.sendAdminAlert(`[방주] 새 정품 등록 제출\n${form.name} / ${form.phone}\n${form.number} (${form.vname})\n승인: /admin/submissions\n사진: ${제출사진}`).catch(() => {});
+  await sheets.appendSubmissionLog({
+    제출일시: stamp, 입력넘버: form.number, 품종명: form.vname, 성함: form.name,
+    연락처: form.phone, 일치여부: '일치', 처리상태: '자동기록 완료',
+  });
+  return 'ok';
+}
 
 app.post('/royal', upload.single('photo'), async (req, res) => {
   const form = {
@@ -917,46 +1018,40 @@ app.post('/royal', upload.single('photo'), async (req, res) => {
     if (!form.agree) throw new Error('개인정보 수집·이용에 동의해 주셔야 등록이 가능합니다.');
     if (!req.file) throw new Error('개체와 라벨이 함께 나온 사진을 반드시 올려 주세요. (도용 방지를 위한 실물 확인용)');
     const 제출사진 = photoUrl(req, req.file.filename);
+    const sub = { form: { number: form.number, vname: form.vname, name: form.name, phone: form.phone }, stamp, 제출사진 };
 
-    const row = await sheets.findRoyalByNumber(form.number);
-
-    if (!row) {
-      await sheets.appendSubmissionLog({
-        제출일시: stamp, 입력넘버: form.number, 품종명: form.vname, 성함: form.name,
-        연락처: form.phone, 일치여부: '불일치', 처리상태: '관리자 확인 필요',
-      });
-      messaging.sendAdminAlert(`[방주] 새 넘버 제출(목록 불일치)\n${form.name} / ${form.phone}\n${form.number} (${form.vname})\n사진: ${제출사진}`).catch(() => {});
-      return res.render('royal', { error: null, form: {}, result: { type: 'pending', number: form.number } });
+    let type;
+    try {
+      type = await recordRoyal(sub);
+    } catch (e) {
+      if (!isSheetTrouble(e)) throw e;
+      // 시트가 막혀도 손님 신청은 서버에 보관 → 시트가 풀리면 자동 기록. 사장님께는 바로 문자
+      console.error('[정품등록] 시트 기록 실패 → 서버에 보관:', e.message);
+      const why = await sheetWhy(e);
+      writeq.put('royal', sub, why);
+      messaging.sendAdminAlert(`[방주] 정품 등록 접수 (시트 기록 대기)\n${form.name} / ${form.phone}\n${form.number} (${form.vname})\n사진: ${제출사진}\n사유: ${why}\n시트가 풀리면 자동으로 기록됩니다.`).catch(() => {});
+      type = 'queued';
     }
-
-    const existingName = (row['제출자명'] || '').trim();
-    const existingPhone = (row['제출자연락처'] || '').replace(/[^0-9]/g, '');
-    if (existingName && existingPhone && existingPhone !== form.phone.replace(/[^0-9]/g, '')) {
-      await sheets.appendSubmissionLog({
-        제출일시: stamp, 입력넘버: form.number, 품종명: form.vname, 성함: form.name,
-        연락처: form.phone, 일치여부: '일치(중복제출)', 처리상태: '관리자 확인 필요',
-      });
-      messaging.sendAdminAlert(`[방주] 중복 제출(소유권 확인 필요)\n${form.name} / ${form.phone}\n${form.number} (${form.vname})\n사진: ${제출사진}`).catch(() => {});
-      return res.render('royal', { error: null, form: {}, result: { type: 'duplicate', number: form.number } });
-    }
-
-    await sheets.updateRoyalRow(row._sheet, row._rowNumber, {
-      제출자명: form.name,
-      제출자연락처: form.phone,
-      제출일: stamp,
-      등록상태: '제출완료(확인대기)',
-      제출사진,
-    });
-    messaging.sendAdminAlert(`[방주] 새 정품 등록 제출\n${form.name} / ${form.phone}\n${form.number} (${form.vname})\n승인: /admin/submissions\n사진: ${제출사진}`).catch(() => {});
-    await sheets.appendSubmissionLog({
-      제출일시: stamp, 입력넘버: form.number, 품종명: form.vname, 성함: form.name,
-      연락처: form.phone, 일치여부: '일치', 처리상태: '자동기록 완료',
-    });
-    res.render('royal', { error: null, form: {}, result: { type: 'ok', number: form.number, name: form.name } });
+    res.render('royal', { error: null, form: {}, result: { type, number: form.number, name: form.name } });
   } catch (err) {
     console.error(err);
-    res.render('royal', { error: err.message, form, result: null });
+    res.render('royal', { error: korErr(err), form, result: null });
   }
+});
+
+// 보관한 신청을 시트에 다시 기록 — 시트가 아직 막혀 있으면 그대로 두고 다음 차례에
+const sheetFlush = () => writeq.flush({
+  royal: (d) => recordRoyal(d, { alert: false }),
+  join: (d) => sheets.appendJoinApplication(d.row),
+}).then((r) => { if (r.done) console.log('[시트] 보관했던 신청 ' + r.done + '건 기록 완료, 남은 ' + r.left + '건'); return r; })
+  .catch((e) => ({ error: korErr(e) }));
+setTimeout(sheetFlush, 70 * 1000).unref();
+setInterval(sheetFlush, 10 * 60 * 1000).unref();
+
+app.post('/admin/sheet/flush', requireLogin, async (req, res) => {
+  const r = await sheetFlush();
+  if (r && r.left && !r.done) await sheetWhy(new Error(writeq.state.lastError || 'still blocked')).catch(() => {});
+  res.redirect('/admin/submissions?f=' + (r && r.done ? 'ok' : 'wait'));
 });
 
 // ---- 자동 백업: 하루 1회 전체 탭을 JSON 파일로 저장 (사진 볼륨과 같은 저장소) ----

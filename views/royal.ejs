@@ -26,6 +26,10 @@
     input[type=text], input[type=tel] { width:100%; padding:13px 12px; border-radius:7px; font-size:15px; border:1px solid rgba(212,175,55,0.30); background:rgba(255,255,255,0.06); color:#fff; font-family:inherit; }
     input:focus { outline:none; border-color:var(--gold); }
     .hint { font-size:11px; color:var(--gold-soft); opacity:0.6; margin-top:5px; }
+    /* 사진 선택 · 바로 촬영 두 칸: 같은 줄, 같은 크기 (위 label 공통 여백을 지움) */
+    .pbtns { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .pbtns .pbtn { display:flex; align-items:center; justify-content:center; gap:4px; margin:0; min-height:48px; padding:12px 8px; text-align:center; border:1px solid rgba(212,175,55,0.45); background:rgba(212,175,55,0.12); color:var(--gold-soft); border-radius:8px; font-size:13px; line-height:1.3; cursor:pointer; }
+    .pbtns .pbtn:active { background:rgba(212,175,55,0.22); }
     .agree { display:flex; gap:9px; align-items:flex-start; margin-top:20px; font-size:12px; line-height:1.7; color:var(--gold-soft); }
     .agree input { margin-top:3px; accent-color:var(--gold); }
     button.submit { width:100%; margin-top:20px; padding:15px; border:none; border-radius:9px; background:linear-gradient(180deg,#E6C75A,#D4AF37); color:#10220f; font-size:16px; font-weight:700; letter-spacing:1px; cursor:pointer; font-family:inherit; }
@@ -69,6 +73,11 @@
       제출 내용은 접수되었으며, <b>관리자가 직접 확인 후 연락드리겠습니다.</b><br/>
       번호 표기(띄어쓰기·하이픈)가 달라도 정상 접수되니 걱정하지 않으셔도 됩니다.
     </div>
+    <% } else if (result && result.type === 'queued') { %>
+    <div class="alert ok">
+      ✅ <b><%= result.number %></b> 넘버의 정품 등록 신청이 접수되었습니다.<br/><br/>
+      📷 관리자가 제출해 주신 사진으로 실물을 확인한 뒤, 디지털 보증서 링크를 문자로 보내 드립니다.
+    </div>
     <% } else if (result && result.type === 'duplicate') { %>
     <div class="alert ok">
       ℹ️ <b><%= result.number %></b> 넘버는 이미 다른 분의 등록 신청이 접수되어 있습니다.<br/>
@@ -93,9 +102,9 @@
         <div class="hint">보증서 링크를 알림톡(문자)으로 보내 드리는 데 사용됩니다.</div>
 
         <label style="display:block; font-size:13px; color:var(--gold-soft); margin:16px 0 7px;">개체 사진 (필수)</label>
-        <div style="display:flex; gap:8px;">
-          <label style="flex:1; text-align:center; border:1px solid rgba(212,175,55,0.45); background:rgba(212,175,55,0.12); color:var(--gold-soft); border-radius:8px; padding:12px; font-size:13px; cursor:pointer;">📁 사진 선택<input type="file" name="photo" id="rPhotoFile" accept="image/*" style="display:none;" /></label>
-          <label style="flex:1; text-align:center; border:1px solid rgba(212,175,55,0.45); background:rgba(212,175,55,0.12); color:var(--gold-soft); border-radius:8px; padding:12px; font-size:13px; cursor:pointer;">📷 바로 촬영<input type="file" id="rPhotoCam" accept="image/*" capture="environment" style="display:none;" /></label>
+        <div class="pbtns">
+          <label class="pbtn">📁 사진 선택<input type="file" name="photo" id="rPhotoFile" accept="image/*" style="display:none;" /></label>
+          <label class="pbtn">📷 바로 촬영<input type="file" id="rPhotoCam" accept="image/*" capture="environment" style="display:none;" /></label>
         </div>
         <div id="rPhotoName" class="hint" style="margin-top:6px;">개체와 라벨(넘버)이 함께 나오도록 찍어 주세요. 실물 확인용입니다.</div>
 

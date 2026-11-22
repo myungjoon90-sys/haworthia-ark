@@ -554,10 +554,30 @@ function mountClub(app, deps) {
   });
 
   // 글 하나
+  // 조회수 — 같은 사람이 같은 날 여러 번 열어도 1번. 글쓴이 본인·검색 로봇·링크 미리보기는 세지 않음
+  const viewSeen = new Set(); let viewDay = '';
+  const BOT_UA = /bot|crawl|spider|slurp|preview|facebookexternalhit|kakaotalk-scrap|Slackbot|Twitterbot|WhatsApp|TelegramBot|Discordbot|HeadlessChrome|Lighthouse|curl|wget|python|node-fetch|axios/i;
+  function countView(req, p) {
+    try {
+      const ua = String(req.get('user-agent') || '');
+      if (!ua || BOT_UA.test(ua)) return;
+      if (req.user && req.user.id === p.user_id) return;
+      const day = T.ymd(now());
+      if (day !== viewDay) { viewSeen.clear(); viewDay = day; }
+      const who = req.user ? 'u' + req.user.id : 'a' + crypto.createHash('sha1').update(String(req.ip || '') + '|' + ua).digest('base64').slice(0, 12);
+      const k = p.id + ':' + who;
+      if (viewSeen.has(k)) return;
+      if (viewSeen.size > 200000) viewSeen.clear();
+      viewSeen.add(k);
+      q('UPDATE posts SET views=views+1 WHERE id=?').run(p.id);
+    } catch (e) { /* 조회수는 실패해도 화면은 그대로 */ }
+  }
+
   r.get('/p/:id', async (req, res) => {
     const id = parseInt(req.params.id, 10);
     const p = q('SELECT * FROM posts WHERE id=? AND deleted=0').get(id);
     if (!p || (p.hidden && !canSeeHidden(req) && !(req.user && req.user.id === p.user_id))) return res.status(404), page(res, 'msg', { title: '게시물을 찾을 수 없습니다', msg: '삭제되었거나 숨김 처리된 게시물입니다.' });
+    if (!p.hidden) countView(req, p);
     const [c] = cards([id], req.user);
     const cmts = q(`SELECT c.*, u.nick, u.ark_no FROM comments c LEFT JOIN users u ON u.id=c.user_id WHERE c.post_id=? AND c.deleted=0 ${req.isAdmin ? '' : 'AND c.hidden=0'} ORDER BY c.id`).all(id);
     const ws = cmts.map((x) => ({ id: x.user_id, ref: x }));
@@ -1829,8 +1849,38 @@ self.addEventListener('fetch',e=>{
     return { found: true, nick: u.nick, posts: u.act.posts, comments: u.act.comments, tier: u.tier, ark: !!u.tier.ark, blocked: !!u.blocked };
   }
 
+  // 방주 갤러리(/list)용: 품종 태그마다 대표 사진 = 같은 이름 태그 게시물 중 조회수가 가장 많은 글의 첫 사진
+  // 조회수가 같으면 좋아요 → 댓글 → 최근 글 순. 숨김·삭제 글, 이용 제한 회원 글은 뺌. 5분 동안 기억
+  let topCache = { t: 0, map: new Map() };
+  function topPhotosByTag() {
+    if (now() - topCache.t < 5 * 60 * 1000) return topCache.map;
+    const rows = q(`SELECT pt.tag_key k, p.id, p.views, p.created_at, u.nick,
+        (SELECT COUNT(*) FROM likes l WHERE l.post_id=p.id) lk,
+        (SELECT COUNT(*) FROM comments c WHERE c.post_id=p.id AND c.deleted=0 AND c.hidden=0) cm,
+        (SELECT ph.file FROM photos ph WHERE ph.post_id=p.id ORDER BY ph.ord, ph.id LIMIT 1) file,
+        (SELECT ph.thumb FROM photos ph WHERE ph.post_id=p.id ORDER BY ph.ord, ph.id LIMIT 1) thumb
+      FROM post_tags pt JOIN posts p ON p.id=pt.post_id JOIN users u ON u.id=p.user_id
+      WHERE ${VISIBLE} AND u.blocked=0 AND EXISTS(SELECT 1 FROM photos ph WHERE ph.post_id=p.id)`).all();
+    const to = new Map(), seen = new Map(), map = new Map();
+    const better = (a, b) => a.views !== b.views ? a.views > b.views : a.lk !== b.lk ? a.lk > b.lk : a.cm !== b.cm ? a.cm > b.cm : a.created_at > b.created_at;
+    for (const r0 of rows) {
+      if (!to.has(r0.k)) to.set(r0.k, resolveTag(r0.k));
+      const k = to.get(r0.k);
+      if (!seen.has(k)) seen.set(k, new Set());
+      seen.get(k).add(r0.id);
+      const cur = map.get(k);
+      if (!cur || better(r0, cur)) map.set(k, Object.assign({}, r0, { k }));
+    }
+    for (const [k, v] of map) v.n = seen.get(k).size;
+    topCache = { t: now(), map };
+    return map;
+  }
+  const clubBase = () => CLUB_URL || '/club';
+  const tagLink = (key) => clubBase() + '/t/' + encodeURIComponent(key);
+  const postLink = (id) => clubBase() + '/p/' + id;
+
   console.log('🌿 하월시아 클럽이 켜졌습니다. 데이터: ' + DATA_DIR);
-  return { db, router: r, refreshArk, statsByPhone, TIERS };
+  return { db, router: r, refreshArk, statsByPhone, topPhotosByTag, tagLink, postLink, TIERS };
 }
 
 module.exports = { mountClub, TIERS, tierOf };

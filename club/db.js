@@ -214,6 +214,7 @@ function openDb(dataDir) {
   addCol('tags', 'shop_off', 'INTEGER DEFAULT 0');      // 1 = 이 품종은 판매 연결 안 보임 (운영자)
   // v32 카카오 로그인: 카카오 회원번호 (처음 한 번 휴대폰으로 확인한 뒤 이어 둠)
   addCol('users', 'kakao_id', "TEXT DEFAULT ''");
+  addCol('posts', 'views', 'INTEGER DEFAULT 0');         // 조회수 (글 화면을 연 사람 수, 하루 1번) — 방주 갤러리 대표 사진 고르기
   db.exec("CREATE UNIQUE INDEX IF NOT EXISTS ix_users_kakao ON users(kakao_id) WHERE kakao_id<>''");
   return db;
 }

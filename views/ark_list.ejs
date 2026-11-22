@@ -63,6 +63,9 @@
     .ov-ped { margin-top:22px; font-size:11.5px; color:#9d967f; letter-spacing:1px; line-height:2; border-left:1px solid rgba(212,175,110,0.4); padding-left:14px; }
     .ov-ped b { color:#d8cfae; font-weight:600; }
     .ov-tier { display:inline-block; margin-top:18px; font-size:9px; letter-spacing:3px; border:1px solid rgba(216,178,92,0.55); border-radius:12px; padding:5px 14px; color:#EAD088; }
+    .ov-club { margin-top:18px; padding:12px 14px; border:1px solid rgba(210,172,85,0.35); border-radius:10px; background:rgba(210,172,85,0.06); }
+    .ov-club-by { font-size:12px; color:var(--gold2); opacity:0.85; margin-bottom:6px; }
+    .ov-club a { font-size:13px; color:#F6E3A8; text-decoration:underline; text-underline-offset:3px; }
     .ov-maker { margin-top:26px; font-family:'Playfair Display',serif; font-size:10px; letter-spacing:3px; color:var(--gold2); opacity:0.6; text-transform:uppercase; }
     .ov-nav { display:flex; justify-content:space-between; margin-top:38px; }
     .ov-nav button { background:none; border:1px solid var(--line); color:var(--gold2); border-radius:20px; padding:9px 20px; font-size:12px; cursor:pointer; font-family:inherit; }
@@ -124,6 +127,7 @@
            data-nm="<%= v.품종명 %>" data-en="<%= v.영문명 %>" data-yr="<%= v.작출연도 %>"
            data-mo="<%= v.모본 %>" data-fa="<%= v.부본 %>" data-story="<%= v.설명 %>"
            data-img="<%= v.사진URL %>" data-maker="<%= g.작출자 %>"
+           <% if (v.클럽) { %>data-club="<%= v.클럽.tag %>" data-cpost="<%= v.클럽.post %>" data-cn="<%= v.클럽.n %>" data-cnick="<%= v.클럽.nick %>"<% } %>
            data-tier="<%= t ? t.label : '' %>"
            <% if (typeof isMember !== 'undefined' && isMember && typeof ownership !== 'undefined' && ownership[v.품종명]) {
                 const ow = ownership[v.품종명]; %>
@@ -131,7 +135,7 @@
            data-queue="<%= ow.대기.map(function(q,qi){ return (q.순번 < 999 ? q.순번 : qi+1) + '. ' + q.이름; }).join('  ·  ') %>"
            <% } %>>
         <div class="ph">
-          <% if (v.사진URL) { %><img src="<%= v.사진URL %>" alt="<%= v.품종명 %>" loading="lazy" onerror="phFallback(this)" />
+          <% if (v.사진URL) { %><img src="<%= v.썸네일 || v.사진URL %>" alt="<%= v.품종명 %>" loading="lazy" onerror="phFallback(this)" />
           <% } else { %>
           <svg viewBox="0 0 100 100"><rect width="100" height="100" fill="#06130a"/><g transform="translate(50 58)"><g fill="#2e6b40"><path d="M0 0 L-10 -40 L10 -40 Z"/><path d="M0 0 L-10 -37 L10 -37 Z" transform="rotate(45)" opacity="0.9"/><path d="M0 0 L-10 -37 L10 -37 Z" transform="rotate(-45)" opacity="0.9"/><path d="M0 0 L-9 -30 L9 -30 Z" transform="rotate(90)" opacity="0.75"/><path d="M0 0 L-9 -30 L9 -30 Z" transform="rotate(-90)" opacity="0.75"/></g><g fill="#bfe8cf" opacity="0.6"><circle cx="0" cy="-31" r="2.6"/><circle cx="-5" cy="-22" r="2"/><circle cx="5" cy="-22" r="2"/></g></g></svg>
           <% } %>
@@ -173,6 +177,10 @@
             <div id="ovOwnQueue" style="font-size:12px; line-height:1.9; color:#cfc5a8; margin-top:4px;"></div>
           </div>
           <div class="ov-maker" id="ovMaker"></div>
+          <div class="ov-club" id="ovClub" style="display:none;">
+            <div class="ov-club-by" id="ovClubBy"></div>
+            <a id="ovClubLink" href="#" target="_blank" rel="noopener"></a>
+          </div>
         </div>
       </div>
       <div class="ov-nav">
@@ -211,8 +219,19 @@
         ownBox.style.display = 'block';
       } else { ownBox.style.display = 'none'; }
       var ph = document.getElementById('ovPh');
-      if (d.img) { ph.innerHTML = ''; var img = document.createElement('img'); img.src = d.img; img.alt = d.nm; img.onerror = function () { phFallback(img); }; ph.appendChild(img); }
+      if (d.img) {
+        ph.innerHTML = ''; var img = document.createElement('img'); img.src = d.img; img.alt = d.nm; img.onerror = function () { phFallback(img); };
+        if (d.cpost) { var a = document.createElement('a'); a.href = d.cpost; a.target = '_blank'; a.rel = 'noopener'; a.appendChild(img); ph.appendChild(a); } else ph.appendChild(img);
+      }
       else { ph.innerHTML = PLACEHOLDER; }
+      // 하월시아 클럽 연동: 사진 주인 · 같은 이름 태그 게시물 보기
+      var cb = document.getElementById('ovClub');
+      if (d.club) {
+        document.getElementById('ovClubBy').textContent = '📷 ' + (d.cnick || '') + '님의 사진 · 하월시아 클럽';
+        var cl = document.getElementById('ovClubLink'); cl.href = d.club;
+        cl.textContent = '하월시아 클럽에서 #' + d.nm + ' 게시물 ' + (d.cn || 1) + '개 보기 →';
+        cb.style.display = 'block';
+      } else { cb.style.display = 'none'; }
       document.getElementById('ovPrev').disabled = (i === 0);
       document.getElementById('ovNext').disabled = (i === cards.length - 1);
       var ov = document.getElementById('ov');

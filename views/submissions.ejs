@@ -11,6 +11,10 @@
     body { font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif; background:linear-gradient(160deg,#1A3620,#0E1F12); color:#FBF8F0; min-height:100vh; padding:26px 14px 60px; }
     h1 { font-size:19px; font-weight:600; margin-bottom:6px; }
     .desc { font-size:12.5px; color:var(--gold-soft); opacity:0.85; margin-bottom:16px; line-height:1.8; }
+    .qbox { margin-bottom:16px; padding:14px 15px; border-radius:12px; background:rgba(210,172,85,0.10); border:1px solid rgba(210,172,85,0.45); }
+    .qh { font-size:14px; font-weight:700; margin-bottom:6px; }
+    .qd { font-size:12.5px; line-height:1.7; opacity:0.9; margin-bottom:8px; }
+    .qbtn { background:linear-gradient(180deg,#E6C75A,#D2AC55); color:#10220f; border:none; border-radius:8px; padding:10px 16px; font-weight:700; font-family:inherit; cursor:pointer; }
     .err { margin-bottom:14px; padding:12px 15px; border-radius:10px; font-size:13.5px; background:rgba(180,50,50,0.18); border:1px solid rgba(220,100,100,0.5); color:#ffd9d9; }
     .s { display:flex; gap:14px; align-items:center; flex-wrap:wrap; background:rgba(0,0,0,0.24); border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin-bottom:10px; }
     .s .thumb { width:62px; height:62px; border-radius:8px; overflow:hidden; background:#06130a; border:1px solid var(--line); flex-shrink:0; }
@@ -36,6 +40,27 @@
     </div>
 
     <% if (error) { %><div class="err">⚠️ <%= error %></div><% } %>
+
+    <% if (typeof q !== 'undefined' && q && (q.royal.length || q.joinN)) { %>
+    <div class="qbox">
+      <div class="qh">⏳ 구글 시트에 아직 기록되지 않은 신청 — 정품 등록 <b><%= q.royal.length %></b>건<% if (q.joinN) { %> · 멤버십 가입 <b><%= q.joinN %></b>건<% } %></div>
+      <div class="qd">시트가 쓰기를 거절해서 서버에 먼저 보관해 두었습니다. 시트가 다시 열리면 10분 안에 자동으로 기록되고, 그 뒤 아래 목록에 나타납니다.<% if (q.why) { %><br/><b>사유:</b> <%= q.why %><% } %></div>
+      <% if (q.flashed === 'wait') { %><div class="qd" style="color:#ffd9d9">방금 다시 기록해 보았지만 시트가 아직 막혀 있습니다.</div><% } %>
+      <% q.royal.forEach(function (x) { var d = x.data || {}, f = d.form || {}; %>
+      <div class="s">
+        <div class="thumb"><% if (d.제출사진) { %><a href="<%= d.제출사진 %>" target="_blank"><img src="<%= d.제출사진 %>" alt="" /></a><% } %></div>
+        <div>
+          <div class="num"><%= f.number %><span class="tab">기록 대기</span></div>
+          <div class="meta"><%= f.vname %> · <%= f.name %> · <%= f.phone %> · <%= d.stamp %></div>
+        </div>
+        <div class="acts"><% if (d.제출사진) { %><a class="photo" href="<%= d.제출사진 %>" target="_blank">사진 크게 보기</a><% } %></div>
+      </div>
+      <% }); %>
+      <form method="post" action="/admin/sheet/flush" style="margin-top:10px"><button type="submit" class="qbtn">지금 시트에 다시 기록</button></form>
+    </div>
+    <% } else if (typeof q !== 'undefined' && q && q.flashed === 'ok') { %>
+    <div class="qbox"><div class="qh">✅ 보관했던 신청을 시트에 모두 기록했습니다.</div></div>
+    <% } %>
 
     <% subs.forEach(function (x) { %>
     <div class="s">

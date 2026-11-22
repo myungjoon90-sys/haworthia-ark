@@ -29,6 +29,8 @@
     .r-badge.wait { background:rgba(210,172,85,0.18); color:var(--gold2); border:1px solid var(--gold); }
     .r-badge.no { background:rgba(150,60,60,0.25); color:#F2C6C6; border:1px solid rgba(220,120,120,0.5); }
     .r-desc { font-size:12px; color:var(--gold2); opacity:0.8; margin-top:14px; line-height:1.8; }
+    .r-cta { display:block; margin:18px auto 0; max-width:300px; padding:15px 18px; border-radius:12px; background:linear-gradient(180deg,#E6C75A,#D2AC55); color:#10220f; font-size:16px; font-weight:700; letter-spacing:1px; text-decoration:none; box-shadow:0 4px 14px rgba(210,172,85,0.28); }
+    .r-cta:active { transform:translateY(1px); }
     .err { margin-bottom:16px; padding:13px 15px; border-radius:12px; font-size:13px; background:rgba(180,50,50,0.18); border:1px solid rgba(220,100,100,0.5); color:#ffd9d9; }
     .backlink { margin-top:26px; font-size:12px; }
     .backlink a { color:var(--gold2); }
@@ -63,6 +65,7 @@
       <% } else if (result.status === 'unregistered') { %>
       <span class="r-badge wait">미등록 (넘버 확인됨)</span>
       <div class="r-desc">방주 목록에 있는 넘버지만 아직 소유자 등록이 되지 않았습니다.<br/>보유 중이시라면 정품 등록을 진행해 주세요.</div>
+      <a class="r-cta" href="/royal?n=<%= encodeURIComponent(result.번호 || q) %>">정품 등록하기 &rarr;</a>
       <% } else { %>
       <span class="r-badge no">미확인</span>
       <div class="r-desc">방주 명부에서 확인되지 않는 번호입니다.<br/>지양하월시아는 이 번호의 진위와 소유자를 보증하지 않습니다.</div>
