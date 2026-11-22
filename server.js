@@ -55,13 +55,16 @@ const _arkListRaw = sheets.getArkList, _arkRowsRaw = sheets.listArkListRows, _ar
 sheets.getArkList = async (...a) => gallery.applyGroups(await _arkListRaw.apply(sheets, a));
 const galleryFlush = () => gallery.flush((...a) => _arkRowsRaw.apply(sheets, a), (...a) => _arkSetRaw.apply(sheets, a), (...a) => _arkAddRaw.apply(sheets, a)).catch((e) => ({ error: korErr(e) }));
 // 쓰기가 막혔을 때: 드라이브에 이유를 물어봄 (읽기만) → 「잠금」이면 푸는 방법을 알려 줌
+// 잠금도 아니고 편집 권한도 있는데 403 이면: 시트 소유자 구글 계정 저장용량 초과가 가장 흔한 원인 (2026-11-22 확인)
+const STORAGE_HINT = ' 잠금·권한은 정상이라, 시트 주인 구글 계정의 저장용량(무료 15GB)이 가득 찼을 가능성이 큽니다 — one.google.com/storage 에서 확인해 주세요.';
 async function galleryWhy(err) {
   let why = gallery.explain(err);
   try {
     const d = await sheets.diagnoseSheetWrite();
     console.error('[갤러리] 시트 상태:', JSON.stringify(d));
-    if (d.locked) why = '시트 파일 「' + d.name + '」이(가) 구글 드라이브에서 「잠금」 상태예요 — 드라이브에서 파일을 오른쪽 클릭 → 「잠금 해제」' + (d.lockedBy ? ' (잠근 사람: ' + d.lockedBy + ')' : '');
-    else if (d.canEdit === false) why += ' · 서버 계정이 이 파일을 고칠 수 없는 상태예요 (공유에서 「편집자」인지 확인)';
+    if (d.locked) why = '시트 파일 「' + d.name + '」이(가) 구글 드라이브에서 「잠금」 상태입니다 — 드라이브에서 파일을 오른쪽 클릭 → 「잠금 해제」' + (d.lockedBy ? ' (잠근 사람: ' + d.lockedBy + ')' : '');
+    else if (d.canEdit === false) why += ' · 서버 계정이 이 파일을 고칠 수 없는 상태입니다 (공유에서 「편집자」인지 확인)';
+    else why += STORAGE_HINT;
   } catch (e) { console.error('[갤러리] 시트 상태 확인 실패:', e.message); }
   gallery.state.lastError = why;
   return why;
@@ -74,6 +77,7 @@ async function sheetWhy(err) {
     console.error('[시트] 쓰기 막힘 — 시트 상태:', JSON.stringify(d));
     if (d.locked) why = '시트 파일 「' + d.name + '」이(가) 구글 드라이브에서 「잠금」 상태입니다 — 드라이브에서 파일 오른쪽 클릭 → 파일 정보 → 잠금 해제' + (d.lockedBy ? ' (잠근 사람: ' + d.lockedBy + ')' : '');
     else if (d.canEdit === false) why += ' · 서버 계정(ark-bot)이 이 파일을 편집할 수 없는 상태입니다';
+    else if (/잠겨 있거나|거절/.test(why)) why = '구글 시트가 쓰기를 거절했습니다.' + STORAGE_HINT;
   } catch (e) { console.error('[시트] 상태 확인 실패:', e.message); }
   writeq.state.lastError = why;
   return why;
@@ -266,7 +270,7 @@ app.post('/admin/gallery/photo', requireLogin, upload.single('photo'), async (re
 });
 app.post('/admin/gallery/flush', requireLogin, async (req, res) => {
   const r = await galleryFlush();
-  res.redirect('/admin/gallery' + (r && r.left ? '?err=' + encodeURIComponent('아직 시트가 막혀 있어요: ' + (r.error || '')) : '?ok=' + encodeURIComponent('서버에 기다리던 사진을 시트로 옮겼습니다')));
+  res.redirect('/admin/gallery' + (r && r.left ? '?err=' + encodeURIComponent('아직 시트가 막혀 있습니다: ' + (r.error || '')) : '?ok=' + encodeURIComponent('서버에 기다리던 사진을 시트로 옮겼습니다')));
 });
 app.post('/admin/gallery/add', requireLogin, upload.single('photo'), async (req, res) => {
   try {
